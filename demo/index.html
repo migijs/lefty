@@ -147,7 +147,7 @@
         var pre = node.parentNode;
         var ncode = document.createElement('code');
         var npre = document.createElement('pre');
-        ncode.innerHTML = res;
+        ncode.innerHTML = res.replace(/</g, '&lt;');
         ncode.className = node.className;
         npre.appendChild(ncode);
         pre.parentNode.insertBefore(npre, pre.nextSibling);
@@ -170,7 +170,7 @@
       });
       var pre = document.getElementsByTagName('pre');
       pre[1] && pre[1].parentNode.removeChild(pre[1]);
-      document.getElementsByTagName('code')[0].innerHTML = s;
+      document.getElementsByTagName('code')[0].innerHTML = s.replace(/</g, '&lt;');
       pre[0].style.display = 'block';
       init();
     }

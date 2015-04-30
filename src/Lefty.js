@@ -1,4 +1,6 @@
 import homunculus from 'homunculus';
+import jsx from './jsx';
+import ignore from './ignore';
 
 var Token = homunculus.getClass('token', 'jsx');
 var Node = homunculus.getClass('node', 'jsx');
@@ -12,7 +14,6 @@ class Lefty {
   constructor() {
     this.parser = null;
     this.node = null;
-    this.ignores = null;
     this.cHash = {};
     this.res = '';
   }
@@ -20,7 +21,6 @@ class Lefty {
   parse(code) {
     this.parser = homunculus.getParser('jsx');
     this.node = this.parser.parse(code);
-    this.ignores = this.parser.ignore();
     this.preRecursion(this.node);
     this.recursion(this.node);
     return this.res;
@@ -35,7 +35,7 @@ class Lefty {
           return;
       }
       node.leaves().forEach(function(leaf) {
-        self.recursion(leaf);
+        self.preRecursion(leaf);
       });
     }
   }
@@ -47,16 +47,13 @@ class Lefty {
         var prmr = mmb.first();
         if(prmr.name() == Node.PRMREXPR) {
           var token = prmr.first();
-          if(token.isToken()) {
-            token = token.token();
-            if(token.content() == 'migi') {
-              token = mmb.leaf(1);
-              if(token.isToken() && token.token().content() == '.') {
-                token = mmb.leaf(2);
-                if(token.isToken() && token.token().content() == 'Component') {
-                  var id = node.leaf(1).first().token().content();
-                  this.cHash[id] = true;
-                }
+          if(token.isToken() && token.token().content() == 'migi') {
+            token = mmb.leaf(1);
+            if(token.isToken() && token.token().content() == '.') {
+              token = mmb.leaf(2);
+              if(token.isToken() && token.token().content() == 'Component') {
+                var id = node.leaf(1).first().token().content();
+                this.cHash[id] = true;
               }
             }
           }
@@ -72,18 +69,26 @@ class Lefty {
       if(token.isVirtual()) {
         return;
       }
-      this.res += token.content();
+      if(!token.ignore) {
+        this.res += token.content();
+      }
       while(token.next()) {
         token = token.next();
         if(token.isVirtual() || !S.hasOwnProperty(token.type())) {
           break;
         }
-        this.res += token.content();
+        if(!token.ignore) {
+          this.res += token.content();
+        }
       }
     }
     else {
       switch(node.name()) {
-        //TODO
+        case Node.JSXElement:
+        case Node.JSXSelfClosingElement:
+          jsx(node);
+          ignore(node, true);
+          break;
       }
       node.leaves().forEach(function(leaf) {
         self.recursion(leaf);

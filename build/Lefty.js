@@ -1,4 +1,6 @@
 var homunculus=function(){var _0=require('homunculus');return _0.hasOwnProperty("homunculus")?_0.homunculus:_0.hasOwnProperty("default")?_0.default:_0}();
+var jsx=function(){var _1=require('./jsx');return _1.hasOwnProperty("jsx")?_1.jsx:_1.hasOwnProperty("default")?_1.default:_1}();
+var ignore=function(){var _2=require('./ignore');return _2.hasOwnProperty("ignore")?_2.ignore:_2.hasOwnProperty("default")?_2.default:_2}();
 
 var Token = homunculus.getClass('token', 'jsx');
 var Node = homunculus.getClass('node', 'jsx');
@@ -12,7 +14,6 @@ S[Token.LINE] = S[Token.COMMENT] = S[Token.BLANK] = true;
   function Lefty() {
     this.parser = null;
     this.node = null;
-    this.ignores = null;
     this.cHash = {};
     this.res = '';
   }
@@ -20,7 +21,6 @@ S[Token.LINE] = S[Token.COMMENT] = S[Token.BLANK] = true;
   Lefty.prototype.parse = function(code) {
     this.parser = homunculus.getParser('jsx');
     this.node = this.parser.parse(code);
-    this.ignores = this.parser.ignore();
     this.preRecursion(this.node);
     this.recursion(this.node);
     return this.res;
@@ -35,7 +35,7 @@ S[Token.LINE] = S[Token.COMMENT] = S[Token.BLANK] = true;
           return;
       }
       node.leaves().forEach(function(leaf) {
-        self.recursion(leaf);
+        self.preRecursion(leaf);
       });
     }
   }
@@ -47,16 +47,13 @@ S[Token.LINE] = S[Token.COMMENT] = S[Token.BLANK] = true;
         var prmr = mmb.first();
         if(prmr.name() == Node.PRMREXPR) {
           var token = prmr.first();
-          if(token.isToken()) {
-            token = token.token();
-            if(token.content() == 'migi') {
-              token = mmb.leaf(1);
-              if(token.isToken() && token.token().content() == '.') {
-                token = mmb.leaf(2);
-                if(token.isToken() && token.token().content() == 'Component') {
-                  var id = node.leaf(1).first().token().content();
-                  this.cHash[id] = true;
-                }
+          if(token.isToken() && token.token().content() == 'migi') {
+            token = mmb.leaf(1);
+            if(token.isToken() && token.token().content() == '.') {
+              token = mmb.leaf(2);
+              if(token.isToken() && token.token().content() == 'Component') {
+                var id = node.leaf(1).first().token().content();
+                this.cHash[id] = true;
               }
             }
           }
@@ -72,18 +69,26 @@ S[Token.LINE] = S[Token.COMMENT] = S[Token.BLANK] = true;
       if(token.isVirtual()) {
         return;
       }
-      this.res += token.content();
+      if(!token.ignore) {
+        this.res += token.content();
+      }
       while(token.next()) {
         token = token.next();
         if(token.isVirtual() || !S.hasOwnProperty(token.type())) {
           break;
         }
-        this.res += token.content();
+        if(!token.ignore) {
+          this.res += token.content();
+        }
       }
     }
     else {
       switch(node.name()) {
-        //TODO
+        case Node.JSXElement:
+        case Node.JSXSelfClosingElement:
+          jsx(node);
+          ignore(node, true);
+          break;
       }
       node.leaves().forEach(function(leaf) {
         self.recursion(leaf);
