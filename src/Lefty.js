@@ -7,9 +7,6 @@ var Node = homunculus.getClass('node', 'jsx');
 
 var single = null;
 
-var S = {};
-S[Token.LINE] = S[Token.COMMENT] = S[Token.BLANK] = true;
-
 class Lefty {
   constructor() {
     this.parser = null;
@@ -74,7 +71,7 @@ class Lefty {
       }
       while(token.next()) {
         token = token.next();
-        if(token.isVirtual() || !S.hasOwnProperty(token.type())) {
+        if(token.isVirtual() || !ignore.S.hasOwnProperty(token.type())) {
           break;
         }
         if(!token.ignore) {
@@ -86,7 +83,7 @@ class Lefty {
       switch(node.name()) {
         case Node.JSXElement:
         case Node.JSXSelfClosingElement:
-          jsx(node);
+          this.res += jsx(node);
           ignore(node, true);
           break;
       }

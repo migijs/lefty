@@ -21,7 +21,7 @@ function ignore(node, includeLine) {
       if(node.isVirtual() || !S.hasOwnProperty(node.type())) {
         break;
       }
-      var s = ig.content();
+      var s = node.content();
       res += s;
       append += s;
       if(includeLine || s != '\n') {
@@ -39,9 +39,13 @@ function ignore(node, includeLine) {
   }
 }
 
-export default function(node, includeLine) {
+function parse(node, includeLine) {
   res = '';
   append = '';
   ignore(node, includeLine);
   return { res, append };
-};
+}
+
+parse.S = S;
+
+export default parse;
