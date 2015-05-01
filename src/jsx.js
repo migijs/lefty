@@ -1,38 +1,97 @@
 import homunculus from 'homunculus';
 import ignore from './ignore';
+import join from './join';
 
 var Token = homunculus.getClass('token', 'jsx');
 var Node = homunculus.getClass('node', 'jsx');
 
-var res = '';
-
-function recursion(node, cHash) {
-  if(node.isToken()) {
-    var token = node.token();
-    if(token.isVirtual()) {
-      return;
-    }
-    while(token.next()) {
-      token = token.next();
-      if(token.isVirtual() || !ignore.S.hasOwnProperty(token.type())) {
+function elem(node, cHash) {
+  var res = '';
+  //openºÍselfCloseÂß¼­¸´ÓÃ
+  res += selfClose(node.first(), cHash);
+  for(var i = 1, len = node.size(); i < len - 1; i++) {
+    var leaf = node.leaf(i);
+    res += ',';
+    switch(leaf.name()) {
+      case Node.JSXChild:
+        res += child(leaf);
         break;
-      }
-      res += token.content();
+      case Node.TOKEN:
+        res += join(leaf);
+        break;
+      default:
+        res += parse(leaf, cHash);
     }
+  }
+  res += ')';
+  return res;
+}
+function selfClose(node, cHash) {
+  var res = '';
+  var name = node.leaf(1).token().content();
+  res += 'migi.createElement(';
+  if (cHash.hasOwnProperty(name)) {
+    res += name;
   }
   else {
-    switch(node.name()) {
-      //TODO
-    }
-    node.leaves().forEach(function(leaf) {
-      recursion(leaf, cHash);
-    });
+    res += '"' + name + '"';
   }
+  res += ',{';
+  var first = true;
+  var end = false;
+  for(var i = 2, len = node.size(); i < len - 1; i++) {
+    var leaf = node.leaf(i);
+    switch(leaf.name()) {
+      case Node.JSXAttribute:
+        if(!first) {
+          res += ',';
+        }
+        first = false;
+        res += attr(leaf);
+        break;
+      case Node.JSXSpreadAttribute:
+        res += '}';
+        end = true;
+        res += spread(leaf);
+        break;
+    }
+  }
+  if(!end) {
+    res += '}';
+  }
+  return res;
+}
+function attr(node) {
+  var res = '';
+  var key = node.first().token().content();
+  res += key + ':';
+  var v = node.last();
+  if(v.isToken()) {
+    res += v.token().content();
+  }
+  else {
+    res += join(v.leaf(1));
+  }
+  return res;
+}
+function spread(node) {
+  //TODO
+}
+function child(node) {
+  return join(node.leaf(1));
 }
 
 function parse(node, cHash) {
-  res = '';
-  recursion(node, cHash);
+  var res = '';
+  switch(node.name()) {
+    case Node.JSXElement:
+      res += elem(node, cHash);
+      break;
+    case Node.JSXSelfClosingElement:
+      res += selfClose(node, cHash);
+      res += ')';
+      break;
+  }
   return res;
 }
 
