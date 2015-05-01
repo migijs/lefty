@@ -7,7 +7,7 @@ var Node = homunculus.getClass('node', 'jsx');
 
 function elem(node, cHash) {
   var res = '';
-  //openºÍselfCloseÂß¼­¸´ÓÃ
+  //openå’ŒselfCloseé€»è¾‘å¤ç”¨
   res += selfClose(node.first(), cHash);
   for(var i = 1, len = node.size(); i < len - 1; i++) {
     var leaf = node.leaf(i);
@@ -84,7 +84,7 @@ function child(node, cHash) {
 }
 
 function parse(node, cHash) {
-  //Ñ­»·ÒÀÀµfix
+  //å¾ªç¯ä¾èµ–fix
   if(Tree.hasOwnProperty('default')) {
     Tree = Tree.default;
   }
