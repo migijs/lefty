@@ -1,4 +1,5 @@
 import homunculus from 'homunculus';
+import jsdc from 'jsdc';
 import jsx from './jsx';
 import ignore from './ignore';
 
@@ -15,12 +16,12 @@ class Lefty {
     this.res = '';
   }
 
-  parse(code) {
+  parse(code, es5) {
     this.parser = homunculus.getParser('jsx');
     this.node = this.parser.parse(code);
     this.preRecursion(this.node);
     this.recursion(this.node);
-    return this.res;
+    return es5 ? jsdc.parse(this.res) : this.res;
   }
   preRecursion(node) {
     var self = this;
