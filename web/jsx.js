@@ -6,7 +6,7 @@ var Node = homunculus.getClass('node', 'jsx');
 
 var res = '';
 
-function recursion(node) {
+function recursion(node, cHash) {
   if(node.isToken()) {
     var token = node.token();
     if(token.isVirtual()) {
@@ -25,14 +25,14 @@ function recursion(node) {
       //TODO
     }
     node.leaves().forEach(function(leaf) {
-      recursion(leaf);
+      recursion(leaf, cHash);
     });
   }
 }
 
-function parse(node) {
+function parse(node, cHash) {
   res = '';
-  recursion(node);
+  recursion(node, cHash);
   return res;
 }
 

@@ -83,7 +83,7 @@ var single = null;
       switch(node.name()) {
         case Node.JSXElement:
         case Node.JSXSelfClosingElement:
-          this.res += jsx(node);
+          this.res += jsx(node, this.cHash);
           ignore(node, true);
           break;
       }
