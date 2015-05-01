@@ -129,12 +129,14 @@
   }
   seajs.config({
     alias: {
-      'homunculus': seajs.resolve('../node_modules/homunculus/index.js', seajs.data.cwd)
+      'homunculus': seajs.resolve('../node_modules/homunculus/index.js', seajs.data.cwd),
+      'jsdc': seajs.resolve('../node_modules/jsdc/index.js', seajs.data.cwd)
     },
     map: [function(url) {
       return url.replace('demo/lexer/', 'node_modules/homunculus/web/lexer/');
     }]
   });
+  define('fs', {});
   seajs.use(['../index', './jssc'], function(Lefty, jssc) {
     function init() {
       console.clear();

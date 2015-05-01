@@ -114,4 +114,8 @@ class Lefty {
   }
 }
 
+if(typeof window !== 'undefined') {
+  window.lefty = new Lefty();
+}
+
 export default Lefty;

@@ -114,4 +114,8 @@ var single = null;
   }});
 
 
+if(typeof window !== 'undefined') {
+  window.lefty = new Lefty();
+}
+
 exports.default=Lefty;});

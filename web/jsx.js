@@ -17,7 +17,7 @@ function elem(node, cHash) {
         res += child(leaf);
         break;
       case Node.TOKEN:
-        res += join(leaf);
+        res += '"' + join(leaf).replace(/"/g, '\\"') + '"';
         break;
       default:
         res += parse(leaf, cHash);
