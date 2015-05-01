@@ -1,6 +1,7 @@
 var homunculus=function(){var _0=require('homunculus');return _0.hasOwnProperty("homunculus")?_0.homunculus:_0.hasOwnProperty("default")?_0.default:_0}();
-var jsx=function(){var _1=require('./jsx');return _1.hasOwnProperty("jsx")?_1.jsx:_1.hasOwnProperty("default")?_1.default:_1}();
-var ignore=function(){var _2=require('./ignore');return _2.hasOwnProperty("ignore")?_2.ignore:_2.hasOwnProperty("default")?_2.default:_2}();
+var jsdc=function(){var _1=require('jsdc');return _1.hasOwnProperty("jsdc")?_1.jsdc:_1.hasOwnProperty("default")?_1.default:_1}();
+var jsx=function(){var _2=require('./jsx');return _2.hasOwnProperty("jsx")?_2.jsx:_2.hasOwnProperty("default")?_2.default:_2}();
+var ignore=function(){var _3=require('./ignore');return _3.hasOwnProperty("ignore")?_3.ignore:_3.hasOwnProperty("default")?_3.default:_3}();
 
 var Token = homunculus.getClass('token', 'jsx');
 var Node = homunculus.getClass('node', 'jsx');
@@ -15,12 +16,12 @@ var single = null;
     this.res = '';
   }
 
-  Lefty.prototype.parse = function(code) {
+  Lefty.prototype.parse = function(code, es5) {
     this.parser = homunculus.getParser('jsx');
     this.node = this.parser.parse(code);
     this.preRecursion(this.node);
     this.recursion(this.node);
-    return this.res;
+    return es5 ? jsdc.parse(this.res) : this.res;
   }
   Lefty.prototype.preRecursion = function(node) {
     var self = this;
