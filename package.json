@@ -27,7 +27,7 @@
     }
   },
   "dependencies": {
-    "homunculus": "~0.9.0",
+    "homunculus": "~0.9.1",
     "jsdc": "~0.5.10"
   },
   "devDependencies": {

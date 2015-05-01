@@ -1,5 +1,6 @@
 import homunculus from 'homunculus';
 
+var ES6Token = homunculus.getClass('token', 'js');
 var Token = homunculus.getClass('token', 'jsx');
 var Node = homunculus.getClass('node', 'jsx');
 
@@ -10,7 +11,7 @@ var res;
 var append;
 
 function ignore(node, includeLine) {
-  if(node instanceof Token) {
+  if(node instanceof Token || node instanceof ES6Token) {
     if(node.isVirtual()) {
       return;
     }

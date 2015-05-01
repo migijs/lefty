@@ -1,7 +1,6 @@
 var homunculus=function(){var _0=require('homunculus');return _0.hasOwnProperty("homunculus")?_0.homunculus:_0.hasOwnProperty("default")?_0.default:_0}();
 var jsdc=function(){var _1=require('jsdc');return _1.hasOwnProperty("jsdc")?_1.jsdc:_1.hasOwnProperty("default")?_1.default:_1}();
-var jsx=function(){var _2=require('./jsx');return _2.hasOwnProperty("jsx")?_2.jsx:_2.hasOwnProperty("default")?_2.default:_2}();
-var ignore=function(){var _3=require('./ignore');return _3.hasOwnProperty("ignore")?_3.ignore:_3.hasOwnProperty("default")?_3.default:_3}();
+var Tree=function(){var _2=require('./Tree');return _2.hasOwnProperty("Tree")?_2.Tree:_2.hasOwnProperty("default")?_2.default:_2}();
 
 var Token = homunculus.getClass('token', 'jsx');
 var Node = homunculus.getClass('node', 'jsx');
@@ -13,15 +12,15 @@ var single = null;
     this.parser = null;
     this.node = null;
     this.cHash = {};
-    this.res = '';
   }
 
   Lefty.prototype.parse = function(code, es5) {
     this.parser = homunculus.getParser('jsx');
     this.node = this.parser.parse(code);
     this.preRecursion(this.node);
-    this.recursion(this.node);
-    return es5 ? jsdc.parse(this.res) : this.res;
+    var tree = new Tree(this.cHash);
+    var res = tree.parse(this.node);
+    return es5 ? jsdc.parse(res) : res;
   }
   Lefty.prototype.preRecursion = function(node) {
     var self = this;
@@ -57,40 +56,6 @@ var single = null;
           }
         }
       }
-    }
-  }
-  Lefty.prototype.recursion = function(node) {
-    var self = this;
-    var isToken = node.isToken();
-    if(isToken) {
-      var token = node.token();
-      if(token.isVirtual()) {
-        return;
-      }
-      if(!token.ignore) {
-        this.res += token.content();
-      }
-      while(token.next()) {
-        token = token.next();
-        if(token.isVirtual() || !ignore.S.hasOwnProperty(token.type())) {
-          break;
-        }
-        if(!token.ignore) {
-          this.res += token.content();
-        }
-      }
-    }
-    else {
-      switch(node.name()) {
-        case Node.JSXElement:
-        case Node.JSXSelfClosingElement:
-          this.res += jsx(node, this.cHash);
-          ignore(node, true);
-          break;
-      }
-      node.leaves().forEach(function(leaf) {
-        self.recursion(leaf);
-      });
     }
   }
 

@@ -1,6 +1,6 @@
 import homunculus from 'homunculus';
-import ignore from './ignore';
 import join from './join';
+import Tree from './Tree';
 
 var Token = homunculus.getClass('token', 'jsx');
 var Node = homunculus.getClass('node', 'jsx');
@@ -14,10 +14,10 @@ function elem(node, cHash) {
     res += ',';
     switch(leaf.name()) {
       case Node.JSXChild:
-        res += child(leaf);
+        res += child(leaf, cHash);
         break;
       case Node.TOKEN:
-        res += '"' + join(leaf).replace(/"/g, '\\"') + '"';
+        res += '"' + join(leaf).replace(/"/g, '\\"').replace(/\n/g, '\\\n') + '"';
         break;
       default:
         res += parse(leaf, cHash);
@@ -77,11 +77,17 @@ function attr(node) {
 function spread(node) {
   //TODO
 }
-function child(node) {
-  return join(node.leaf(1));
+function child(node, cHash) {
+  var tree = new Tree(cHash);
+  var res = tree.parse(node);
+  return res.slice(1, res.length - 1);
 }
 
 function parse(node, cHash) {
+  //—≠ª∑“¿¿µfix
+  if(Tree.hasOwnProperty('default')) {
+    Tree = Tree.default;
+  }
   var res = '';
   switch(node.name()) {
     case Node.JSXElement:
