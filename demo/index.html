@@ -137,10 +137,9 @@
     }]
   });
   define('fs', {});
-  seajs.use(['../index', './jssc'], function(Lefty, jssc) {
+  seajs.use(['../index', './jssc'], function(lefty, jssc) {
     function init() {
       console.clear();
-      var lefty = new Lefty();
       var nodes = Array.prototype.slice.call(document.getElementsByTagName('code'), 0);
       nodes.forEach(function(node, i) {
         var res = lefty.parse(node.textContent || node.innerText || node.firstChild && node.firstChild.nodeValue);

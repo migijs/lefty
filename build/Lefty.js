@@ -5,7 +5,7 @@ var Tree=function(){var _2=require('./Tree');return _2.hasOwnProperty("Tree")?_2
 var Token = homunculus.getClass('token', 'jsx');
 var Node = homunculus.getClass('node', 'jsx');
 
-var single = null;
+var single = new Lefty();
 
 
   function Lefty() {
@@ -66,21 +66,9 @@ var single = null;
     return this.node;
   }});
 
-  Lefty.parse=function(code) {
-    single = new Lefty();
-    return single.parse(code);
-  }
-
-  Object.defineProperty(Lefty, "ast", {get :function() {
-    return single ? single.ast : null;
-  }});
-  Object.defineProperty(Lefty, "tokens", {get :function() {
-    return single ? single.tokens : null;
-  }});
-
 
 if(typeof window !== 'undefined') {
-  window.lefty = new Lefty();
+  window.lefty = single;
 }
 
-exports.default=Lefty;
+exports.default=single;

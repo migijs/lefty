@@ -5,7 +5,7 @@ import Tree from './Tree';
 var Token = homunculus.getClass('token', 'jsx');
 var Node = homunculus.getClass('node', 'jsx');
 
-var single = null;
+var single = new Lefty();
 
 class Lefty {
   constructor() {
@@ -65,22 +65,10 @@ class Lefty {
   get ast() {
     return this.node;
   }
-
-  static parse(code) {
-    single = new Lefty();
-    return single.parse(code);
-  }
-
-  static get ast() {
-    return single ? single.ast : null;
-  }
-  static get tokens() {
-    return single ? single.tokens : null;
-  }
 }
 
 if(typeof window !== 'undefined') {
-  window.lefty = new Lefty();
+  window.lefty = single;
 }
 
-export default Lefty;
+export default single;
