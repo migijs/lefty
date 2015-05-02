@@ -11,15 +11,27 @@ function elem(node, cHash) {
   res += selfClose(node.first(), cHash);
   for(var i = 1, len = node.size(); i < len - 1; i++) {
     var leaf = node.leaf(i);
-    res += ',';
     switch(leaf.name()) {
       case Node.JSXChild:
+        res += ',';
         res += child(leaf, cHash);
         break;
       case Node.TOKEN:
-        res += '"' + join(leaf).replace(/"/g, '\\"').replace(/\n/g, '\\\n') + '"';
+        var s = join(leaf);
+        //open和close之间的空白不能忽略
+        if(/^[\s]+$/.test(s)) {
+          if(leaf.prev().name() == Node.JSXOpeningElement && leaf.next().name() == Node.JSXClosingElement) {
+            res += ',';
+            res += '"' + join(leaf).replace(/"/g, '\\"').replace(/\n/g, '\\\n') + '"';
+          }
+        }
+        else {
+          res += ',';
+          res += '"' + join(leaf).replace(/"/g, '\\"').replace(/\n/g, '\\\n') + '"';
+        }
         break;
       default:
+        res += ',';
         res += parse(leaf, cHash);
     }
   }

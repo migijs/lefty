@@ -5,8 +5,6 @@ var Tree=function(){var _2=require('./Tree');return _2.hasOwnProperty("Tree")?_2
 var Token = homunculus.getClass('token', 'jsx');
 var Node = homunculus.getClass('node', 'jsx');
 
-var single = new Lefty();
-
 
   function Lefty() {
     this.parser = null;
@@ -67,8 +65,4 @@ var single = new Lefty();
   }});
 
 
-if(typeof window !== 'undefined') {
-  window.lefty = single;
-}
-
-exports.default=single;});
+exports.default=Lefty;});
