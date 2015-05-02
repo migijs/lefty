@@ -92,7 +92,11 @@ function spread(node) {
 function child(node, cHash) {
   var tree = new Tree(cHash);
   var res = tree.parse(node);
-  return res.slice(1, res.length - 1);
+  res = res.slice(1, res.length - 1);
+  if(/^this\.[\w$]+$/.test(res)) {
+    return 'new migi.Obj("' + res.slice(5) + '",' + res + ')';
+  }
+  return res;
 }
 
 function parse(node, cHash) {
