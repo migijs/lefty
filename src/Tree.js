@@ -1,6 +1,7 @@
 import homunculus from 'homunculus';
 import jsx from './jsx';
 import ignore from './ignore';
+import ComponentName from './ComponentName';
 
 var Token = homunculus.getClass('token', 'jsx');
 var Node = homunculus.getClass('node', 'jsx');
@@ -68,7 +69,7 @@ class Tree {
               var token = prmr.first();
               if(token.isToken() && token.token().content() == 'migi') {
                 token = mmb.last();
-                if(token.isToken() && token.token().content() == 'Component') {
+                if(token.isToken() && ComponentName.hasOwnProperty(token.token().content())) {
                   this.res += 'this.emit("data",this,"';
                   var name = parent.leaf(1).first().first().token().content();
                   this.res += name;

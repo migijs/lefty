@@ -78,11 +78,12 @@ function attr(node) {
   var v = node.last();
   if(v.isToken()) {
     v = v.token().content();
+    res += v;
   }
   else {
     v = join(v.leaf(1));
+    res += 'new migi.Obj("' + v.replace(/"/g, '\\"') + '",' + v + ')';
   }
-  res += 'new migi.Obj("' + v.replace(/"/g, '\\"') + '",' + v + ')';
   return res;
 }
 function spread(node) {

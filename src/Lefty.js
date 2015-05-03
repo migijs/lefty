@@ -1,6 +1,7 @@
 import homunculus from 'homunculus';
 import jsdc from 'jsdc';
 import Tree from './Tree';
+import ComponentName from './ComponentName';
 
 var Token = homunculus.getClass('token', 'jsx');
 var Node = homunculus.getClass('node', 'jsx');
@@ -46,7 +47,7 @@ class Lefty {
             token = mmb.leaf(1);
             if(token.isToken() && token.token().content() == '.') {
               token = mmb.leaf(2);
-              if(token.isToken() && token.token().content() == 'Component') {
+              if(token.isToken() && ComponentName.hasOwnProperty(token.token().content())) {
                 var id = node.leaf(1).first().token().content();
                 this.cHash[id] = true;
               }
