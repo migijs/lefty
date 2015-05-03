@@ -70,7 +70,7 @@ var Node = homunculus.getClass('node', 'jsx');
               if(token.isToken() && token.token().content() == 'migi') {
                 token = mmb.last();
                 if(token.isToken() && ComponentName.hasOwnProperty(token.token().content())) {
-                  this.res += 'this.emit("data",this,"';
+                  this.res += 'this.emit(migi.Event.DATA,this,"';
                   var name = parent.leaf(1).first().first().token().content();
                   this.res += name;
                   this.res += '");';
