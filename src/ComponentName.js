@@ -1,4 +1,5 @@
 export default {
   'Component': true,
-  'NonVisualComponent': true
+  'NonVisualComponent': true,
+  'CacheComponent': true
 };
