@@ -49,16 +49,14 @@ function selfClose(node, cHash) {
     res += '"' + name + '"';
   }
   res += ',{';
-  var first = true;
   var end = false;
   for(var i = 2, len = node.size(); i < len - 1; i++) {
     var leaf = node.leaf(i);
+    if(i != 2) {
+      res += ',';
+    }
     switch(leaf.name()) {
       case Node.JSXAttribute:
-        if(!first) {
-          res += ',';
-        }
-        first = false;
         res += attr(leaf);
         break;
       case Node.JSXSpreadAttribute:
@@ -79,11 +77,12 @@ function attr(node) {
   res += key + ':';
   var v = node.last();
   if(v.isToken()) {
-    res += v.token().content();
+    v = v.token().content();
   }
   else {
-    res += join(v.leaf(1));
+    v = join(v.leaf(1));
   }
+  res += 'new migi.Obj("' + v.replace(/"/g, '\\"') + '",' + v + ')';
   return res;
 }
 function spread(node) {
@@ -94,7 +93,7 @@ function child(node, cHash) {
   var res = tree.parse(node);
   res = res.slice(1, res.length - 1);
   if(/^this\.[\w$]+$/.test(res)) {
-    return 'new migi.Obj("' + res.slice(5) + '",' + res + ')';
+    return 'new migi.Obj("' + res.slice(5).replace(/"/g, '\\"') + '",' + res + ')';
   }
   return res;
 }
