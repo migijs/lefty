@@ -110,10 +110,10 @@ function child(node, cHash) {
   var list = linkage(node.leaf(1));
   if(list.length) {
     if(list.length == 1) {
-      return 'new migi.Obj("' + list[0] + '",' + res + ')';
+      return 'new migi.Obj("' + list[0] + '",' + res + ',function(){return ' + res + '})';
     }
     else {
-      return 'new migi.Obj(' + JSON.stringify(list) + ',' + res + ')';
+      return 'new migi.Obj(' + JSON.stringify(list) + ',' + res + ',function(){return ' + res + '})';
     }
   }
   return res;
