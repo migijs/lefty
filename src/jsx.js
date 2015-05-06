@@ -1,6 +1,7 @@
 import homunculus from 'homunculus';
 import Tree from './Tree';
 import join from './join';
+import ignore from './ignore';
 
 var Token = homunculus.getClass('token', 'jsx');
 var Node = homunculus.getClass('node', 'jsx');
@@ -40,6 +41,9 @@ function elem(node, cHash) {
     }
   }
   res += ')';
+  if(node.last().name() == Node.JSXClosingElement) {
+    res += ignore(node.last()).res;
+  }
   return res;
 }
 function selfClose(node, cHash) {
