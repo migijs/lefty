@@ -1,5 +1,6 @@
 import homunculus from 'homunculus';
 import Tree from './Tree';
+import linkage from './linkage';
 import join from './join';
 import ignore from './ignore';
 
@@ -101,8 +102,14 @@ function child(node, cHash) {
   var tree = new Tree(cHash);
   var res = tree.parse(node);
   res = res.slice(1, res.length - 1);
-  if(/^this\.[\w$]+$/.test(res)) {
-    return 'new migi.Obj("' + res.slice(5).replace(/"/g, '\\"') + '",' + res + ')';
+  var list = linkage(node.leaf(1));
+  if(list.length) {
+    if(list.length == 1) {
+      return 'new migi.Obj("' + list[0] + '",' + res + ')';
+    }
+    else {
+      return 'new migi.Obj(' + JSON.stringify(list) + ',' + res + ')';
+    }
   }
   return res;
 }
