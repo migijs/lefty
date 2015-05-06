@@ -91,7 +91,12 @@ function attr(node) {
   }
   else {
     v = join(v.leaf(1));
-    res += 'new migi.Obj("' + v.replace(/"/g, '\\"') + '",' + v + ')';
+    if(/^on[A-Z]/.test(key)) {
+      res += v;
+    }
+    else {
+      res += 'new migi.Obj("' + v.replace(/"/g, '\\"') + '",' + v + ')';
+    }
   }
   return res;
 }
