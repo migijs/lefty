@@ -31,8 +31,9 @@ function parse(node, res) {
       parse(node.last(), res);
       break;
     case Node.POSTFIXEXPR:
-    case Node.CALLEXPR:
       parse(node.first(), res);
+    case Node.CALLEXPR:
+      callexpr(node, res);
       break;
   }
 }
@@ -42,11 +43,33 @@ function mmbexpr(node, res) {
     var first = prmr.first();
     if(first.isToken() && first.token().content() == 'this') {
       var dot = node.leaf(1);
-      if(dot.isToken() && dot.token().content() == '.') {
-        var id = node.last().token().content();
-        res[id] = true;
+      if(dot.isToken()) {
+        if(dot.token().content() == '.') {
+          var id = node.last().token().content();
+          res[id] = true;
+        }
+        else if(dot.token().content() == '[') {
+          var expr = dot.next();
+          if(expr.name() == Node.EXPR) {
+            parse(expr.last(), res);
+          }
+          else {
+            parse(expr, res);
+          }
+        }
       }
     }
+  }
+}
+function callexpr(node, res) {
+  parse(node.first(), res);
+  var args = node.last();
+  if(args.name() == Node.ARGLIST) {
+    args.leaves().forEach(function(leaf, i) {
+      if(i % 2 == 0) {
+        parse(leaf, res);
+      }
+    });
   }
 }
 
