@@ -64,8 +64,8 @@ function mmbexpr(node, res) {
 function callexpr(node, res) {
   parse(node.first(), res);
   var args = node.last();
-  if(args.name() == Node.ARGLIST) {
-    args.leaves().forEach(function(leaf, i) {
+  if(args.name() == Node.ARGS) {
+    args.leaf(1).leaves().forEach(function(leaf, i) {
       if(i % 2 == 0) {
         parse(leaf, res);
       }
