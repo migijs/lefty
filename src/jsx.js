@@ -1,6 +1,6 @@
 import homunculus from 'homunculus';
-import join from './join';
 import Tree from './Tree';
+import join from './join';
 
 var Token = homunculus.getClass('token', 'jsx');
 var Node = homunculus.getClass('node', 'jsx');
@@ -24,7 +24,11 @@ function elem(node, cHash) {
             res += ',';
             res += '"' + join(leaf).replace(/"/g, '\\"').replace(/\n/g, '\\\n') + '"';
           }
+          else {
+            res += join(leaf);
+          }
         }
+        //节点间的空白直接追加
         else {
           res += ',';
           res += '"' + join(leaf).replace(/"/g, '\\"').replace(/\n/g, '\\\n') + '"';

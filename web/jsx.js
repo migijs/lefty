@@ -1,6 +1,6 @@
 define(function(require, exports, module){var homunculus=function(){var _0=require('homunculus');return _0.hasOwnProperty("homunculus")?_0.homunculus:_0.hasOwnProperty("default")?_0.default:_0}();
-var join=function(){var _1=require('./join');return _1.hasOwnProperty("join")?_1.join:_1.hasOwnProperty("default")?_1.default:_1}();
-var Tree=function(){var _2=require('./Tree');return _2.hasOwnProperty("Tree")?_2.Tree:_2.hasOwnProperty("default")?_2.default:_2}();
+var Tree=function(){var _1=require('./Tree');return _1.hasOwnProperty("Tree")?_1.Tree:_1.hasOwnProperty("default")?_1.default:_1}();
+var join=function(){var _2=require('./join');return _2.hasOwnProperty("join")?_2.join:_2.hasOwnProperty("default")?_2.default:_2}();
 
 var Token = homunculus.getClass('token', 'jsx');
 var Node = homunculus.getClass('node', 'jsx');
@@ -24,7 +24,11 @@ function elem(node, cHash) {
             res += ',';
             res += '"' + join(leaf).replace(/"/g, '\\"').replace(/\n/g, '\\\n') + '"';
           }
+          else {
+            res += join(leaf);
+          }
         }
+        //节点间的空白直接追加
         else {
           res += ',';
           res += '"' + join(leaf).replace(/"/g, '\\"').replace(/\n/g, '\\\n') + '"';
