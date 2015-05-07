@@ -66,7 +66,7 @@ function selfClose(node, cHash) {
     }
     switch(leaf.name()) {
       case Node.JSXAttribute:
-        res += attr(leaf);
+        res += attr(leaf, cHash);
         break;
       case Node.JSXSpreadAttribute:
         res += '}';
@@ -80,7 +80,7 @@ function selfClose(node, cHash) {
   }
   return res;
 }
-function attr(node) {
+function attr(node, cHash) {
   var res = '';
   var key = node.first().token().content();
   res += key + ':';
@@ -89,16 +89,19 @@ function attr(node) {
     v = v.token().content();
     res += v;
   }
+  else if(/^on[A-Z]/.test(key)) {
+    res += click(v, cHash);
+  }
   else {
-    v = join(v.leaf(1));
-    if(/^on[A-Z]/.test(key)) {
-      res += v;
-    }
-    else {
-      res += 'new migi.Obj("' + v.replace(/"/g, '\\"') + '",this,function(){return ' + v + '})';
-    }
+    res += child(v, cHash);
   }
   return res;
+}
+function click(node, cHash) {
+  var tree = new Tree(cHash);
+  var res = tree.parse(node);
+  res = res.slice(1, res.length - 1);
+  return 'new migi.Cb(this,' + res + ')';
 }
 function spread(node) {
   //TODO
