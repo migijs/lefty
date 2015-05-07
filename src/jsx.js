@@ -100,7 +100,7 @@ function attr(node, cHash) {
 function click(node, cHash) {
   var tree = new Tree(cHash);
   var res = tree.parse(node);
-  res = res.slice(1, res.length - 1);
+  res = res.replace(/^(\s*)\{/, '$1').replace(/}(\s*)/, '$1');
   return 'new migi.Cb(this,' + res + ')';
 }
 function spread(node) {
@@ -109,7 +109,7 @@ function spread(node) {
 function child(node, cHash) {
   var tree = new Tree(cHash);
   var res = tree.parse(node);
-  res = res.slice(1, res.length - 1);
+  res = res.replace(/^(\s*)\{/, '$1').replace(/}(\s*)/, '$1');
   var list = linkage(node.leaf(1));
   if(list.length) {
     if(list.length == 1) {
