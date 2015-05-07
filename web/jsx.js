@@ -95,7 +95,7 @@ function attr(node) {
       res += v;
     }
     else {
-      res += 'new migi.Obj("' + v.replace(/"/g, '\\"') + '",' + v + ')';
+      res += 'new migi.Obj("' + v.replace(/"/g, '\\"') + '",this,function(){return ' + v + '})';
     }
   }
   return res;
@@ -110,10 +110,10 @@ function child(node, cHash) {
   var list = linkage(node.leaf(1));
   if(list.length) {
     if(list.length == 1) {
-      return 'new migi.Obj("' + list[0] + '",' + res + ',function(){return ' + res + '})';
+      return 'new migi.Obj("' + list[0] + '",this,function(){return ' + res + '})';
     }
     else {
-      return 'new migi.Obj(' + JSON.stringify(list) + ',' + res + ',function(){return ' + res + '})';
+      return 'new migi.Obj(' + JSON.stringify(list) + ',this,function(){return ' + res + '})';
     }
   }
   return res;
