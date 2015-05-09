@@ -60,6 +60,9 @@ function mmbexpr(node, res) {
       }
     }
   }
+  else if(prmr.name() == Node.MMBEXPR) {
+    mmbexpr(prmr, res);
+  }
 }
 function callexpr(node, res) {
   parse(node.first(), res);
