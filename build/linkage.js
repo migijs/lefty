@@ -46,7 +46,12 @@ function mmbexpr(node, res) {
       if(dot.isToken()) {
         if(dot.token().content() == '.') {
           var id = node.last().token().content();
-          res[id] = true;
+          if(!{
+              children: true,
+              props: true
+            }.hasOwnProperty(id)) {
+            res[id] = true;
+          }
         }
         else if(dot.token().content() == '[') {
           var expr = dot.next();
