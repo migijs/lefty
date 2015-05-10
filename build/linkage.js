@@ -47,8 +47,7 @@ function mmbexpr(node, res) {
         if(dot.token().content() == '.') {
           var id = node.last().token().content();
           if(!{
-              children: true,
-              props: true
+              children: true
             }.hasOwnProperty(id)) {
             res[id] = true;
           }
