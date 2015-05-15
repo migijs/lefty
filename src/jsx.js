@@ -122,7 +122,7 @@ function child(node, cHash) {
       return 'new migi.Obj(' + JSON.stringify(list) + ',this,function(){return(' + res + ')})';
     }
   }
-  return 'new migi.Obj("",this,function(){return(' + res + ')})';
+  return res;
 }
 
 function parse(node, cHash) {
