@@ -66,4 +66,4 @@ class Lefty {
   }
 }
 
-export default Lefty;
+export default new Lefty();

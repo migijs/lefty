@@ -66,4 +66,5 @@ var Node = homunculus.getClass('node', 'jsx');
   }
 Object.keys(_4).forEach(function(k){Object.defineProperty(Lefty.prototype,k,_4[k])});
 
-exports.default=Lefty;});
+exports.default=new Lefty();
+});
