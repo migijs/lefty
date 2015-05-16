@@ -9,7 +9,7 @@ define(function(require, exports, module) {
         if(!code) {
           continue;
         }
-        code = lefty.parse(code);
+        code = lefty.parse(code, true);
         if(node.textContent) {
           node.textContent = code;
         }
