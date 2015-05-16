@@ -7,16 +7,16 @@ var ignore=function(){var _4=require('./ignore');return _4.hasOwnProperty("ignor
 var Token = homunculus.getClass('token', 'jsx');
 var Node = homunculus.getClass('node', 'jsx');
 
-function elem(node, cHash) {
+function elem(node, inClass, inRender) {
   var res = '';
   //open和selfClose逻辑复用
-  res += selfClose(node.first(), cHash);
+  res += selfClose(node.first(), inClass, inRender);
   for(var i = 1, len = node.size(); i < len - 1; i++) {
     var leaf = node.leaf(i);
     switch(leaf.name()) {
       case Node.JSXChild:
         res += ',';
-        res += child(leaf, cHash);
+        res += child(leaf, inClass, inRender);
         break;
       case Node.TOKEN:
         var s = join(leaf);
@@ -38,7 +38,7 @@ function elem(node, cHash) {
         break;
       default:
         res += ',';
-        res += parse(leaf, cHash);
+        res += parse(leaf, inClass, inRender);
     }
   }
   res += ')';
@@ -47,11 +47,11 @@ function elem(node, cHash) {
   }
   return res;
 }
-function selfClose(node, cHash) {
+function selfClose(node, inClass, inRender) {
   var res = '';
   var name = node.leaf(1).token().content();
   res += 'migi.createElement(';
-  if (cHash.hasOwnProperty(name)) {
+  if(/^[A-Z]/.test(name)) {
     res += name;
   }
   else {
@@ -66,7 +66,7 @@ function selfClose(node, cHash) {
     }
     switch(leaf.name()) {
       case Node.JSXAttribute:
-        res += attr(leaf, cHash, name);
+        res += attr(leaf, inClass, inRender);
         break;
       case Node.JSXSpreadAttribute:
         res += '}';
@@ -80,7 +80,7 @@ function selfClose(node, cHash) {
   }
   return res;
 }
-function attr(node, cHash, tagName) {
+function attr(node, inClass, inRender) {
   var res = '';
   var key = node.first().token().content();
   res += key + ':';
@@ -90,31 +90,31 @@ function attr(node, cHash, tagName) {
     res += v;
   }
   else if(/^on[A-Z]/.test(key)) {
-    res += click(v, cHash, tagName);
+    res += onEvent(v, inClass, inRender);
   }
   else {
-    res += child(v, cHash);
+    res += child(v, inClass, inRender);
   }
   return res;
 }
-function click(node, cHash, tagName) {
-  var tree = new Tree(cHash);
+function onEvent(node, inClass, inRender) {
+  var tree = new Tree();
   var res = tree.parse(node);
   res = res.replace(/^(\s*)\{/, '$1').replace(/}(\s*)$/, '$1');
-  if(cHash.hasOwnProperty(tagName)) {
-    return res;
+  if(inClass && inRender) {
+    return 'new migi.Cb(this,' + res + ')';
   }
-  return 'new migi.Cb(this,' + res + ')';
+  return res;
 }
 function spread(node) {
   //TODO
 }
-function child(node, cHash) {
-  var tree = new Tree(cHash);
+function child(node, inClass, inRender) {
+  var tree = new Tree();
   var res = tree.parse(node);
   res = res.replace(/^(\s*)\{/, '$1').replace(/}(\s*)$/, '$1');
   var list = linkage(node.leaf(1));
-  if(list.length) {
+  if(list.length && inClass && inRender) {
     if(list.length == 1) {
       return 'new migi.Obj("' + list[0] + '",this,function(){return(' + res + ')})';
     }
@@ -125,7 +125,7 @@ function child(node, cHash) {
   return res;
 }
 
-function parse(node, cHash) {
+function parse(node, inClass, inRender) {
   //循环依赖fix
   if(Tree.hasOwnProperty('default')) {
     Tree = Tree.default;
@@ -133,10 +133,10 @@ function parse(node, cHash) {
   var res = '';
   switch(node.name()) {
     case Node.JSXElement:
-      res += elem(node, cHash);
+      res += elem(node, inClass, inRender);
       break;
     case Node.JSXSelfClosingElement:
-      res += selfClose(node, cHash);
+      res += selfClose(node, inClass, inRender);
       res += ')';
       break;
   }

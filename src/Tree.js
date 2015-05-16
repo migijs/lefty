@@ -7,8 +7,7 @@ var Token = homunculus.getClass('token', 'jsx');
 var Node = homunculus.getClass('node', 'jsx');
 
 class Tree {
-  constructor(cHash) {
-    this.cHash = cHash;
+  constructor() {
     this.res = '';
   }
 
@@ -16,7 +15,7 @@ class Tree {
     this.recursion(node);
     return this.res;
   }
-  recursion(node) {
+  recursion(node, inClass, inRender) {
     var self = this;
     var isToken = node.isToken();
     if(isToken) {
@@ -41,20 +40,62 @@ class Tree {
       switch(node.name()) {
         case Node.JSXElement:
         case Node.JSXSelfClosingElement:
-          this.res += jsx(node, this.cHash);
+          this.res += jsx(node, inClass, inRender);
           return;
+        case Node.CLASSDECL:
+          inClass = this.klass(node);
+          break;
+        case Node.METHOD:
+          inRender = this.method(node);
+          break;
       }
       node.leaves().forEach(function(leaf) {
-        self.recursion(leaf);
+        self.recursion(leaf, inClass, inRender);
       });
       switch(node.name()) {
         case Node.FNBODY:
-          this.fnbody(node);
+          this.fnbody(node, inClass);
           break;
       }
     }
   }
-  fnbody(node) {
+  klass(node) {
+    var heritage = node.leaf(2);
+    if(heritage && heritage.name() == Node.HERITAGE) {
+      var mmb = heritage.leaf(1);
+      if(mmb.name() == Node.MMBEXPR) {
+        var prmr = mmb.first();
+        if(prmr.name() == Node.PRMREXPR) {
+          var token = prmr.first();
+          if(token.isToken() && token.token().content() == 'migi') {
+            token = mmb.leaf(1);
+            if(token.isToken() && token.token().content() == '.') {
+              token = mmb.leaf(2);
+              if(token.isToken() && ComponentName.hasOwnProperty(token.token().content())) {
+                return true;
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+  method(node) {
+    var first = node.first();
+    if(first.name() == Node.PROPTNAME) {
+      first = first.first();
+      if(first.name() == Node.LTRPROPT) {
+        first = first.first();
+        if(first.isToken() && first.token().content() == 'render') {
+          return true;
+        }
+      }
+    }
+  }
+  fnbody(node, inClass) {
+    if(!inClass) {
+      return;
+    }
     var parent = node.parent();
     if(parent.name() == Node.METHOD) {
       var first = parent.first();
