@@ -27,8 +27,7 @@
     }
   },
   "dependencies": {
-    "migi": "~0.1.0",
-    "homunculus": "~0.9.4",
+    "homunculus": "~0.9.5",
     "jsdc": "~0.6.2"
   },
   "devDependencies": {
