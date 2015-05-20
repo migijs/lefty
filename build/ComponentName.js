@@ -1,4 +1,4 @@
-exports.default={
+exports["default"]={
   'Component': true,
   'NonVisualComponent': true,
   'CacheComponent': true
