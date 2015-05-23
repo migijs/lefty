@@ -82,7 +82,7 @@ function callexpr(node, res) {
 
 exports.default=function(node, setHash, getHash) {
   var res = {};
-  parse(node, res);console.log(res, setHash, getHash)
+  parse(node, res);
   //取得全部this.xxx后，判断是否有对应的set方法
   var arr = Object.keys(res).filter(function(item) {
     return setHash.hasOwnProperty(item);

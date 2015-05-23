@@ -10,7 +10,7 @@ var Node = homunculus.getClass('node', 'jsx');
 function elem(node, inClass, inRender, setHash, getHash) {
   var res = '';
   //open和selfClose逻辑复用
-  res += selfClose(node.first(), inClass, inRender);
+  res += selfClose(node.first(), inClass, inRender, setHash, getHash);
   for(var i = 1, len = node.size(); i < len - 1; i++) {
     var leaf = node.leaf(i);
     switch(leaf.name()) {
@@ -38,7 +38,7 @@ function elem(node, inClass, inRender, setHash, getHash) {
         break;
       default:
         res += ',';
-        res += parse(leaf, inClass, inRender);
+        res += parse(leaf, inClass, inRender, setHash, getHash);
     }
   }
   res += ')';
