@@ -80,11 +80,24 @@ function callexpr(node, res) {
   }
 }
 
-exports.default=function(node, setHash) {
+exports.default=function(node, setHash, getHash) {
   var res = {};
-  parse(node, res);
+  parse(node, res);console.log(res, setHash, getHash)
   //取得全部this.xxx后，判断是否有对应的set方法
-  return Object.keys(res).filter(function(item) {
+  var arr = Object.keys(res).filter(function(item) {
     return setHash.hasOwnProperty(item);
   });
+  Object.keys(res).forEach(function(item) {
+    //如有get方法且显式声明形参依赖
+    if(getHash.hasOwnProperty(item)) {
+      var deps = getHash[item];
+      deps.forEach(function(dep) {
+        //声明的依赖需有set方法
+        if(setHash.hasOwnProperty(dep) && arr.indexOf(dep) == -1) {
+          arr.push(dep);
+        }
+      });
+    }
+  });
+  return arr;
 };

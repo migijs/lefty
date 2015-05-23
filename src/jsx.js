@@ -7,7 +7,7 @@ import ignore from './ignore';
 var Token = homunculus.getClass('token', 'jsx');
 var Node = homunculus.getClass('node', 'jsx');
 
-function elem(node, inClass, inRender, setHash) {
+function elem(node, inClass, inRender, setHash, getHash) {
   var res = '';
   //open和selfClose逻辑复用
   res += selfClose(node.first(), inClass, inRender);
@@ -16,7 +16,7 @@ function elem(node, inClass, inRender, setHash) {
     switch(leaf.name()) {
       case Node.JSXChild:
         res += ',';
-        res += child(leaf, inClass, inRender, setHash);
+        res += child(leaf, inClass, inRender, setHash, getHash);
         break;
       case Node.TOKEN:
         var s = join(leaf);
@@ -47,7 +47,7 @@ function elem(node, inClass, inRender, setHash) {
   }
   return res;
 }
-function selfClose(node, inClass, inRender, setHash) {
+function selfClose(node, inClass, inRender, setHash, getHash) {
   var res = '';
   var name = node.leaf(1).token().content();
   res += 'migi.createElement(';
@@ -66,7 +66,7 @@ function selfClose(node, inClass, inRender, setHash) {
     }
     switch(leaf.name()) {
       case Node.JSXAttribute:
-        res += attr(leaf, inClass, inRender, setHash);
+        res += attr(leaf, inClass, inRender, setHash, getHash);
         break;
       case Node.JSXSpreadAttribute:
         res += '}';
@@ -80,7 +80,7 @@ function selfClose(node, inClass, inRender, setHash) {
   }
   return res;
 }
-function attr(node, inClass, inRender, setHash) {
+function attr(node, inClass, inRender, setHash, getHash) {
   var res = '';
   var key = node.first().token().content();
   res += key + ':';
@@ -93,7 +93,7 @@ function attr(node, inClass, inRender, setHash) {
     res += onEvent(v, inClass, inRender);
   }
   else {
-    res += child(v, inClass, inRender, setHash);
+    res += child(v, inClass, inRender, setHash, getHash);
   }
   return res;
 }
@@ -109,11 +109,11 @@ function onEvent(node, inClass, inRender) {
 function spread(node) {
   //TODO
 }
-function child(node, inClass, inRender, setHash) {
+function child(node, inClass, inRender, setHash, getHash) {
   var tree = new Tree();
   var res = tree.parse(node);
   res = res.replace(/^(\s*)\{/, '$1').replace(/}(\s*)$/, '$1');
-  var list = linkage(node.leaf(1), setHash);
+  var list = linkage(node.leaf(1), setHash, getHash);
   if(list.length && inClass && inRender) {
     if(list.length == 1) {
       return 'new migi.Obj("' + list[0] + '",this,function(){return(' + res + ')})';
@@ -125,7 +125,7 @@ function child(node, inClass, inRender, setHash) {
   return res;
 }
 
-function parse(node, inClass, inRender, setHash) {
+function parse(node, inClass, inRender, setHash, getHash) {
   //循环依赖fix
   if(Tree.hasOwnProperty('default')) {
     Tree = Tree['default'];
@@ -133,10 +133,10 @@ function parse(node, inClass, inRender, setHash) {
   var res = '';
   switch(node.name()) {
     case Node.JSXElement:
-      res += elem(node, inClass, inRender, setHash);
+      res += elem(node, inClass, inRender, setHash, getHash);
       break;
     case Node.JSXSelfClosingElement:
-      res += selfClose(node, inClass, inRender, setHash);
+      res += selfClose(node, inClass, inRender, setHash, getHash);
       res += ')';
       break;
   }

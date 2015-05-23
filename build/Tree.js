@@ -15,8 +15,8 @@ var Node = homunculus.getClass('node', 'jsx');
     this.recursion(node);
     return this.res;
   }
-  Tree.prototype.recursion = function(node, inClass, inRender, setHash) {
-    if(setHash===void 0)setHash={};var self = this;
+  Tree.prototype.recursion = function(node, inClass, inRender, setHash, getHash) {
+    if(setHash===void 0)setHash={};if(getHash===void 0)getHash={};var self = this;
     var isToken = node.isToken();
     if(isToken) {
       var token = node.token();
@@ -40,14 +40,14 @@ var Node = homunculus.getClass('node', 'jsx');
       switch(node.name()) {
         case Node.JSXElement:
         case Node.JSXSelfClosingElement:
-          this.res += jsx(node, inClass, inRender, setHash);
+          this.res += jsx(node, inClass, inRender, setHash, getHash);
           return;
         case Node.CLASSDECL:
           inClass = this.klass(node);
           break;
         case Node.CLASSBODY:
           if(inClass) {
-            setHash = this.list(node);
+            this.list(node, setHash, getHash);
           }
           break;
         case Node.METHOD:
@@ -55,11 +55,11 @@ var Node = homunculus.getClass('node', 'jsx');
           break;
       }
       node.leaves().forEach(function(leaf) {
-        self.recursion(leaf, inClass, inRender, setHash);
+        self.recursion(leaf, inClass, inRender, setHash, getHash);
       });
       switch(node.name()) {
         case Node.FNBODY:
-          this.fnbody(node, inClass, inRender, setHash);
+          this.fnbody(node, inClass, inRender, setHash, getHash);
           break;
       }
     }
@@ -128,21 +128,38 @@ var Node = homunculus.getClass('node', 'jsx');
       }
     }
   }
-  Tree.prototype.list = function(node) {
-    var hash = {};
+  Tree.prototype.list = function(node, setHash, getHash) {
     node.leaves().forEach(function(leaf) {
       if(leaf.name() == Node.CLASSELEM) {
         var method = leaf.first();
         if(method.name() == Node.METHOD) {
           var first = method.first();
-          if(first.isToken() && first.token().content() == 'set') {
-            var name = first.next().first().first().token().content();
-            hash[name] = true;
+          if(first.isToken()) {
+            var token = first.token();
+            if(token.content() == 'set') {
+              var name = first.next().first().first().token().content();
+              setHash[name] = true;
+            }
+            else if(token.content() == 'get') {
+              var name = first.next().first().first().token().content();
+              var param = first.next().next().next();
+              param.leaves().forEach(function(leaf, i) {
+                if(i % 2 == 0 && leaf.name() == Node.SINGLENAME) {
+                  first = leaf.first();
+                  if(first.name() == Node.BINDID) {
+                    first = first.first();
+                    if(first.isToken()) {
+                      getHash[name] = getHash[name] || [];
+                      getHash[name].push(first.token().content());
+                    }
+                  }
+                }
+              });
+            }
           }
         }
       }
     });
-    return hash;
   }
 
 
