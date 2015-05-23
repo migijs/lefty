@@ -80,8 +80,11 @@ function callexpr(node, res) {
   }
 }
 
-export default function(node) {
+export default function(node, setHash) {
   var res = {};
   parse(node, res);
-  return Object.keys(res);
+  //取得全部this.xxx后，判断是否有对应的set方法
+  return Object.keys(res).filter(function(item) {
+    return setHash.hasOwnProperty(item);
+  });
 };

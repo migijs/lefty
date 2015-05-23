@@ -1,7 +1,7 @@
-define(function(require, exports, module){var homunculus=function(){var _0=require('homunculus');return _0.hasOwnProperty("homunculus")?_0.homunculus:_0.hasOwnProperty("default")?_0["default"]:_0}();
-var jsx=function(){var _1=require('./jsx');return _1.hasOwnProperty("jsx")?_1.jsx:_1.hasOwnProperty("default")?_1["default"]:_1}();
-var ignore=function(){var _2=require('./ignore');return _2.hasOwnProperty("ignore")?_2.ignore:_2.hasOwnProperty("default")?_2["default"]:_2}();
-var ComponentName=function(){var _3=require('./ComponentName');return _3.hasOwnProperty("ComponentName")?_3.ComponentName:_3.hasOwnProperty("default")?_3["default"]:_3}();
+define(function(require, exports, module){var homunculus=function(){var _0=require('homunculus');return _0.hasOwnProperty("homunculus")?_0.homunculus:_0.hasOwnProperty("default")?_0.default:_0}();
+var jsx=function(){var _1=require('./jsx');return _1.hasOwnProperty("jsx")?_1.jsx:_1.hasOwnProperty("default")?_1.default:_1}();
+var ignore=function(){var _2=require('./ignore');return _2.hasOwnProperty("ignore")?_2.ignore:_2.hasOwnProperty("default")?_2.default:_2}();
+var ComponentName=function(){var _3=require('./ComponentName');return _3.hasOwnProperty("ComponentName")?_3.ComponentName:_3.hasOwnProperty("default")?_3.default:_3}();
 
 var Token = homunculus.getClass('token', 'jsx');
 var Node = homunculus.getClass('node', 'jsx');
@@ -15,8 +15,8 @@ var Node = homunculus.getClass('node', 'jsx');
     this.recursion(node);
     return this.res;
   }
-  Tree.prototype.recursion = function(node, inClass, inRender) {
-    var self = this;
+  Tree.prototype.recursion = function(node, inClass, inRender, setHash) {
+    if(setHash===void 0)setHash={};var self = this;
     var isToken = node.isToken();
     if(isToken) {
       var token = node.token();
@@ -40,21 +40,26 @@ var Node = homunculus.getClass('node', 'jsx');
       switch(node.name()) {
         case Node.JSXElement:
         case Node.JSXSelfClosingElement:
-          this.res += jsx(node, inClass, inRender);
+          this.res += jsx(node, inClass, inRender, setHash);
           return;
         case Node.CLASSDECL:
           inClass = this.klass(node);
+          break;
+        case Node.CLASSBODY:
+          if(inClass) {
+            setHash = this.list(node);
+          }
           break;
         case Node.METHOD:
           inRender = this.method(node);
           break;
       }
       node.leaves().forEach(function(leaf) {
-        self.recursion(leaf, inClass, inRender);
+        self.recursion(leaf, inClass, inRender, setHash);
       });
       switch(node.name()) {
         case Node.FNBODY:
-          this.fnbody(node, inClass);
+          this.fnbody(node, inClass, inRender, setHash);
           break;
       }
     }
@@ -123,6 +128,22 @@ var Node = homunculus.getClass('node', 'jsx');
       }
     }
   }
+  Tree.prototype.list = function(node) {
+    var hash = {};
+    node.leaves().forEach(function(leaf) {
+      if(leaf.name() == Node.CLASSELEM) {
+        var method = leaf.first();
+        if(method.name() == Node.METHOD) {
+          var first = method.first();
+          if(first.isToken() && first.token().content() == 'set') {
+            var name = first.next().first().first().token().content();
+            hash[name] = true;
+          }
+        }
+      }
+    });
+    return hash;
+  }
 
 
-exports["default"]=Tree;});
+exports.default=Tree;});

@@ -15,7 +15,7 @@ class Tree {
     this.recursion(node);
     return this.res;
   }
-  recursion(node, inClass, inRender) {
+  recursion(node, inClass, inRender, setHash = {}) {
     var self = this;
     var isToken = node.isToken();
     if(isToken) {
@@ -40,21 +40,26 @@ class Tree {
       switch(node.name()) {
         case Node.JSXElement:
         case Node.JSXSelfClosingElement:
-          this.res += jsx(node, inClass, inRender);
+          this.res += jsx(node, inClass, inRender, setHash);
           return;
         case Node.CLASSDECL:
           inClass = this.klass(node);
+          break;
+        case Node.CLASSBODY:
+          if(inClass) {
+            setHash = this.list(node);
+          }
           break;
         case Node.METHOD:
           inRender = this.method(node);
           break;
       }
       node.leaves().forEach(function(leaf) {
-        self.recursion(leaf, inClass, inRender);
+        self.recursion(leaf, inClass, inRender, setHash);
       });
       switch(node.name()) {
         case Node.FNBODY:
-          this.fnbody(node, inClass);
+          this.fnbody(node, inClass, inRender, setHash);
           break;
       }
     }
@@ -122,6 +127,22 @@ class Tree {
         }
       }
     }
+  }
+  list(node) {
+    var hash = {};
+    node.leaves().forEach(function(leaf) {
+      if(leaf.name() == Node.CLASSELEM) {
+        var method = leaf.first();
+        if(method.name() == Node.METHOD) {
+          var first = method.first();
+          if(first.isToken() && first.token().content() == 'set') {
+            var name = first.next().first().first().token().content();
+            hash[name] = true;
+          }
+        }
+      }
+    });
+    return hash;
   }
 }
 
