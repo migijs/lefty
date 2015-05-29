@@ -27,6 +27,7 @@
     }
   },
   "dependencies": {
+    "es6-shim": "*",
     "homunculus": "~0.9.7",
     "jsdc": "~0.6.3"
   },
