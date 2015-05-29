@@ -1,8 +1,8 @@
-define(function(require, exports, module){var homunculus=function(){var _0=require('homunculus');return _0.hasOwnProperty("homunculus")?_0.homunculus:_0.hasOwnProperty("default")?_0.default:_0}();
-var Tree=function(){var _1=require('./Tree');return _1.hasOwnProperty("Tree")?_1.Tree:_1.hasOwnProperty("default")?_1.default:_1}();
-var linkage=function(){var _2=require('./linkage');return _2.hasOwnProperty("linkage")?_2.linkage:_2.hasOwnProperty("default")?_2.default:_2}();
-var join=function(){var _3=require('./join');return _3.hasOwnProperty("join")?_3.join:_3.hasOwnProperty("default")?_3.default:_3}();
-var ignore=function(){var _4=require('./ignore');return _4.hasOwnProperty("ignore")?_4.ignore:_4.hasOwnProperty("default")?_4.default:_4}();
+define(function(require, exports, module){var homunculus=function(){var _0=require('homunculus');return _0.hasOwnProperty("homunculus")?_0.homunculus:_0.hasOwnProperty("default")?_0["default"]:_0}();
+var Tree=function(){var _1=require('./Tree');return _1.hasOwnProperty("Tree")?_1.Tree:_1.hasOwnProperty("default")?_1["default"]:_1}();
+var linkage=function(){var _2=require('./linkage');return _2.hasOwnProperty("linkage")?_2.linkage:_2.hasOwnProperty("default")?_2["default"]:_2}();
+var join=function(){var _3=require('./join');return _3.hasOwnProperty("join")?_3.join:_3.hasOwnProperty("default")?_3["default"]:_3}();
+var ignore=function(){var _4=require('./ignore');return _4.hasOwnProperty("ignore")?_4.ignore:_4.hasOwnProperty("default")?_4["default"]:_4}();
 
 var Token = homunculus.getClass('token', 'jsx');
 var Node = homunculus.getClass('node', 'jsx');
@@ -143,4 +143,4 @@ function parse(node, inClass, inRender, setHash, getHash) {
   return res;
 }
 
-exports.default=parse;});
+exports["default"]=parse;});

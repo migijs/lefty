@@ -1,4 +1,4 @@
-define(function(require, exports, module){var homunculus=function(){var _0=require('homunculus');return _0.hasOwnProperty("homunculus")?_0.homunculus:_0.hasOwnProperty("default")?_0.default:_0}();
+define(function(require, exports, module){var homunculus=function(){var _0=require('homunculus');return _0.hasOwnProperty("homunculus")?_0.homunculus:_0.hasOwnProperty("default")?_0["default"]:_0}();
 
 var Token = homunculus.getClass('token', 'jsx');
 var Node = homunculus.getClass('node', 'jsx');
@@ -80,7 +80,7 @@ function callexpr(node, res) {
   }
 }
 
-exports.default=function(node, setHash, getHash) {
+exports["default"]=function(node, setHash, getHash) {
   var res = {};
   parse(node, res);
   //取得全部this.xxx后，判断是否有对应的set方法
