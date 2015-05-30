@@ -101,7 +101,7 @@ function onEvent(node, inClass, inRender) {
   var tree = new Tree();
   var res = tree.parse(node);
   res = res.replace(/^(\s*)\{/, '$1').replace(/}(\s*)$/, '$1');
-  if(/^this\b/.test(res) && inClass && inRender) {
+  if(/^\s*this\b/.test(res) && inClass && inRender) {
     return 'new migi.Cb(this,' + res + ')';
   }
   return res;
