@@ -12,19 +12,22 @@ function elem(node, inClass, inRender, setHash, getHash) {
   //open和selfClose逻辑复用
   res += selfClose(node.first(), inClass, inRender, setHash, getHash);
   res += ',[';
+  var comma = false;
   for(var i = 1, len = node.size(); i < len - 1; i++) {
     var leaf = node.leaf(i);
-    if(i > 1){
-      res += ',';
-    }
     switch(leaf.name()) {
       case Node.JSXChild:
+        if(comma) {
+          res += ',';
+          comma = false;
+        }
         res += child(leaf, inClass, inRender, setHash, getHash);
+        comma = true;
         break;
       case Node.TOKEN:
         var s = join(leaf);
         //open和close之间的空白不能忽略
-        if(/^[\s]+$/.test(s)) {
+        if(/^\s+$/.test(s)) {
           if(leaf.prev().name() == Node.JSXOpeningElement && leaf.next().name() == Node.JSXClosingElement) {
             res += '"' + join(leaf).replace(/"/g, '\\"').replace(/\n/g, '\\\n') + '"';
           }
@@ -32,13 +35,22 @@ function elem(node, inClass, inRender, setHash, getHash) {
             res += join(leaf);
           }
         }
-        //节点间的空白直接追加
         else {
+          if(comma) {
+            res += ',';
+            comma = false;
+          }
           res += '"' + join(leaf).replace(/"/g, '\\"').replace(/\n/g, '\\\n') + '"';
+          comma = true;
         }
         break;
       default:
+        if(comma) {
+          res += ',';
+          comma = false;
+        }
         res += parse(leaf, inClass, inRender, setHash, getHash);
+        comma = true;
     }
   }
   res += '])';
