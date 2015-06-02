@@ -1,6 +1,6 @@
 {
   "name": "lefty",
-  "version": "0.0.3",
+  "version": "0.0.4",
   "description": "A JSX transformer for migi",
   "maintainers": [
     {
@@ -29,7 +29,7 @@
   "dependencies": {
     "es6-shim": "*",
     "homunculus": "~0.9.7",
-    "jsdc": "~0.6.3"
+    "jsdc": "~0.6.4"
   },
   "devDependencies": {
     "blanket": "^1.1.6",
