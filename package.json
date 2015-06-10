@@ -40,11 +40,25 @@
     "gulp-util": "^3.0.1",
     "mocha": "^2.2.4",
     "mocha-lcov-reporter": "^0.0.2",
-    "through2": "^0.6.2"
+    "through2": "^0.6.2",
+    "spm": "~3.6.0"
   },
   "main": "./index",
   "engines": {
     "node": ">= 0.10.0"
+  },
+  "spm": {
+    "main": "./index.js",
+    "output": [
+      "./index.js"
+    ],
+    "build": {
+      "global": {
+        "homunculus": "homunculus",
+        "jsdc": "jsdc"
+      }
+    },
+    "buildArgs": "--standalone"
   },
   "readmeFilename": "README.md"
 }

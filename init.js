@@ -1,5 +1,5 @@
 define(function(require, exports, module) {
-  var lefty = require('./index');
+  var lefty = require('./web/lefty')['default'];
   lefty.init = function() {
     var jsx = document.querySelectorAll('script');
     for(var i = 0, len = jsx.length; i < len; i++) {
