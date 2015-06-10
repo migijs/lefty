@@ -62,11 +62,12 @@ function elem(node, inClass, inRender, setHash, getHash) {
 function selfClose(node, inClass, inRender, setHash, getHash) {
   var res = '';
   var name = node.leaf(1).token().content();
-  res += 'migi.createElement(';
   if(/^[A-Z]/.test(name)) {
+    res += 'migi.createCp(';
     res += name;
   }
   else {
+    res += 'migi.createVd(';
     res += '"' + name + '"';
   }
   res += ',{';
