@@ -1,7 +1,7 @@
-define(function(require, exports, module){var homunculus=function(){var _0=require('homunculus');return _0.hasOwnProperty("homunculus")?_0.homunculus:_0.hasOwnProperty("default")?_0["default"]:_0}();
-var jsdc=function(){var _1=require('jsdc');return _1.hasOwnProperty("jsdc")?_1.jsdc:_1.hasOwnProperty("default")?_1["default"]:_1}();
-var Tree=function(){var _2=require('./Tree');return _2.hasOwnProperty("Tree")?_2.Tree:_2.hasOwnProperty("default")?_2["default"]:_2}();
-var ComponentName=function(){var _3=require('./ComponentName');return _3.hasOwnProperty("ComponentName")?_3.ComponentName:_3.hasOwnProperty("default")?_3["default"]:_3}();
+define(function(require, exports, module){var homunculus=function(){var _0=require('homunculus');return _0.hasOwnProperty("default")?_0["default"]:_0}();
+var jsdc=function(){var _1=require('jsdc');return _1.hasOwnProperty("default")?_1["default"]:_1}();
+var Tree=function(){var _2=require('./Tree');return _2.hasOwnProperty("default")?_2["default"]:_2}();
+var ComponentName=function(){var _3=require('./ComponentName');return _3.hasOwnProperty("default")?_3["default"]:_3}();
 
 var Token = homunculus.getClass('token', 'jsx');
 var Node = homunculus.getClass('node', 'jsx');

@@ -29,7 +29,7 @@
   "dependencies": {
     "es6-shim": "*",
     "homunculus": "~0.9.7",
-    "jsdc": "~0.6.4"
+    "jsdc": "~0.6.5"
   },
   "devDependencies": {
     "blanket": "^1.1.6",
