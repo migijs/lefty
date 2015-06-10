@@ -2,6 +2,11 @@
 
 `lefty`取自动漫寄生兽主角小右在英文版翻译的镜像名，意指将jsx语言翻译为等价的es6。
 
+[![NPM version](https://badge.fury.io/js/lefty.png)](https://npmjs.org/package/lefty)
+[![Build Status](https://travis-ci.org/migijs/lefty.svg?branch=master)](https://travis-ci.org/migijs/lefty)
+[![Coverage Status](https://coveralls.io/repos/migijs/lefty/badge.png)](https://coveralls.io/r/migijs/lefty)
+[![Dependency Status](https://david-dm.org/migijs/lefty.png)](https://david-dm.org/migijs/lefty)
+
 ## INSTALL
 ```
 npm install lefty
