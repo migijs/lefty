@@ -1,7 +1,6 @@
 define(function(require, exports, module){var homunculus=function(){var _0=require('homunculus');return _0.hasOwnProperty("default")?_0["default"]:_0}();
 var jsx=function(){var _1=require('./jsx');return _1.hasOwnProperty("default")?_1["default"]:_1}();
 var ignore=function(){var _2=require('./ignore');return _2.hasOwnProperty("default")?_2["default"]:_2}();
-var ComponentName=function(){var _3=require('./ComponentName');return _3.hasOwnProperty("default")?_3["default"]:_3}();
 
 var Token = homunculus.getClass('token', 'jsx');
 var Node = homunculus.getClass('node', 'jsx');
@@ -75,10 +74,7 @@ var Node = homunculus.getClass('node', 'jsx');
           if(token.isToken() && token.token().content() == 'migi') {
             token = mmb.leaf(1);
             if(token.isToken() && token.token().content() == '.') {
-              token = mmb.leaf(2);
-              if(token.isToken() && ComponentName.hasOwnProperty(token.token().content())) {
-                return true;
-              }
+              return true;
             }
           }
         }
@@ -115,7 +111,7 @@ var Node = homunculus.getClass('node', 'jsx');
               var token = prmr.first();
               if(token.isToken() && token.token().content() == 'migi') {
                 token = mmb.last();
-                if(token.isToken() && ComponentName.hasOwnProperty(token.token().content())) {
+                if(token.isToken()) {
                   this.res += 'this.emit(migi.Event.DATA,"';
                   var name = parent.leaf(1).first().first().token().content();
                   this.res += name;

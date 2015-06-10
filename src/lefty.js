@@ -1,7 +1,6 @@
 import homunculus from 'homunculus';
 import jsdc from 'jsdc';
 import Tree from './Tree';
-import ComponentName from './ComponentName';
 
 var Token = homunculus.getClass('token', 'jsx');
 var Node = homunculus.getClass('node', 'jsx');

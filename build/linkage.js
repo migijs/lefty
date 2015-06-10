@@ -5,6 +5,9 @@ var Node = homunculus.getClass('node', 'jsx');
 
 function parse(node, res) {
   switch(node.name()) {
+    case Node.PRMREXPR:
+      parse(node.first(), res);
+      break;
     case Node.MMBEXPR:
       mmbexpr(node, res);
       break;
@@ -35,30 +38,54 @@ function parse(node, res) {
     case Node.CALLEXPR:
       callexpr(node, res);
       break;
+    case Node.ARRLTR:
+      arrltr(node, res);
+      break;
   }
 }
 function mmbexpr(node, res) {
   var prmr = node.first();
   if(prmr.name() == Node.PRMREXPR) {
     var first = prmr.first();
-    if(first.isToken() && first.token().content() == 'this') {
-      var dot = node.leaf(1);
-      if(dot.isToken()) {
-        if(dot.token().content() == '.') {
-          var id = node.last().token().content();
-          if(!{
-              children: true
-            }.hasOwnProperty(id)) {
+    if(first.isToken()) {
+      if(first.token().content() == 'this') {
+        var dot = node.leaf(1);
+        if(dot.isToken()) {
+          if(dot.token().content() == '.') {
+            var id = node.last().token().content();
             res[id] = true;
           }
-        }
-        else if(dot.token().content() == '[') {
-          var expr = dot.next();
-          if(expr.name() == Node.EXPR) {
-            parse(expr.last(), res);
+          else if(dot.token().content() == '[') {
+            var expr = dot.next();
+            if(expr.name() == Node.EXPR) {
+              parse(expr.last(), res);
+            }
+            else if(expr.name() == Node.PRMREXPR) {
+              var s = expr.first();
+              if(s.isToken()) {
+                s = s.token();
+                if(s.type() == Token.STRING) {
+                  res[s.val()] = true;
+                }
+              }
+            }
+            else {
+              parse(expr, res);
+            }
           }
-          else {
-            parse(expr, res);
+        }
+      }
+      else {
+        var bracket = node.leaf(1);
+        if(bracket.isToken()) {
+          if(bracket.token().content() == '[') {
+            var expr = bracket.next();
+            if(expr.name() == Node.EXPR) {
+              parse(expr.last(), res);
+            }
+            else {
+              parse(expr, res);
+            }
           }
         }
       }
@@ -80,6 +107,16 @@ function callexpr(node, res) {
   }
 }
 
+function arrltr(node, res) {
+  node.leaves().forEach(function(leaf, i) {
+    if(i % 2 == 1) {
+      if(!leaf.isToken()) {
+        parse(leaf, res);
+      }
+    }
+  });
+}
+
 exports["default"]=function(node, setHash, getHash) {
   var res = {};
   parse(node, res);
@@ -89,7 +126,21 @@ exports["default"]=function(node, setHash, getHash) {
   });
   Object.keys(res).forEach(function(item) {
     //如有get方法且显式声明形参依赖
-    if(getHash.hasOwnProperty(item)) {
+    if(getHash.hasOwnProperty(item)
+      && !({
+        'children': true,
+        'props': true,
+        'element': true,
+        'names': true,
+        'style': true,
+        'name': true,
+        'parent': true,
+        'uid': true,
+        'dom': true,
+        'html': true,
+        'text': true,
+        'virtualDom': true
+      }.hasOwnProperty(item))) {
       var deps = getHash[item];
       deps.forEach(function(dep) {
         //声明的依赖需有set方法
