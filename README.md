@@ -19,7 +19,7 @@ https://github.com/migijs/lefty/wiki/%E6%96%87%E6%A1%A3
 
 ## API
 * parse(code:String, es5:Boolean = false):String 传入要解析的jsx代码，返回翻译好的js代码；es5表示是否翻译为es5
-* tokens():Array 返回jsx的token列表
+* tokens():Array\<Token> 返回jsx的token列表
 * ast():Object 返回jsx的语法树
 
 ## Demo
