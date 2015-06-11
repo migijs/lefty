@@ -1,7 +1,6 @@
 import homunculus from 'homunculus';
 import Tree from './Tree';
 import linkage from './linkage';
-import join from './join';
 import ignore from './ignore';
 
 var Token = homunculus.getClass('token', 'jsx');
@@ -25,14 +24,14 @@ function elem(node, inClass, inRender, setHash, getHash) {
         comma = true;
         break;
       case Node.TOKEN:
-        var s = join(leaf);
+        var s = leaf.token().content();
         //open和close之间的空白不能忽略
         if(/^\s+$/.test(s)) {
           if(leaf.prev().name() == Node.JSXOpeningElement && leaf.next().name() == Node.JSXClosingElement) {
-            res += '"' + join(leaf).replace(/"/g, '\\"').replace(/\n/g, '\\\n') + '"';
+            res += '"' + s.replace(/"/g, '\\"').replace(/\n/g, '\\\n') + '"';
           }
           else {
-            res += join(leaf);
+            res += s;
           }
         }
         else {
@@ -40,7 +39,7 @@ function elem(node, inClass, inRender, setHash, getHash) {
             res += ',';
             comma = false;
           }
-          res += '"' + join(leaf).replace(/"/g, '\\"').replace(/\n/g, '\\\n') + '"';
+          res += '"' + s.replace(/"/g, '\\"').replace(/\n/g, '\\\n') + '"';
           comma = true;
         }
         break;

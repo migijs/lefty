@@ -8,6 +8,13 @@ describe('api', function() {
   it('#parse', function() {
     expect(lefty.parse).to.be.a(Function);
   });
+  it('#tokens', function() {
+    lefty.parse('');
+    expect(lefty.tokens).to.be.a(Array);
+  });
+  it('#ast', function() {
+    expect(lefty.ast).to.be.a(Object);
+  });
 });
 
 describe('simple', function() {

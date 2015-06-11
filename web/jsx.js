@@ -1,8 +1,7 @@
 define(function(require, exports, module){var homunculus=function(){var _0=require('homunculus');return _0.hasOwnProperty("default")?_0["default"]:_0}();
 var Tree=function(){var _1=require('./Tree');return _1.hasOwnProperty("default")?_1["default"]:_1}();
 var linkage=function(){var _2=require('./linkage');return _2.hasOwnProperty("default")?_2["default"]:_2}();
-var join=function(){var _3=require('./join');return _3.hasOwnProperty("default")?_3["default"]:_3}();
-var ignore=function(){var _4=require('./ignore');return _4.hasOwnProperty("default")?_4["default"]:_4}();
+var ignore=function(){var _3=require('./ignore');return _3.hasOwnProperty("default")?_3["default"]:_3}();
 
 var Token = homunculus.getClass('token', 'jsx');
 var Node = homunculus.getClass('node', 'jsx');
@@ -25,14 +24,14 @@ function elem(node, inClass, inRender, setHash, getHash) {
         comma = true;
         break;
       case Node.TOKEN:
-        var s = join(leaf);
+        var s = leaf.token().content();
         //open和close之间的空白不能忽略
         if(/^\s+$/.test(s)) {
           if(leaf.prev().name() == Node.JSXOpeningElement && leaf.next().name() == Node.JSXClosingElement) {
-            res += '"' + join(leaf).replace(/"/g, '\\"').replace(/\n/g, '\\\n') + '"';
+            res += '"' + s.replace(/"/g, '\\"').replace(/\n/g, '\\\n') + '"';
           }
           else {
-            res += join(leaf);
+            res += s;
           }
         }
         else {
@@ -40,7 +39,7 @@ function elem(node, inClass, inRender, setHash, getHash) {
             res += ',';
             comma = false;
           }
-          res += '"' + join(leaf).replace(/"/g, '\\"').replace(/\n/g, '\\\n') + '"';
+          res += '"' + s.replace(/"/g, '\\"').replace(/\n/g, '\\\n') + '"';
           comma = true;
         }
         break;
