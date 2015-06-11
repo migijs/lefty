@@ -137,7 +137,7 @@
     }]
   });
   define('fs', {});
-  seajs.use(['../index', './jssc'], function(lefty, jssc) {
+  seajs.use(['../init', './jssc'], function(lefty, jssc) {
     function init() {
       console.clear();
       var nodes = Array.prototype.slice.call(document.getElementsByTagName('code'), 0);
