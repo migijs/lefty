@@ -3,6 +3,12 @@ define(function(require, exports, module){var homunculus=function(){var _0=requi
 var Token = homunculus.getClass('token', 'jsx');
 var Node = homunculus.getClass('node', 'jsx');
 
+var SET_BUILD_IN = {
+  'text': true,
+  'html': true,
+  'style': true
+};
+
 function parse(node, res) {
   switch(node.name()) {
     case Node.PRMREXPR:
@@ -126,25 +132,11 @@ exports["default"]=function(node, setHash, getHash) {
   });
   Object.keys(res).forEach(function(item) {
     //如有get方法且显式声明形参依赖
-    if(getHash.hasOwnProperty(item)
-      && !({
-        'children': true,
-        'props': true,
-        'element': true,
-        'names': true,
-        'style': true,
-        'name': true,
-        'parent': true,
-        'uid': true,
-        'dom': true,
-        'html': true,
-        'text': true,
-        'virtualDom': true
-      }.hasOwnProperty(item))) {
+    if(getHash.hasOwnProperty(item)) {
       var deps = getHash[item];
       deps.forEach(function(dep) {
         //声明的依赖需有set方法
-        if(setHash.hasOwnProperty(dep) && arr.indexOf(dep) == -1) {
+        if((SET_BUILD_IN.hasOwnProperty(dep) || setHash.hasOwnProperty(dep)) && arr.indexOf(dep) == -1) {
           arr.push(dep);
         }
       });

@@ -219,4 +219,9 @@ describe('linkage', function() {
     var res = lefty.parse(s);
     expect(res).to.eql('class A extends migi.xxx{cb(){}render(){return migi.createVd("p",{onClick:new migi.Cb(this,this.cb)},[])}}');
   });
+  it('explicit', function() {
+    var s = 'class Person extends migi.Component{get name(first,last){}set first(v){}set last(v){}render(){return(<p>{this.name}</p>);}}';
+    var res = lefty.parse(s);
+    expect(res).to.eql('class Person extends migi.Component{get name(first,last){}set first(v){this.emit(migi.Event.DATA,"first");}set last(v){this.emit(migi.Event.DATA,"last");}render(){return(migi.createVd("p",{},[new migi.Obj(["first","last"],this,function(){return(this.name)})]));}}');
+  });
 });
