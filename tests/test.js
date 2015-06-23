@@ -58,6 +58,11 @@ describe('simple', function() {
     var res = lefty.parse(s);
     expect(res).to.eql('migi.createVd("a",{href:"#"},["link"])');
   });
+  it('prop with -', function() {
+    var s = '<div data-test="-"></div>';
+    var res = lefty.parse(s);
+    expect(res).to.eql('migi.createVd("div",{\'data-test\':"-"},[])');
+  });
   it('multi props', function() {
     var s = '<div class="c" title="title"></div>';
     var res = lefty.parse(s);

@@ -95,7 +95,8 @@ function selfClose(node, inClass, inRender, setHash, getHash) {
 function attr(node, inClass, inRender, setHash, getHash) {
   var res = '';
   var key = node.first().token().content();
-  res += key + ':';
+  var k = key.indexOf('-') > 0 ? "'" + key + "'" : key;
+  res += k + ':';
   var v = node.last();
   if(v.isToken()) {
     v = v.token().content();
