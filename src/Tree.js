@@ -115,7 +115,7 @@ class Tree {
                   this.res += 'this.emit(migi.Event.DATA,"';
                   var name = parent.leaf(1).first().first().token().content();
                   this.res += name;
-                  this.res += '");';
+                  this.res += '",arguments.callee.caller);';
                 }
               }
             }
