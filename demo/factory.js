@@ -16,6 +16,7 @@ define(function(require, exports) {
 			case "jscript":
 			case "as":
 			case "as3":
+			case "es6":
 			case "actionscript":
 			case "actionscript3":
 				return new Lexer(new EcmascriptRule());

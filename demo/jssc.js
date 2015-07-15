@@ -35,7 +35,7 @@ define(function(require, exports) {
 			div = document.createElement('div'),
 			col = document.createElement('div'),
 			lastCol = 0;
-			ol = document.createElement('ol');
+		var ol = document.createElement('ol');
 		ol.start = start;
 		for(var i = 0; i < tab; i++) {
 			tabBlank += '&nbsp';

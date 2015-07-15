@@ -10,12 +10,12 @@ S[Token.LINE] = S[Token.COMMENT] = S[Token.BLANK] = true;
 var res;
 var append;
 
-function ignore(node, includeLine) {
+function ignore(node, msg, includeLine) {
   if(node instanceof Token || node instanceof ES6Token) {
     if(node.isVirtual()) {
       return;
     }
-    node.ignore = true;
+    node.ignore = msg || true;
     append = '';
     while(node.next()) {
       node = node.next();
@@ -26,24 +26,24 @@ function ignore(node, includeLine) {
       res += s;
       append += s;
       if(includeLine || s != '\n') {
-        node.ignore = true;
+        node.ignore = msg || true;
       }
     }
   }
   else if(node.isToken()) {
-    ignore(node.token(), includeLine);
+    ignore(node.token(), msg, includeLine);
   }
   else {
     node.leaves().forEach(function(leaf) {
-      ignore(leaf, includeLine);
+      ignore(leaf, msg, includeLine);
     });
   }
 }
 
-function parse(node, includeLine) {
+function parse(node, msg, includeLine) {
   res = '';
   append = '';
-  ignore(node, includeLine);
+  ignore(node, msg, includeLine);
   return { res, append };
 }
 
