@@ -33,15 +33,16 @@ function recursion(node, ids) {
       if(token.isVirtual() || !ignore.S.hasOwnProperty(token.type())) {
         break;
       }
-      if(!token.ignore) {
-        res += token.content();
-      }
+      res += token.content();
     }
   }
   else {
     switch(node.name()) {
       case JsNode.CLASSDECL:
         decl(node, ids, true);
+        break;
+      case JsNode.CLASSELEM:
+        elem(node, ids, true);
         break;
     }
     node.leaves().forEach(function(leaf) {
@@ -58,11 +59,11 @@ function recursion(node, ids) {
 function decl(node, ids, start) {
   var nid = node.nid();
   if(start) {
-    ignore(node.leaf(0), 'klass0');
-    ignore(node.leaf(1), 'klass1');
-    ignore(node.leaf(2), 'klass2');
-    ignore(node.leaf(3), 'klass3');
-    ignore(node.leaf(5), 'klass4');
+    ignore(node.leaf(0));
+    ignore(node.leaf(1));
+    ignore(node.leaf(2));
+    ignore(node.leaf(3));
+    ignore(node.leaf(5));
     res += '!function(){';
     var temp = getUid(ids);
     var o = {};
@@ -83,6 +84,31 @@ function decl(node, ids, start) {
     res += o.name + '.prototype,';
     res += o.gsName + ')}';
     res += 'Object.keys(' + o.extend + ').forEach(function(k){' + o.name + '[k]=' + o.extend + '[k]});'
+  }
+}
+
+function elem(node, ids, start) {
+  var first = node.first();
+  var top = node.parent().parent();
+  var tid = top.nid();
+  var o = hash[tid];
+  if(first.name() == JsNode.METHOD) {
+    first = first.first();
+    //method
+    if(first.name() == JsNode.PROPTNAME) {
+      if(start) {
+        var token = first.first().first().token();
+        ignore(token);
+        if(token.content() == 'constructor') {
+          res += 'function ';
+          res += o.name;
+        }
+        else {
+          res += o.name;
+          res += '.prototype.' + token.content() + '=function';
+        }
+      }
+    }
   }
 }
 
