@@ -98,7 +98,7 @@ function elem(node, ids, start) {
     if(first.name() == JsNode.PROPTNAME) {
       if(start) {
         var token = first.first().first().token();
-        ignore(token);
+        ignore(token, true);
         if(token.content() == 'constructor') {
           res += 'function ';
           res += o.name;

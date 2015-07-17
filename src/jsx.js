@@ -53,8 +53,8 @@ function elem(node, inClass, inRender, setHash, getHash) {
     }
   }
   res += '])';
-  if(node.last().name() == Node.JSXClosingElement) {console.log(ignore(node.last()))
-    res += ignore(node.last()).res;
+  if(node.last().name() == Node.JSXClosingElement) {
+    res += ignore(node.last(), true).res;
   }
   return res;
 }
