@@ -25,15 +25,24 @@ function recursion(node, ids) {
     if(token.isVirtual()) {
       return;
     }
+    var s = token.content();
+    if(s == '(') {
+      prpts(node, true);
+    }
     if(!token.ignore) {
-      res += token.content();
+      res += s;
+    }
+    if(s == '(') {
+      prpts(node);
     }
     while(token.next()) {
       token = token.next();
       if(token.isVirtual() || !ignore.S.hasOwnProperty(token.type())) {
         break;
       }
-      res += token.content();
+      if(!token.ignore) {
+        res += token.content();
+      }
     }
   }
   else {
@@ -42,7 +51,10 @@ function recursion(node, ids) {
         decl(node, ids, true);
         break;
       case JsNode.CLASSELEM:
-        elem(node, ids, true);
+        elem(node, ids);
+        break;
+      case JsNode.PROPTNAME:
+        prptn(node);
         break;
     }
     node.leaves().forEach(function(leaf) {
@@ -74,6 +86,7 @@ function decl(node, ids, start) {
     res += o.name + '.prototype=' + temp;
     res += '}();';
     o.gsName = getUid(ids);
+    o.gs = {};
     res += 'var ' + o.gsName + '={};';
     hash[nid] = o;
   }
@@ -87,7 +100,7 @@ function decl(node, ids, start) {
   }
 }
 
-function elem(node, ids, start) {
+function elem(node, ids) {
   var first = node.first();
   var top = node.parent().parent();
   var tid = top.nid();
@@ -96,17 +109,89 @@ function elem(node, ids, start) {
     first = first.first();
     //method
     if(first.name() == JsNode.PROPTNAME) {
-      if(start) {
-        var token = first.first().first().token();
-        ignore(token, true);
-        if(token.content() == 'constructor') {
-          res += 'function ';
-          res += o.name;
+      var token = first.first().first().token();
+      ignore(token, true);
+      if(token.content() == 'constructor') {
+        res += 'function ';
+        res += o.name;
+      }
+      else {
+        res += o.name;
+        res += '.prototype.' + token.content() + '=function';
+      }
+    }
+    //get/set
+    else {
+      var token = first.token();
+      var prptn = first.next();
+      ignore(prptn);
+      if(token.content() == 'get' || token.content() == 'set') {
+        var n = prptn.first().first().token();
+        var s = n.content();
+        if(!o.gs.hasOwnProperty(s)) {
+          res += o.gsName + '.' + s + '={};';
+          o.gs[s] = true;
         }
-        else {
-          res += o.name;
-          res += '.prototype.' + token.content() + '=function';
-        }
+        res += o.gsName + '.' + s + '.';
+      }
+    }
+  }
+  else if(first.name() == JsNode.TOKEN
+    && first.token().content() == 'static') {
+    var token = first.token();
+    first = first.next().first();
+    ignore(token);
+    if(first.name() == JsNode.PROPTNAME) {
+      res += o.name + '.';
+    }
+    //get/set
+    else {
+      if(!o.gssName) {
+        o.gssName = getUid(ids);
+        o.gss = {};
+        res += 'var ' + o.gssName + '={};';
+      }
+      var prptn = first.next();
+      ignore(prptn);
+      var n = prptn.first().first().token();
+      var s = n.content();
+      if(!o.gss.hasOwnProperty(s)) {
+        res += o.gssName + '.' + s + '={};';
+        o.gss[s] = true;
+      }
+      res += o.gssName + '.' + s + '.';
+    }
+  }
+}
+
+function prptn(node) {
+  var parent = node.parent();
+  if(parent.name() == JsNode.METHOD) {
+    var prev = node.prev();
+    if(prev && prev.name() == JsNode.TOKEN) {
+      var token = prev.token();
+      var s = token.content();
+      if(s == 'get' || s == 'set') {
+        res += '=function';
+      }
+    }
+  }
+}
+
+function prpts(node, start) {
+  var parent = node.parent();
+  if(start) {
+    if(parent.name() == JsNode.METHOD
+      && parent.prev()
+      && parent.prev().name() == JsNode.TOKEN
+      && parent.prev().token().content() == 'static') {
+      if(parent.first().name() == JsNode.TOKEN
+        && ['get', 'set'].indexOf(parent.first().token().content()) > -1) {
+        return;
+      }
+      parent = parent.parent();
+      if(parent.name() == JsNode.CLASSELEM) {
+        res += '=function';
       }
     }
   }
@@ -114,9 +199,9 @@ function elem(node, ids, start) {
 
 var res;
 
-function klass(node, hash) {
+function klass(node, ids) {
   res = '';
-  recursion(node, hash);
+  recursion(node, ids);
   return res;
 }
 
