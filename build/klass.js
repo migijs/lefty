@@ -77,6 +77,9 @@ function recursion(node, ids) {
       case JsNode.CLASSDECL:
         decl(node, ids);
         break;
+      case JsNode.FNBODY:
+        body(node, ids);
+        break;
     }
   }
 }
@@ -290,6 +293,36 @@ function rp(node) {
       var prev = parent.prev();
       if(prev.isToken() && prev.token().content() == 'super') {
         res += ')';
+      }
+    }
+  }
+}
+
+function body(node, ids) {
+  var parent = node.parent();
+  if(parent.name() == JsNode.METHOD) {
+    var first = parent.first();
+    if(first.name() == JsNode.PROPTNAME) {
+      first = first.first();
+      if(first.name() == JsNode.LTRPROPT) {
+        first = first.first();
+        if(first.isToken() && first.token().content() == 'constructor') {
+          var top = closest(parent);
+          var o = hash[top.nid()];
+          var old = getUid(ids);
+          var news = getUid(ids);
+          res += "if(migi.lie&&this['__migiComponent']){";
+          res += 'var ' + old + '=this.__migiNode;';
+          res += 'var ' + news + "=document.createElement('div');";
+          res += 'if(' + old + '){';
+          res += 'Object.keys(' + old + ').forEach(function(k){';
+          res += o.gsName + '[k]=' + old + '.__gs[k]})}';
+          res += 'for(var i in this) {' + news + '[i]=this[i]}';
+          res += 'Object.defineProperties(';
+          res += news + ',' + o.gsName + ');';
+          res += news + '.__gs=' + o.gsName + ';';
+          res += 'return ' + news + '}';
+        }
       }
     }
   }
