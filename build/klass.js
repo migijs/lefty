@@ -311,16 +311,20 @@ function body(node, ids) {
           var o = hash[top.nid()];
           var old = getUid(ids);
           var news = getUid(ids);
+          var mix = getUid(ids);
           res += "if(migi.lie&&this['__migiComponent']){";
           res += 'var ' + old + '=this.__migiNode;';
           res += 'var ' + news + "=document.createElement('div');";
+          res += 'var ' + mix + "={};";
           res += 'if(' + old + '){';
           res += 'Object.keys(' + old + ').forEach(function(k){';
-          res += o.gsName + '[k]=' + old + '.__gs[k]})}';
+          res += mix + '[k]=' + old + '.__gs[k]})}';
+          res += 'Object.keys(' + o.gsName + ').forEach(function(k){';
+          res += mix + '[k]=' + o.gsName + '[k]})';
           res += 'for(var i in this) {' + news + '[i]=this[i]}';
           res += 'Object.defineProperties(';
-          res += news + ',' + o.gsName + ');';
-          res += news + '.__gs=' + o.gsName + ';';
+          res += news + ',' + mix + ');';
+          res += news + '.__gs=' + mix + ';';
           res += 'return ' + news + '}';
         }
       }

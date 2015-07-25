@@ -233,6 +233,82 @@ describe('linkage', function() {
     var s = 'class A extends migi.xxx{set t(){}get t(){}render(){return <p>{(this.t)}</p>}}';
     var res = lefty.parse(s);
     expect(res).to.eql('class A extends migi.xxx{set t(){this.emit(migi.Event.DATA,"t",arguments.callee.caller);}get t(){}render(){return migi.createVd("p",{},[new migi.Obj("t",this,function(){return((this.t))})])}}');
+  });
+});
 
-  })
+describe('lie', function() {
+  it('no extends', function() {
+    var s = 'class A{set t(){}get t(){}render(){return <p>{this.t}</p>}}';
+    var res = lefty.parse(s, true);
+    expect(res).to.eql('class A{set t(){}get t(){}render(){return migi.createVd("p",{},[this.t])}}');
+  });
+  it('no get/set', function() {
+    var s = 'class A extends B{render(){return <p>{this.t}</p>}}';
+    var res = lefty.parse(s, true);
+    expect(res).to.eql('class A extends B{render(){return migi.createVd("p",{},[this.t])}}');
+  });
+  it('no render', function() {
+    var s = 'class A extends B{set t(){}get t(){}r(){return <p>{this.t}</p>}}';
+    var res = lefty.parse(s, true);
+    expect(res).to.eql('class A extends B{set t(){}get t(){}r(){return migi.createVd("p",{},[this.t])}}');
+  });
+  it('no constructor', function() {
+    var s = 'class A extends B{set t(){}get t(){}render(){return <p>{this.t}</p>}}';
+    var res = lefty.parse(s, true);
+    expect(res).to.eql('class A extends B{set t(){}get t(){}render(){return migi.createVd("p",{},[this.t])}}');
+  });
+  it('normal', function() {
+    var s = 'class A extends B{\n' +
+      'constructor(...data){\n' +
+      'super(...data)\n' +
+      '}\n' +
+      'set t(){}\n' +
+      'get t(){}\n' +
+      'render(){\n' +
+      'return <p>{this.t}</p>\n' +
+      '}}';
+    var res = lefty.parse(s, true);
+    expect(res).to.eql('!function(){var _0=Object.create(B.prototype);_0.constructor=A;A.prototype=_0}();var _1={};\n' +
+      'function A(...data){\n' +
+      'B.apply(this,Array.from(data))\n' +
+      "if(migi.lie&&this['__migiComponent']){var _2=this.__migiNode;var _3=document.createElement('div');var _4={};if(_2){Object.keys(_2).forEach(function(k){_4[k]=_2.__gs[k]})}Object.keys(_1).forEach(function(k){_4[k]=_1[k]})for(var i in this) {_3[i]=this[i]}Object.defineProperties(_3,_4);_3.__gs=_4;return _3}}\n" +
+      '_1.t={};_1.t.set =function(){}\n' +
+      '_1.t.get =function(){}\n' +
+      'A.prototype.render=function(){\n' +
+      'return migi.createVd("p",{},[this.t])\n' +
+      '}if(!migi.lie){Object.defineProperties(A.prototype,_1)}Object.keys(B).forEach(function(k){A[k]=B[k]});');
+  });
+  it('super', function() {
+    var s = 'class A extends B{\n' +
+      'constructor(...data){\n' +
+      'super(...data)\n' +
+      '}\n' +
+      'set t(){}\n' +
+      'get t(){}\n' +
+      'render(){\n' +
+      'super.a;\n' +
+      'super.a();\n' +
+      'super.a(a);\n' +
+      'super.a(a,b);\n' +
+      'super.a(...a);\n' +
+      'super.a(a,...b);\n' +
+      'return <p>{this.t}</p>\n' +
+      '}}';
+    var res = lefty.parse(s, true);
+    expect(res).to.eql('!function(){var _0=Object.create(B.prototype);_0.constructor=A;A.prototype=_0}();var _1={};\n' +
+      'function A(...data){\n' +
+      'B.apply(this,Array.from(data))\n' +
+      "if(migi.lie&&this['__migiComponent']){var _2=this.__migiNode;var _3=document.createElement('div');var _4={};if(_2){Object.keys(_2).forEach(function(k){_4[k]=_2.__gs[k]})}Object.keys(_1).forEach(function(k){_4[k]=_1[k]})for(var i in this) {_3[i]=this[i]}Object.defineProperties(_3,_4);_3.__gs=_4;return _3}}\n" +
+      '_1.t={};_1.t.set =function(){}\n' +
+      '_1.t.get =function(){}\n' +
+      'A.prototype.render=function(){\n' +
+      'B.prototype.a;\n' +
+      'B.prototype.call(this);\n' +
+      'B.prototype.call(this,a);\n' +
+      'B.prototype.call(this,a,b);\n' +
+      'B.prototype.apply(this,Array.from(a));' +
+      'B.prototype.apply(this,[a].concat(Array.from(b)));' +
+      'return migi.createVd("p",{},[this.t])\n' +
+      '}if(!migi.lie){Object.defineProperties(A.prototype,_1)}Object.keys(B).forEach(function(k){A[k]=B[k]});');
+  });
 });
