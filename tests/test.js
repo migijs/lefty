@@ -260,7 +260,11 @@ describe('lie', function() {
   it('normal', function() {
     var s = 'class A extends B{\n' +
       'constructor(...data){\n' +
-      'super(...data)\n' +
+      'super();\n' +
+      'super(a);\n' +
+      'super(a,b);\n' +
+      'super(...data);\n' +
+      'super(a,...data);\n' +
       '}\n' +
       'set t(){}\n' +
       'get t(){}\n' +
@@ -270,7 +274,11 @@ describe('lie', function() {
     var res = lefty.parse(s, true);
     expect(res).to.eql('!function(){var _0=Object.create(B.prototype);_0.constructor=A;A.prototype=_0}();var _1={};\n' +
       'function A(...data){\n' +
-      'B.apply(this,Array.from(data))\n' +
+      'B.call(this);\n' +
+      'B.call(this,a);\n' +
+      'B.apply(this,[a,b]);\n' +
+      'B.apply(this,Array.from(data));\n' +
+      'B.apply(this,[a].concat(Array.from(data)));\n' +
       "if(migi.util.lie&&this['__migiComponent']){var _2=this.__migiNode;var _3=document.createElement('a');var _4={};if(_2){migi.util.smix(_4,_2.__gs)}migi.util.smix(_4,_1);migi.util.smix(_3,this);Object.defineProperties(_3,_4);_3.__gs=_4;return _3}}\n" +
       '_1.t={};_1.t.set =function(){}\n' +
       '_1.t.get =function(){}\n' +
@@ -278,7 +286,7 @@ describe('lie', function() {
       'return migi.createVd("p",{},[this.t])\n' +
       '}if(!migi.util.lie){Object.defineProperties(A.prototype,_1)}Object.keys(B).forEach(function(k){A[k]=B[k]});');
   });
-  it('super', function() {
+  it('super method', function() {
     var s = 'class A extends B{\n' +
       'constructor(...data){\n' +
       'super(...data)\n' +
@@ -303,11 +311,11 @@ describe('lie', function() {
       '_1.t.get =function(){}\n' +
       'A.prototype.render=function(){\n' +
       'B.prototype.a;\n' +
-      'B.prototype.call(this);\n' +
-      'B.prototype.call(this,a);\n' +
-      'B.prototype.call(this,a,b);\n' +
-      'B.prototype.apply(this,Array.from(a));\n' +
-      'B.prototype.apply(this,[a].concat(Array.from(b)));\n' +
+      'B.prototype.a.call(this);\n' +
+      'B.prototype.a.call(this,a);\n' +
+      'B.prototype.a.apply(this,[a,b]);\n' +
+      'B.prototype.a.apply(this,Array.from(a));\n' +
+      'B.prototype.a.apply(this,[a].concat(Array.from(b)));\n' +
       'return migi.createVd("p",{},[this.t])\n' +
       '}if(!migi.util.lie){Object.defineProperties(A.prototype,_1)}Object.keys(B).forEach(function(k){A[k]=B[k]});');
   });

@@ -17,6 +17,10 @@ function getUid(ids) {
 }
 
 var hash = {};
+var prptHash = {};
+
+var CALL = 1;
+var APPLY = 2;
 
 function recursion(node, ids) {
   var isToken = node.name() == JsNode.TOKEN;
@@ -108,7 +112,7 @@ function decl(node, ids, start) {
   }
   else {
     var o = hash[nid];
-    res += 'if(!migi.lie){';
+    res += 'if(!migi.util.lie){';
     res += 'Object.defineProperties(';
     res += o.name + '.prototype,';
     res += o.gsName + ')';
@@ -203,6 +207,7 @@ function prptn(node) {
 function prpts(node, start) {
   var parent = node.parent();
   var prev = parent.prev();
+  var nid = node.nid();
   if(start) {
     if(parent.name() == JsNode.METHOD
       && prev
@@ -217,17 +222,70 @@ function prpts(node, start) {
         res += '=function';
       }
     }
+    //super.xxx()
+    else if(parent.name() == JsNode.ARGS) {
+      parent = parent.parent();
+      if(parent.name() == JsNode.CALLEXPR) {
+        var mmbexpr = parent.first();
+        if(mmbexpr.name() == JsNode.MMBEXPR) {
+          var sup = mmbexpr.first();
+          if(sup.isToken() && sup.token().content() == 'super') {
+            var next = node.next();
+            if(next.name() == JsNode.ARGLIST) {
+              var hasRest = false;
+              if(next.size() > 1) {
+                var rest = next.last().prev();
+                if(rest.isToken() && rest.token().content() == '...') {
+                  hasRest = true;
+                }
+              }
+              if(hasRest || next.size() > 2) {
+                res += '.apply';
+                prptHash[nid] = {
+                  type: APPLY,
+                  rest: hasRest,
+                  size: next.size()
+                };
+                if(hasRest && next.size() > 3) {
+                  ignore(rest.prev());
+                }
+              }
+              else {
+                res += '.call';
+                prptHash[nid] = {
+                  type: CALL,
+                  rest: hasRest,
+                  size: next.size()
+                };
+              }
+            }
+          }
+        }
+      }
+    }
   }
   else {
     if(parent.name() == JsNode.ARGS
       && prev
       && prev.isToken()
       && prev.token().content() == 'super') {
-      res += 'this,';
+      res += 'this';
       var list = node.next();
-      var hasRest = false;
       if(list.size() > 2) {
-        res += '[';
+        res += ',[';
+      }
+      else if(list.size() > 0) {
+        res += ',';
+      }
+    }
+    else if(prptHash[nid]) {
+      var o = prptHash[nid];
+      res += 'this';
+      if(o.type == APPLY || o.size > 0) {
+        res += ',';
+        if(o.size > 2) {
+          res += '[';
+        }
       }
     }
   }
@@ -246,13 +304,15 @@ function supers(node) {
       var hasRest = false;
       if(list.size() > 1) {
         var rest = list.last().prev();
-        //待被rest改写apply
         if(rest.isToken() && rest.token().content() == '...') {
           hasRest = true;
         }
       }
       if(hasRest || list.size() > 2) {
         res += '.apply';
+        if(hasRest && list.size() > 3) {
+          ignore(rest.prev());
+        }
       }
       else {
         res += '.call';
@@ -269,10 +329,21 @@ function rest(node) {
   var parent = node.parent();
   if(parent.name() == JsNode.ARGLIST) {
     var len = parent.size();
-    parent = parent.parent();
-    if(parent.name() == JsNode.ARGS) {
-      var prev = parent.prev();
+    var args = parent.parent();
+    if(args.name() == JsNode.ARGS) {
+      var prev = args.prev();
+      //super(...x)
       if(prev.isToken() && prev.token().content() == 'super') {
+        ignore(node);
+        if(len > 2) {
+          res += '].concat(Array.from(';
+        }
+        else {
+          res += 'Array.from(';
+        }
+      }
+      //super.xxx(...x)
+      else if(prptHash[parent.prev().nid()]) {
         ignore(node);
         if(len > 2) {
           res += '].concat(Array.from(';
@@ -290,9 +361,39 @@ function rp(node) {
   if(prev.name() == JsNode.ARGLIST) {
     var parent = node.parent();
     if(parent.name() == JsNode.ARGS) {
-      var prev = parent.prev();
-      if(prev.isToken() && prev.token().content() == 'super') {
-        res += ')';
+      var sup = parent.prev();
+      //super()
+      if(sup.isToken() && sup.token().content() == 'super') {
+        if(prev.size() >= 2) {
+          var rest = prev.last().prev();
+          if(rest.token().content() != '...') {
+            res += ']';
+          }
+          else {
+            res += ')';
+            if(prev.size() > 3) {
+              res += ')';
+            }
+          }
+        }
+      }
+      //super.xxx()
+      else {
+        var first = parent.first();
+        var o = prptHash[first.nid()];
+        if(o) {
+          if(o.type == APPLY) {
+            if(!o.rest) {
+              res += ']';
+            }
+            else {
+              res += ')';
+              if(o.size > 3) {
+                res += ')';
+              }
+            }
+          }
+        }
       }
     }
   }
@@ -344,6 +445,7 @@ var res;
 
 function klass(node, ids) {
   res = '';
+  uid = 0;
   recursion(node, ids);
   return res;
 }
