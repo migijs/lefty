@@ -271,12 +271,12 @@ describe('lie', function() {
     expect(res).to.eql('!function(){var _0=Object.create(B.prototype);_0.constructor=A;A.prototype=_0}();var _1={};\n' +
       'function A(...data){\n' +
       'B.apply(this,Array.from(data))\n' +
-      "if(migi.lie&&this['__migiComponent']){var _2=this.__migiNode;var _3=document.createElement('div');var _4={};if(_2){Object.keys(_2).forEach(function(k){_4[k]=_2.__gs[k]})}Object.keys(_1).forEach(function(k){_4[k]=_1[k]})for(var i in this) {_3[i]=this[i]}Object.defineProperties(_3,_4);_3.__gs=_4;return _3}}\n" +
+      "if(migi.util.lie&&this['__migiComponent']){var _2=this.__migiNode;var _3=document.createElement('a');var _4={};if(_2){migi.util.smix(_4,_2.__gs)}migi.util.smix(_4,_1);migi.util.smix(_3,this);Object.defineProperties(_3,_4);_3.__gs=_4;return _3}}\n" +
       '_1.t={};_1.t.set =function(){}\n' +
       '_1.t.get =function(){}\n' +
       'A.prototype.render=function(){\n' +
       'return migi.createVd("p",{},[this.t])\n' +
-      '}if(!migi.lie){Object.defineProperties(A.prototype,_1)}Object.keys(B).forEach(function(k){A[k]=B[k]});');
+      '}if(!migi.util.lie){Object.defineProperties(A.prototype,_1)}Object.keys(B).forEach(function(k){A[k]=B[k]});');
   });
   it('super', function() {
     var s = 'class A extends B{\n' +
@@ -298,7 +298,7 @@ describe('lie', function() {
     expect(res).to.eql('!function(){var _0=Object.create(B.prototype);_0.constructor=A;A.prototype=_0}();var _1={};\n' +
       'function A(...data){\n' +
       'B.apply(this,Array.from(data))\n' +
-      "if(migi.lie&&this['__migiComponent']){var _2=this.__migiNode;var _3=document.createElement('div');var _4={};if(_2){Object.keys(_2).forEach(function(k){_4[k]=_2.__gs[k]})}Object.keys(_1).forEach(function(k){_4[k]=_1[k]})for(var i in this) {_3[i]=this[i]}Object.defineProperties(_3,_4);_3.__gs=_4;return _3}}\n" +
+      "if(migi.util.lie&&this['__migiComponent']){var _2=this.__migiNode;var _3=document.createElement('a');var _4={};if(_2){migi.util.smix(_4,_2.__gs)}migi.util.smix(_4,_1);migi.util.smix(_3,this);Object.defineProperties(_3,_4);_3.__gs=_4;return _3}}\n" +
       '_1.t={};_1.t.set =function(){}\n' +
       '_1.t.get =function(){}\n' +
       'A.prototype.render=function(){\n' +
@@ -306,9 +306,9 @@ describe('lie', function() {
       'B.prototype.call(this);\n' +
       'B.prototype.call(this,a);\n' +
       'B.prototype.call(this,a,b);\n' +
-      'B.prototype.apply(this,Array.from(a));' +
-      'B.prototype.apply(this,[a].concat(Array.from(b)));' +
+      'B.prototype.apply(this,Array.from(a));\n' +
+      'B.prototype.apply(this,[a].concat(Array.from(b)));\n' +
       'return migi.createVd("p",{},[this.t])\n' +
-      '}if(!migi.lie){Object.defineProperties(A.prototype,_1)}Object.keys(B).forEach(function(k){A[k]=B[k]});');
+      '}if(!migi.util.lie){Object.defineProperties(A.prototype,_1)}Object.keys(B).forEach(function(k){A[k]=B[k]});');
   });
 });
