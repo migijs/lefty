@@ -229,4 +229,10 @@ describe('linkage', function() {
     var res = lefty.parse(s);
     expect(res).to.eql('class Person extends migi.Component{get name(first,last){}set first(v){this.emit(migi.Event.DATA,"first",arguments.callee.caller);}set last(v){this.emit(migi.Event.DATA,"last",arguments.callee.caller);}render(){return(migi.createVd("p",{},[new migi.Obj(["first","last"],this,function(){return(this.name)})]));}}');
   });
+  it('(expr)', function() {
+    var s = 'class A extends migi.xxx{set t(){}get t(){}render(){return <p>{(this.t)}</p>}}';
+    var res = lefty.parse(s);
+    expect(res).to.eql('class A extends migi.xxx{set t(){this.emit(migi.Event.DATA,"t",arguments.callee.caller);}get t(){}render(){return migi.createVd("p",{},[new migi.Obj("t",this,function(){return((this.t))})])}}');
+
+  })
 });

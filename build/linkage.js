@@ -47,6 +47,9 @@ function parse(node, res) {
     case Node.ARRLTR:
       arrltr(node, res);
       break;
+    case Node.CPEAPL:
+      cpeapl(node, res);
+      break;
   }
 }
 function mmbexpr(node, res) {
@@ -121,6 +124,15 @@ function arrltr(node, res) {
       }
     }
   });
+}
+
+function cpeapl(node, res) {
+  if(node.size() > 2) {
+    var leaf = node.leaf(1);
+    if(!leaf.isToken()) {
+      parse(leaf, res);
+    }
+  }
 }
 
 exports["default"]=function(node, setHash, getHash) {
