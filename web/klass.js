@@ -26,14 +26,27 @@ function recursion(node, ids) {
       return;
     }
     var s = token.content();
-    if(s == '(') {
-      prpts(node, true);
+    switch(s) {
+      case '(':
+        prpts(node, true);
+        break;
+      case 'super':
+        supers(node);
+        break;
+      case '...':
+        rest(node);
+        break;
+      case ')':
+        rp(node);
+        break;
     }
     if(!token.ignore) {
       res += s;
     }
-    if(s == '(') {
-      prpts(node);
+    switch(s) {
+      case '(':
+        prpts(node);
+        break;
     }
     while(token.next()) {
       token = token.next();
@@ -93,9 +106,15 @@ function decl(node, ids, start) {
   else {
     var o = hash[nid];
     res += 'if(!migi.lie){';
-    res += 'Object.definePropertyies(';
+    res += 'Object.defineProperties(';
     res += o.name + '.prototype,';
-    res += o.gsName + ')}';
+    res += o.gsName + ')';
+    if(o.gssName) {
+      res += ';Object.defineProperties(';
+      res += o.name + ',';
+      res += o.gssName + ')';
+    }
+    res += '}';
     res += 'Object.keys(' + o.extend + ').forEach(function(k){' + o.name + '[k]=' + o.extend + '[k]});'
   }
 }
@@ -180,11 +199,12 @@ function prptn(node) {
 
 function prpts(node, start) {
   var parent = node.parent();
+  var prev = parent.prev();
   if(start) {
     if(parent.name() == JsNode.METHOD
-      && parent.prev()
-      && parent.prev().name() == JsNode.TOKEN
-      && parent.prev().token().content() == 'static') {
+      && prev
+      && prev.isToken()
+      && prev.token().content() == 'static') {
       if(parent.first().name() == JsNode.TOKEN
         && ['get', 'set'].indexOf(parent.first().token().content()) > -1) {
         return;
@@ -193,6 +213,94 @@ function prpts(node, start) {
       if(parent.name() == JsNode.CLASSELEM) {
         res += '=function';
       }
+    }
+  }
+  else {
+    if(parent.name() == JsNode.ARGS
+      && prev
+      && prev.isToken()
+      && prev.token().content() == 'super') {
+      res += 'this,';
+      var list = node.next();
+      var hasRest = false;
+      if(list.size() > 2) {
+        res += '[';
+      }
+    }
+  }
+}
+
+function supers(node) {
+  ignore(node);
+  var top = closest(node);
+  var nid = top.nid();
+  var o = hash[nid];
+  res += o.extend;
+  if(node.next()) {
+    //super()
+    if(node.next().name() == JsNode.ARGS) {
+      var list = node.next().leaf(1);
+      var hasRest = false;
+      if(list.size() > 1) {
+        var rest = list.last().prev();
+        //待被rest改写apply
+        if(rest.isToken() && rest.token().content() == '...') {
+          hasRest = true;
+        }
+      }
+      if(hasRest || list.size() > 2) {
+        res += '.apply';
+      }
+      else {
+        res += '.call';
+      }
+    }
+    //super.xxx
+    else {
+      res += '.prototype';
+    }
+  }
+}
+
+function rest(node) {
+  var parent = node.parent();
+  if(parent.name() == JsNode.ARGLIST) {
+    var len = parent.size();
+    parent = parent.parent();
+    if(parent.name() == JsNode.ARGS) {
+      var prev = parent.prev();
+      if(prev.isToken() && prev.token().content() == 'super') {
+        ignore(node);
+        if(len > 2) {
+          res += '].concat(Array.from(';
+        }
+        else {
+          res += 'Array.from(';
+        }
+      }
+    }
+  }
+}
+
+function rp(node) {
+  var prev = node.prev();
+  if(prev.name() == JsNode.ARGLIST) {
+    var parent = node.parent();
+    if(parent.name() == JsNode.ARGS) {
+      var prev = parent.prev();
+      if(prev.isToken() && prev.token().content() == 'super') {
+        res += ')';
+      }
+    }
+  }
+}
+
+function closest(node) {
+  var parent = node;
+  while(parent = parent.parent()) {
+    if(parent.name() == JsNode.CLASSDECL
+      || parent.name() == JsNode.CLASSEXPR) {
+      return parent;
     }
   }
 }
