@@ -413,14 +413,14 @@ function body(node, ids) {
           var old = getUid(ids);
           var news = getUid(ids);
           var mix = getUid(ids);
-          res += "if(migi.util.lie&&this['__migiComponent']){";
+          res += 'if(migi.browser.lie&&this.__migiCp){';
           res += 'var ' + old + '=this.__migiNode;';
           res += 'var ' + news + "=document.createElement('a');";
+          res += 'this.__migiNode=' + news + '.__migiNode=' + news + ';';
           res += 'var ' + mix + '={};';
-          res += 'if(' + old + '){';
-          res += 'migi.util.smix(' + mix + ',' + old + '.__gs)}';
+          res += 'migi.util.smix(' + mix + ',' + old + '.__gs);';
           res += 'migi.util.smix(' + mix + ',' + o.gsName + ');';
-          res += 'migi.util.smix(' + news + ',this);';
+          res += 'migi.util.pmix(' + news + ',this);';
           res += 'Object.defineProperties(';
           res += news + ',' + mix + ');';
           res += news + '.__gs=' + mix + ';';

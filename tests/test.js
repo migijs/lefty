@@ -279,7 +279,7 @@ describe('lie', function() {
       'B.apply(this,[a,b]);\n' +
       'B.apply(this,Array.from(data));\n' +
       'B.apply(this,[a].concat(Array.from(data)));\n' +
-      "if(migi.util.lie&&this['__migiComponent']){var _2=this.__migiNode;var _3=document.createElement('a');var _4={};if(_2){migi.util.smix(_4,_2.__gs)}migi.util.smix(_4,_1);migi.util.smix(_3,this);Object.defineProperties(_3,_4);_3.__gs=_4;return _3}}\n" +
+      "if(migi.browser.lie&&this.__migiCp){var _2=this.__migiNode;var _3=document.createElement('a');this.__migiNode=_3.__migiNode=_3;var _4={};migi.util.smix(_4,_2.__gs);migi.util.smix(_4,_1);migi.util.pmix(_3,this);Object.defineProperties(_3,_4);_3.__gs=_4;return _3}}\n" +
       '_1.t={};_1.t.set =function(){}\n' +
       '_1.t.get =function(){}\n' +
       'A.prototype.render=function(){\n' +
@@ -306,7 +306,7 @@ describe('lie', function() {
     expect(res).to.eql('!function(){var _0=Object.create(B.prototype);_0.constructor=A;A.prototype=_0}();var _1={};\n' +
       'function A(...data){\n' +
       'B.apply(this,Array.from(data))\n' +
-      "if(migi.util.lie&&this['__migiComponent']){var _2=this.__migiNode;var _3=document.createElement('a');var _4={};if(_2){migi.util.smix(_4,_2.__gs)}migi.util.smix(_4,_1);migi.util.smix(_3,this);Object.defineProperties(_3,_4);_3.__gs=_4;return _3}}\n" +
+      "if(migi.browser.lie&&this.__migiCp){var _2=this.__migiNode;var _3=document.createElement('a');this.__migiNode=_3.__migiNode=_3;var _4={};migi.util.smix(_4,_2.__gs);migi.util.smix(_4,_1);migi.util.pmix(_3,this);Object.defineProperties(_3,_4);_3.__gs=_4;return _3}}\n" +
       '_1.t={};_1.t.set =function(){}\n' +
       '_1.t.get =function(){}\n' +
       'A.prototype.render=function(){\n' +
