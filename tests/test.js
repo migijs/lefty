@@ -319,4 +319,9 @@ describe('lie', function() {
       'return migi.createVd("p",{},[this.t])\n' +
       '}if(!migi.util.lie){Object.defineProperties(A.prototype,_1)}Object.keys(B).forEach(function(k){A[k]=B[k]});');
   });
+  it('static', function() {
+    var s = 'class A extends B{constructor(){}static get t(){}static set t(v){}}';
+    var res = lefty.parse(s, true);
+    expect(res).to.eql('!function(){var _0=Object.create(B.prototype);_0.constructor=A;A.prototype=_0}();var _1={};function A(){if(migi.browser.lie&&this.__migiCP){return this.__hackLie(A,_1)}}var _3={};_3.t={};_3.t.get =function(){}_3.t.set =function(v){}if(!migi.util.lie){Object.defineProperties(A.prototype,_1);Object.defineProperties(A,_3)}Object.keys(B).forEach(function(k){A[k]=B[k]});');
+  });
 });
