@@ -410,21 +410,9 @@ function body(node, ids) {
         if(first.isToken() && first.token().content() == 'constructor') {
           var top = closest(parent);
           var o = hash[top.nid()];
-          var old = getUid(ids);
           var news = getUid(ids);
-          var mix = getUid(ids);
-          res += 'if(migi.browser.lie&&this.__migiCp){';
-          res += 'var ' + old + '=this.__migiNode;';
-          res += 'var ' + news + "=document.createElement('a');";
-          res += 'this.__migiNode=' + news + '.__migiNode=' + news + ';';
-          res += 'var ' + mix + '={};';
-          res += 'migi.util.smix(' + mix + ',' + old + '.__gs);';
-          res += 'migi.util.smix(' + mix + ',' + o.gsName + ');';
-          res += 'migi.util.pmix(' + news + ',this);';
-          res += 'Object.defineProperties(';
-          res += news + ',' + mix + ');';
-          res += news + '.__gs=' + mix + ';';
-          res += 'return ' + news + '}';
+          res += 'if(migi.browser.lie&&this.__migiCP){';
+          res += 'return this.__hackLie(' + o.name + ',' + o.gsName + ')}';
         }
       }
     }

@@ -243,14 +243,14 @@ describe('lie', function() {
     expect(res).to.eql('class A{set t(){}get t(){}render(){return migi.createVd("p",{},[this.t])}}');
   });
   it('no get/set', function() {
-    var s = 'class A extends B{render(){return <p>{this.t}</p>}}';
+    var s = 'class A extends B{constructor(){}render(){return <p>{this.t}</p>}}';
     var res = lefty.parse(s, true);
-    expect(res).to.eql('class A extends B{render(){return migi.createVd("p",{},[this.t])}}');
+    expect(res).to.eql('!function(){var _0=Object.create(B.prototype);_0.constructor=A;A.prototype=_0}();var _1={};function A(){if(migi.browser.lie&&this.__migiCP){return this.__hackLie(A,_1)}}A.prototype.render=function(){return migi.createVd("p",{},[this.t])}if(!migi.util.lie){Object.defineProperties(A.prototype,_1)}Object.keys(B).forEach(function(k){A[k]=B[k]});');
   });
   it('no render', function() {
-    var s = 'class A extends B{set t(){}get t(){}r(){return <p>{this.t}</p>}}';
+    var s = 'class A extends B{constructor(){}set t(){}get t(){}r(){return <p>{this.t}</p>}}';
     var res = lefty.parse(s, true);
-    expect(res).to.eql('class A extends B{set t(){}get t(){}r(){return migi.createVd("p",{},[this.t])}}');
+    expect(res).to.eql('!function(){var _0=Object.create(B.prototype);_0.constructor=A;A.prototype=_0}();var _1={};function A(){if(migi.browser.lie&&this.__migiCP){return this.__hackLie(A,_1)}}_1.t={};_1.t.set =function(){}_1.t.get =function(){}A.prototype.r=function(){return migi.createVd("p",{},[this.t])}if(!migi.util.lie){Object.defineProperties(A.prototype,_1)}Object.keys(B).forEach(function(k){A[k]=B[k]});');
   });
   it('no constructor', function() {
     var s = 'class A extends B{set t(){}get t(){}render(){return <p>{this.t}</p>}}';
@@ -279,7 +279,7 @@ describe('lie', function() {
       'B.apply(this,[a,b]);\n' +
       'B.apply(this,Array.from(data));\n' +
       'B.apply(this,[a].concat(Array.from(data)));\n' +
-      "if(migi.browser.lie&&this.__migiCp){var _2=this.__migiNode;var _3=document.createElement('a');this.__migiNode=_3.__migiNode=_3;var _4={};migi.util.smix(_4,_2.__gs);migi.util.smix(_4,_1);migi.util.pmix(_3,this);Object.defineProperties(_3,_4);_3.__gs=_4;return _3}}\n" +
+      'if(migi.browser.lie&&this.__migiCP){return this.__hackLie(A,_1)}}\n' +
       '_1.t={};_1.t.set =function(){}\n' +
       '_1.t.get =function(){}\n' +
       'A.prototype.render=function(){\n' +
@@ -306,7 +306,7 @@ describe('lie', function() {
     expect(res).to.eql('!function(){var _0=Object.create(B.prototype);_0.constructor=A;A.prototype=_0}();var _1={};\n' +
       'function A(...data){\n' +
       'B.apply(this,Array.from(data))\n' +
-      "if(migi.browser.lie&&this.__migiCp){var _2=this.__migiNode;var _3=document.createElement('a');this.__migiNode=_3.__migiNode=_3;var _4={};migi.util.smix(_4,_2.__gs);migi.util.smix(_4,_1);migi.util.pmix(_3,this);Object.defineProperties(_3,_4);_3.__gs=_4;return _3}}\n" +
+      'if(migi.browser.lie&&this.__migiCP){return this.__hackLie(A,_1)}}\n' +
       '_1.t={};_1.t.set =function(){}\n' +
       '_1.t.get =function(){}\n' +
       'A.prototype.render=function(){\n' +

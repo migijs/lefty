@@ -44,47 +44,8 @@ function klassdecl(node) {
   var heritage = node.leaf(2);
   //必须有继承，但直接继承migi.xxx可判断，再继承无法得知，因此所有继承都追加
   if(heritage && heritage.name() == JsNode.HERITAGE) {
-    return hasGS(node) && hasCons(node);
+    return hasCons(node);
   }
-}
-
-function hasGS(node) {
-  var body = node.last().prev();
-  var og = {};
-  var os = {};
-  //判断有无get/set，有才追加
-  body.leaves().forEach(function(leaf) {
-    var method = leaf.first();
-    if(method.name() == JsNode.METHOD) {
-      var first = method.first();
-      if(first.isToken()) {
-        var token = first.token();
-        var id = first.next();
-        if(id.name() == JsNode.PROPTNAME) {
-          id = id.first();
-          if(id.name() == JsNode.LTRPROPT) {
-            id = id.first();
-            if(id.isToken()) {
-              id = id.token().content();
-              if(token.content() == 'get') {
-                og[id] = true;
-              }
-              else if(token.content() == 'set') {
-                os[id] = true;
-              }
-            }
-          }
-        }
-      }
-    }
-  });
-  var res = false;
-  Object.keys(og).forEach(function(k) {
-    if(!res && os.hasOwnProperty(k)) {
-      res = true;
-    }
-  });
-  return res;
 }
 
 function hasCons(node) {
