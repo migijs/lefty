@@ -34,13 +34,6 @@ class Lefty {
     }
     return es5 ? jsdc.parse(res) : res;
   }
-
-  get tokens() {
-    return this.ast ? this.parser.lexer.tokens() : null;
-  }
-  get ast() {
-    return this.node;
-  }
 }
 
 export default new Lefty();

@@ -35,12 +35,5 @@ var Node = homunculus.getClass('node', 'jsx');
     return es5 ? jsdc.parse(res) : res;
   }
 
-  var _4={};_4.tokens={};_4.tokens.get =function() {
-    return this.ast ? this.parser.lexer.tokens() : null;
-  }
-  _4.ast={};_4.ast.get =function() {
-    return this.node;
-  }
-Object.keys(_4).forEach(function(k){Object.defineProperty(Lefty.prototype,k,_4[k])});
 
 exports["default"]=new Lefty();
