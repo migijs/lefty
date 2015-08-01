@@ -112,7 +112,7 @@ function decl(node, ids, start) {
   }
   else {
     var o = hash[nid];
-    res += 'if(!migi.util.lie){';
+    res += 'if(!migi.browser.lie){';
     res += 'Object.defineProperties(';
     res += o.name + '.prototype,';
     res += o.gsName + ')';

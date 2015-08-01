@@ -238,12 +238,12 @@ describe('lie', function() {
   it('no get/set', function() {
     var s = 'class A extends B{constructor(){}render(){return <p>{this.t}</p>}}';
     var res = lefty.parse(s, true);
-    expect(res).to.eql('!function(){var _0=Object.create(B.prototype);_0.constructor=A;A.prototype=_0}();var _1={};function A(){if(migi.browser.lie&&this.__migiCP){return this.__hackLie(A,_1)}}A.prototype.render=function(){return migi.createVd("p",{},[this.t])}if(!migi.util.lie){Object.defineProperties(A.prototype,_1)}Object.keys(B).forEach(function(k){A[k]=B[k]});');
+    expect(res).to.eql('!function(){var _0=Object.create(B.prototype);_0.constructor=A;A.prototype=_0}();var _1={};function A(){if(migi.browser.lie&&this.__migiCP){return this.__hackLie(A,_1)}}A.prototype.render=function(){return migi.createVd("p",{},[this.t])}if(!migi.browser.lie){Object.defineProperties(A.prototype,_1)}Object.keys(B).forEach(function(k){A[k]=B[k]});');
   });
   it('no render', function() {
     var s = 'class A extends B{constructor(){}set t(){}get t(){}r(){return <p>{this.t}</p>}}';
     var res = lefty.parse(s, true);
-    expect(res).to.eql('!function(){var _0=Object.create(B.prototype);_0.constructor=A;A.prototype=_0}();var _1={};function A(){if(migi.browser.lie&&this.__migiCP){return this.__hackLie(A,_1)}}_1.t={};_1.t.set =function(){}_1.t.get =function(){}A.prototype.r=function(){return migi.createVd("p",{},[this.t])}if(!migi.util.lie){Object.defineProperties(A.prototype,_1)}Object.keys(B).forEach(function(k){A[k]=B[k]});');
+    expect(res).to.eql('!function(){var _0=Object.create(B.prototype);_0.constructor=A;A.prototype=_0}();var _1={};function A(){if(migi.browser.lie&&this.__migiCP){return this.__hackLie(A,_1)}}_1.t={};_1.t.set =function(){}_1.t.get =function(){}A.prototype.r=function(){return migi.createVd("p",{},[this.t])}if(!migi.browser.lie){Object.defineProperties(A.prototype,_1)}Object.keys(B).forEach(function(k){A[k]=B[k]});');
   });
   it('no constructor', function() {
     var s = 'class A extends B{set t(){}get t(){}render(){return <p>{this.t}</p>}}';
@@ -277,7 +277,7 @@ describe('lie', function() {
       '_1.t.get =function(){}\n' +
       'A.prototype.render=function(){\n' +
       'return migi.createVd("p",{},[this.t])\n' +
-      '}if(!migi.util.lie){Object.defineProperties(A.prototype,_1)}Object.keys(B).forEach(function(k){A[k]=B[k]});');
+      '}if(!migi.browser.lie){Object.defineProperties(A.prototype,_1)}Object.keys(B).forEach(function(k){A[k]=B[k]});');
   });
   it('super method', function() {
     var s = 'class A extends B{\n' +
@@ -310,11 +310,11 @@ describe('lie', function() {
       'B.prototype.a.apply(this,Array.from(a));\n' +
       'B.prototype.a.apply(this,[a].concat(Array.from(b)));\n' +
       'return migi.createVd("p",{},[this.t])\n' +
-      '}if(!migi.util.lie){Object.defineProperties(A.prototype,_1)}Object.keys(B).forEach(function(k){A[k]=B[k]});');
+      '}if(!migi.browser.lie){Object.defineProperties(A.prototype,_1)}Object.keys(B).forEach(function(k){A[k]=B[k]});');
   });
   it('static', function() {
     var s = 'class A extends B{constructor(){}static get t(){}static set t(v){}}';
     var res = lefty.parse(s, true);
-    expect(res).to.eql('!function(){var _0=Object.create(B.prototype);_0.constructor=A;A.prototype=_0}();var _1={};function A(){if(migi.browser.lie&&this.__migiCP){return this.__hackLie(A,_1)}}var _3={};_3.t={};_3.t.get =function(){}_3.t.set =function(v){}if(!migi.util.lie){Object.defineProperties(A.prototype,_1);Object.defineProperties(A,_3)}Object.keys(B).forEach(function(k){A[k]=B[k]});');
+    expect(res).to.eql('!function(){var _0=Object.create(B.prototype);_0.constructor=A;A.prototype=_0}();var _1={};function A(){if(migi.browser.lie&&this.__migiCP){return this.__hackLie(A,_1)}}var _3={};_3.t={};_3.t.get =function(){}_3.t.set =function(v){}if(!migi.browser.lie){Object.defineProperties(A.prototype,_1);Object.defineProperties(A,_3)}Object.keys(B).forEach(function(k){A[k]=B[k]});');
   });
 });
