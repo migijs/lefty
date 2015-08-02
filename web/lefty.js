@@ -35,6 +35,13 @@ var Node = homunculus.getClass('node', 'jsx');
     return es5 ? jsdc.parse(res) : res;
   }
 
+  Lefty.prototype.tokens = function() {
+    return this.ast ? this.parser.lexer.tokens() : null;
+  }
+  Lefty.prototype.ast = function() {
+    return this.node;
+  }
+
 
 exports["default"]=new Lefty();
 });

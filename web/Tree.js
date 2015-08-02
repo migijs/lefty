@@ -66,15 +66,23 @@ var Node = homunculus.getClass('node', 'jsx');
   Tree.prototype.klass = function(node) {
     var heritage = node.leaf(2);
     if(heritage && heritage.name() == Node.HERITAGE) {
-      var mmb = heritage.leaf(1);
-      if(mmb.name() == Node.MMBEXPR) {
-        var prmr = mmb.first();
-        if(prmr.name() == Node.PRMREXPR) {
-          var token = prmr.first();
-          if(token.isToken() && token.token().content() == 'migi') {
-            token = mmb.leaf(1);
-            if(token.isToken() && token.token().content() == '.') {
-              return true;
+      var body = node.last().prev();
+      var leaves = body.leaves();
+      for(var i = 0, len = leaves.length; i < len; i++) {
+        var leaf = leaves[i];
+        var method = leaf.first();
+        if(method.name() == Node.METHOD) {
+          var first = method.first();
+          if(first.name() == Node.PROPTNAME) {
+            var id = first.first();
+            if(id.name() == Node.LTRPROPT) {
+              id = id.first();
+              if(id.isToken()) {
+                id = id.token().content();
+                if(id == 'constructor') {
+                  return true;
+                }
+              }
             }
           }
         }
@@ -116,10 +124,17 @@ var Node = homunculus.getClass('node', 'jsx');
                   var name = parent.leaf(1).first().first().token().content();
                   this.res += name;
                   this.res += '",arguments.callee.caller);';
+                  return;
                 }
               }
             }
           }
+          //可能组件继承组件，无法得知继承自migi.xxx
+          this.res += 'if(this instanceof migi.Component||migi.browser.lie&&this.__migiCP){';
+          this.res += 'this.emit(migi.Event.DATA,"';
+          var name = parent.leaf(1).first().first().token().content();
+          this.res += name;
+          this.res += '",arguments.callee.caller)}';
         }
       }
     }
