@@ -19,7 +19,7 @@ describe('simple', function() {
   it('Component tag upper', function() {
     var s = '<Cmpt>test</Cmpt>';
     var res = lefty.parse(s);
-    expect(res).to.eql('migi.createCp(Cmpt,{},["test"])');
+    expect(res).to.eql('migi.createCp("Cmpt",Cmpt,{},["test"])');
   });
   it('no children', function() {
     var s = '<div></div>';
