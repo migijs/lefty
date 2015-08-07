@@ -63,7 +63,6 @@ function selfClose(node, inClass, inRender, setHash, getHash) {
   var name = node.leaf(1).token().content();
   if(/^[A-Z]/.test(name)) {
     res += 'migi.createCp(';
-    res += '"' + name + '",';
     res += name;
   }
   else {

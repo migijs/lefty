@@ -60,6 +60,9 @@ class Tree {
         case Node.FNBODY:
           this.fnbody(node, inClass, inRender, setHash, getHash);
           break;
+        case Node.CLASSDECL:
+          this.appendName(node);
+          break;
       }
     }
   }
@@ -171,6 +174,41 @@ class Tree {
         }
       }
     });
+  }
+  appendName(node) {
+    var heritage = node.leaf(2);
+    //必须有继承
+    if(heritage && heritage.name() == Node.HERITAGE) {
+      //必须有constructor
+      if(hasCons(node)) {
+        var name = node.leaf(1).first().token().content();
+        this.res += name + '.__migiName="' + name + '";';
+      }
+    }
+  }
+}
+
+function hasCons(node) {
+  var body = node.last().prev();
+  var leaves = body.leaves();
+  for(var i = 0, len = leaves.length; i < len; i++) {
+    var leaf = leaves[i];
+    var method = leaf.first();
+    if(method.name() == Node.METHOD) {
+      var first = method.first();
+      if(first.name() == Node.PROPTNAME) {
+        var id = first.first();
+        if(id.name() == Node.LTRPROPT) {
+          id = id.first();
+          if(id.isToken()) {
+            id = id.token().content();
+            if(id == 'constructor') {
+              return true;
+            }
+          }
+        }
+      }
+    }
   }
 }
 
