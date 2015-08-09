@@ -62,7 +62,35 @@ function mmbexpr(node, res) {
         if(dot.isToken()) {
           if(dot.token().content() == '.') {
             var id = node.last().token().content();
-            res[id] = true;
+            if(id == 'model') {
+              if(node.name() == Node.MMBEXPR) {
+                var next = node.next();
+                if(next.isToken()) {
+                  if(next.token().content() == '.') {
+                    next = next.next();
+                    if(next.isToken()) {
+                      var token = next.token();
+                      res['model.' + token.content()] = true;
+                    }
+                  }
+                  else if(next.token().content() == '[') {
+                    var expr = next.next();
+                    if(expr.name() == Node.PRMREXPR) {
+                      var s = expr.first();
+                      if(s.isToken()) {
+                        s = s.token();
+                        if(s.type() == Token.STRING) {
+                          res['model.' + s.val()] = true;
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+            else {
+              res[id] = true;
+            }
           }
           else if(dot.token().content() == '[') {
             var expr = dot.next();
@@ -140,7 +168,8 @@ exports["default"]=function(node, setHash, getHash) {
   parse(node, res);
   //取得全部this.xxx后，判断是否有对应的set方法
   var arr = Object.keys(res).filter(function(item) {
-    return setHash.hasOwnProperty(item);
+    //this.model特殊处理
+    return setHash.hasOwnProperty(item) || /^model\.[a-zA-Z_$][\w$]*\b/.test(item);
   });
   Object.keys(res).forEach(function(item) {
     //如有get方法且显式声明形参依赖

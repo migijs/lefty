@@ -237,6 +237,16 @@ describe('linkage', function() {
     var res = lefty.parse(s);
     expect(res).to.eql('class A extends migi.xxx{constructor(){}set t(){this.emit(migi.Event.DATA,"t",arguments.callee.caller);}get t(){}render(){return migi.createVd("p",{},[new migi.Obj("t",this,function(){return((this.t))})])}}A.__migiName="A";');
   });
+  it('model .', function() {
+    var s = 'class A extends migi.xxx{constructor(){}render(){return <p>{this.model.a}</p>}}';
+    var res = lefty.parse(s);
+    expect(res).to.eql('class A extends migi.xxx{constructor(){}render(){return migi.createVd("p",{},[new migi.Obj("model.a",this,function(){return(this.model.a)})])}}A.__migiName="A";');
+  });
+  it('model [', function() {
+    var s = 'class A extends migi.xxx{constructor(){}render(){return <p>{this.model["a"]}</p>}}';
+    var res = lefty.parse(s);
+    expect(res).to.eql('class A extends migi.xxx{constructor(){}render(){return migi.createVd("p",{},[new migi.Obj("model.a",this,function(){return(this.model["a"])})])}}A.__migiName="A";');
+  });
 });
 
 describe('lie', function() {
