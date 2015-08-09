@@ -114,8 +114,13 @@ function onEvent(node, inClass, inRender) {
   var tree = new Tree();
   var res = tree.parse(node);
   res = res.replace(/^(\s*)\{/, '$1').replace(/}(\s*)$/, '$1');
-  if(/^\s*this\b/.test(res) && inClass && inRender) {
-    return 'new migi.Cb(this,' + res + ')';
+  if(inClass && inRender) {
+    if(/^this\s*\.\s*model\b/.test(res)) {
+      return 'new migi.Cb(this.model,' + res + ')';
+    }
+    if(/^\s*this\b/.test(res)) {
+      return 'new migi.Cb(this,' + res + ')';
+    }
   }
   return res;
 }

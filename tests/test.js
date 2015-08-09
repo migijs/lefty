@@ -247,6 +247,11 @@ describe('linkage', function() {
     var res = lefty.parse(s);
     expect(res).to.eql('class A extends migi.xxx{constructor(){}render(){return migi.createVd("p",{},[new migi.Obj("model.a",this,function(){return(this.model["a"])})])}}A.__migiName="A";');
   });
+  it('model event', function() {
+    var s = 'class A extends migi.xxx{constructor(){}render(){return <p onClick={this.model.cb}></p>}}';
+    var res = lefty.parse(s);
+    expect(res).to.eql('class A extends migi.xxx{constructor(){}render(){return migi.createVd("p",{onClick:new migi.Cb(this.model,this.model.cb)},[])}}A.__migiName="A";');
+  });
 });
 
 describe('lie', function() {
