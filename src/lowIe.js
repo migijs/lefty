@@ -30,7 +30,7 @@ function recursion(node, ids, inClass) {
       case JsNode.CLASSDECL:
         inClass = klassdecl(node);
         if(inClass) {
-          return res += klass(node, ids);
+          return res += klass.parse(node, ids);
         }
         break;
     }
@@ -80,4 +80,7 @@ function parse(node, ids) {
   return res;
 }
 
-export default parse;
+export default {
+  parse,
+  reset: klass.reset
+};

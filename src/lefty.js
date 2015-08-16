@@ -30,7 +30,7 @@ class Lefty {
           }
         }
       });
-      res = lowIe(node, ids);
+      res = lowIe.parse(node, ids);
     }
     return es5 ? jsdc.parse(res) : res;
   }
@@ -40,6 +40,9 @@ class Lefty {
   }
   ast() {
     return this.node;
+  }
+  reset() {
+    lowIe.reset();
   }
 }
 

@@ -255,6 +255,9 @@ describe('linkage', function() {
 });
 
 describe('lie', function() {
+  beforeEach(function() {
+    lefty.reset();
+  });
   it('no extends', function() {
     var s = 'class A{set t(){}get t(){}render(){return <p>{this.t}</p>}}';
     var res = lefty.parse(s, true);

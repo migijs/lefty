@@ -30,7 +30,7 @@ var Node = homunculus.getClass('node', 'jsx');
           }
         }
       });
-      res = lowIe(node, ids);
+      res = lowIe.parse(node, ids);
     }
     return es5 ? jsdc.parse(res) : res;
   }
@@ -40,6 +40,9 @@ var Node = homunculus.getClass('node', 'jsx');
   }
   Lefty.prototype.ast = function() {
     return this.node;
+  }
+  Lefty.prototype.reset = function() {
+    lowIe.reset();
   }
 
 

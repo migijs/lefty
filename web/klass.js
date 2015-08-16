@@ -431,10 +431,15 @@ function closest(node) {
 
 var res;
 
-function klass(node, ids) {
+function parse(node, ids) {
   res = '';
   recursion(node, ids);
   return res;
 }
 
-exports["default"]=klass;});
+exports["default"]={
+  parse:parse,
+  reset: function() {
+    uid = 0;
+  }
+};});
