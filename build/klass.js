@@ -433,7 +433,6 @@ var res;
 
 function klass(node, ids) {
   res = '';
-  uid = 0;
   recursion(node, ids);
   return res;
 }

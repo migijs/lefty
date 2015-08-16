@@ -75,7 +75,6 @@ function hasCons(node) {
 var res;
 
 function parse(node, ids) {
-  uid = 0;
   res = '';
   recursion(node, ids);
   return res;
