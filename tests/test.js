@@ -49,22 +49,22 @@ describe('simple', function() {
   it('props', function() {
     var s = '<a href="#">link</a>';
     var res = lefty.parse(s);
-    expect(res).to.eql('migi.createVd("a",{href:"#"},["link"])');
+    expect(res).to.eql('migi.createVd("a",{"href":"#"},["link"])');
   });
   it('prop with -', function() {
     var s = '<div data-test="-"></div>';
     var res = lefty.parse(s);
-    expect(res).to.eql('migi.createVd("div",{\'data-test\':"-"},[])');
+    expect(res).to.eql('migi.createVd("div",{"data-test":"-"},[])');
   });
   it('multi props', function() {
     var s = '<div class="c" title="title"></div>';
     var res = lefty.parse(s);
-    expect(res).to.eql('migi.createVd("div",{class:"c",title:"title"},[])');
+    expect(res).to.eql('migi.createVd("div",{"class":"c","title":"title"},[])');
   });
   it('self close', function() {
     var s = '<img src="xxx"/>';
     var res = lefty.parse(s);
-    expect(res).to.eql('migi.createVd("img",{src:"xxx"})');
+    expect(res).to.eql('migi.createVd("img",{"src":"xxx"})');
   });
   it('close error', function() {
     var s = '<img src="xxx">';
@@ -90,7 +90,7 @@ describe('simple', function() {
   it('quote', function() {
     var s = '<img src={"test"\n}/>';
     var res = lefty.parse(s);
-    expect(res).to.eql('migi.createVd("img",{src:"test"\n})');
+    expect(res).to.eql('migi.createVd("img",{"src":"test"\n})');
   });
   it('blank', function() {
     var s = '<div> </div>';
@@ -220,12 +220,12 @@ describe('linkage', function() {
   it('onEvent', function() {
     var s = 'class A extends migi.xxx{constructor(){}render(){return <p onClick={xxx}></p>}}';
     var res = lefty.parse(s);
-    expect(res).to.eql('class A extends migi.xxx{constructor(){}render(){return migi.createVd("p",{onClick:xxx},[])}}A.__migiName="A";');
+    expect(res).to.eql('class A extends migi.xxx{constructor(){}render(){return migi.createVd("p",{"onClick":xxx},[])}}A.__migiName="A";');
   });
   it('cb event', function() {
     var s = 'class A extends migi.xxx{constructor(){}cb(){}render(){return <p onClick={this.cb}></p>}}';
     var res = lefty.parse(s);
-    expect(res).to.eql('class A extends migi.xxx{constructor(){}cb(){}render(){return migi.createVd("p",{onClick:new migi.Cb(this,this.cb)},[])}}A.__migiName="A";');
+    expect(res).to.eql('class A extends migi.xxx{constructor(){}cb(){}render(){return migi.createVd("p",{"onClick":new migi.Cb(this,this.cb)},[])}}A.__migiName="A";');
   });
   it('explicit', function() {
     var s = 'class Person extends migi.Component{constructor(){}get name(first,last){}set first(v){}set last(v){}render(){return(<p>{this.name}</p>);}}';
@@ -250,7 +250,7 @@ describe('linkage', function() {
   it('model event', function() {
     var s = 'class A extends migi.xxx{constructor(){}render(){return <p onClick={this.model.cb}></p>}}';
     var res = lefty.parse(s);
-    expect(res).to.eql('class A extends migi.xxx{constructor(){}render(){return migi.createVd("p",{onClick:new migi.Cb(this.model,this.model.cb)},[])}}A.__migiName="A";');
+    expect(res).to.eql('class A extends migi.xxx{constructor(){}render(){return migi.createVd("p",{"onClick":new migi.Cb(this.model,this.model.cb)},[])}}A.__migiName="A";');
   });
 });
 
