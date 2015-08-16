@@ -411,7 +411,7 @@ function body(node, ids) {
           var top = closest(parent);
           var o = hash[top.nid()];
           var news = getUid(ids);
-          res += 'if(migi.browser.lie&&this.__migiCP){';
+          res += 'if(migi.browser.lie&&this.__hackLie&&(this.__migiCP||this.__migiMD)){';
           res += 'return this.__hackLie(' + o.name + ',' + o.gsName + ')}';
         }
       }
