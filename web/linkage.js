@@ -33,7 +33,10 @@ function parse(node, res) {
     case Node.ADDEXPR:
     case Node.MTPLEXPR:
       parse(node.first(), res);
-      parse(node.last(), res);
+      //可能有连续多个表达式
+      for(var i = 2, leaves = node.leaves(), len = leaves.length; i < len; i += 2) {
+        parse(node.leaf(i), res);
+      }
       break;
     case Node.UNARYEXPR:
     case Node.NEWEXPR:
