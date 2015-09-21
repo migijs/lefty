@@ -133,6 +133,25 @@ function mmbexpr(node, res) {
   }
   else if(prmr.name() == Node.MMBEXPR) {
     mmbexpr(prmr, res);
+    var dot = prmr.next();
+    if(dot.isToken() && dot.token().content() == '[') {
+      var expr = dot.next();
+      if(expr.name() == Node.EXPR) {
+        parse(expr.last(), res);
+      }
+      else if(expr.name() == Node.PRMREXPR) {
+        var s = expr.first();
+        if(s.isToken()) {
+          s = s.token();
+          if(s.type() == Token.STRING) {
+            res[s.val()] = true;
+          }
+        }
+      }
+      else {
+        parse(expr, res);
+      }
+    }
   }
 }
 function callexpr(node, res) {
