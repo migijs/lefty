@@ -123,21 +123,21 @@ var Node = homunculus.getClass('node', 'jsx');
               if(token.isToken() && token.token().content() == 'migi') {
                 token = mmb.last();
                 if(token.isToken()) {
-                  this.res += 'this.emit(migi.Event.DATA,"';
+                  this.res += ';this.__data("';
                   var name = parent.leaf(1).first().first().token().content();
                   this.res += name;
-                  this.res += '",arguments.callee.caller);';
+                  this.res += '")';
                   return;
                 }
               }
             }
           }
           //可能组件继承组件，无法得知继承自migi.xxx
-          this.res += 'if(this instanceof migi.Component||migi.browser.lie&&this.__migiCP){';
-          this.res += 'this.emit(migi.Event.DATA,"';
+          this.res += ';this instanceof migi.Component||migi.browser.lie&&this.__migiCP||';
+          this.res += 'this.__data("';
           var name = parent.leaf(1).first().first().token().content();
           this.res += name;
-          this.res += '",arguments.callee.caller)}';
+          this.res += '")';
         }
       }
     }
