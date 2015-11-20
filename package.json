@@ -1,6 +1,6 @@
 {
   "name": "lefty",
-  "version": "0.6.0",
+  "version": "0.7.0",
   "description": "A JSX transformer for migi",
   "maintainers": [
     {
@@ -15,8 +15,7 @@
     "type": "git",
     "url": "git://github.com/migijs/lefty.git"
   },
-  "keywords": [
-  ],
+  "keywords": [],
   "author": "army8735",
   "license": "MIT",
   "config": {

@@ -2,6 +2,7 @@ import homunculus from 'homunculus';
 import Tree from './Tree';
 import linkage from './linkage';
 import ignore from './ignore';
+import join from './join';
 
 var Token = homunculus.getClass('token', 'jsx');
 var Node = homunculus.getClass('node', 'jsx');
@@ -69,7 +70,7 @@ function selfClose(node, inClass, inRender, setHash, getHash) {
     res += 'migi.createVd(';
     res += '"' + name + '"';
   }
-  res += ',{';
+  res += ',[';
   var end = false;
   for(var i = 2, len = node.size(); i < len - 1; i++) {
     var leaf = node.leaf(i);
@@ -81,22 +82,18 @@ function selfClose(node, inClass, inRender, setHash, getHash) {
         res += attr(leaf, inClass, inRender, setHash, getHash);
         break;
       case Node.JSXSpreadAttribute:
-        res += '}';
-        end = true;
         res += spread(leaf);
         break;
     }
   }
-  if(!end) {
-    res += '}';
-  }
+  res += ']';
   return res;
 }
 function attr(node, inClass, inRender, setHash, getHash) {
   var res = '';
   var key = node.first().token().content();
-  var k = '"' + key + '"';
-  res += k + ':';
+  var k = '["' + key + '"';
+  res += k + ',';
   var v = node.last();
   if(v.isToken()) {
     v = v.token().content();
@@ -108,6 +105,7 @@ function attr(node, inClass, inRender, setHash, getHash) {
   else {
     res += child(v, inClass, inRender, setHash, getHash);
   }
+  res += ']';
   return res;
 }
 function onEvent(node, inClass, inRender) {
@@ -125,7 +123,7 @@ function onEvent(node, inClass, inRender) {
   return res;
 }
 function spread(node) {
-  //TODO
+  return join(node.leaf(2));
 }
 function child(node, inClass, inRender, setHash, getHash) {
   var tree = new Tree();

@@ -2,6 +2,7 @@ define(function(require, exports, module){var homunculus=function(){var _0=requi
 var Tree=function(){var _1=require('./Tree');return _1.hasOwnProperty("default")?_1["default"]:_1}();
 var linkage=function(){var _2=require('./linkage');return _2.hasOwnProperty("default")?_2["default"]:_2}();
 var ignore=function(){var _3=require('./ignore');return _3.hasOwnProperty("default")?_3["default"]:_3}();
+var join=function(){var _4=require('./join');return _4.hasOwnProperty("default")?_4["default"]:_4}();
 
 var Token = homunculus.getClass('token', 'jsx');
 var Node = homunculus.getClass('node', 'jsx');
@@ -69,7 +70,7 @@ function selfClose(node, inClass, inRender, setHash, getHash) {
     res += 'migi.createVd(';
     res += '"' + name + '"';
   }
-  res += ',{';
+  res += ',[';
   var end = false;
   for(var i = 2, len = node.size(); i < len - 1; i++) {
     var leaf = node.leaf(i);
@@ -81,22 +82,18 @@ function selfClose(node, inClass, inRender, setHash, getHash) {
         res += attr(leaf, inClass, inRender, setHash, getHash);
         break;
       case Node.JSXSpreadAttribute:
-        res += '}';
-        end = true;
         res += spread(leaf);
         break;
     }
   }
-  if(!end) {
-    res += '}';
-  }
+  res += ']';
   return res;
 }
 function attr(node, inClass, inRender, setHash, getHash) {
   var res = '';
   var key = node.first().token().content();
-  var k = '"' + key + '"';
-  res += k + ':';
+  var k = '["' + key + '"';
+  res += k + ',';
   var v = node.last();
   if(v.isToken()) {
     v = v.token().content();
@@ -108,6 +105,7 @@ function attr(node, inClass, inRender, setHash, getHash) {
   else {
     res += child(v, inClass, inRender, setHash, getHash);
   }
+  res += ']';
   return res;
 }
 function onEvent(node, inClass, inRender) {
@@ -125,7 +123,7 @@ function onEvent(node, inClass, inRender) {
   return res;
 }
 function spread(node) {
-  //TODO
+  return join(node.leaf(2));
 }
 function child(node, inClass, inRender, setHash, getHash) {
   var tree = new Tree();
