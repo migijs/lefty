@@ -71,7 +71,6 @@ function selfClose(node, inClass, inRender, setHash, getHash) {
     res += '"' + name + '"';
   }
   res += ',[';
-  var end = false;
   for(var i = 2, len = node.size(); i < len - 1; i++) {
     var leaf = node.leaf(i);
     if(i != 2) {
