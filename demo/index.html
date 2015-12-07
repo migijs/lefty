@@ -132,7 +132,8 @@
   seajs.config({
     alias: {
       'homunculus': seajs.resolve('../node_modules/homunculus/index.js', seajs.data.cwd),
-      'jsdc': seajs.resolve('../node_modules/jsdc/index.js', seajs.data.cwd)
+      'jsdc': seajs.resolve('../node_modules/jsdc/index.js', seajs.data.cwd),
+      'jaw': seajs.resolve('../node_modules/jaw/init.js', seajs.data.cwd)
     },
     map: [function(url) {
       return url.replace('demo/lexer/', 'node_modules/homunculus/web/lexer/');

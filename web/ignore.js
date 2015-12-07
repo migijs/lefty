@@ -17,8 +17,7 @@ function ignore(node, includeLine) {
     }
     node.ignore = true;
     append = '';
-    while(node.next()) {
-      node = node.next();
+    while(node = node.next()) {
       if(node.isVirtual() || !S.hasOwnProperty(node.type())) {
         break;
       }

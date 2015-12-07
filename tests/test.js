@@ -107,10 +107,6 @@ describe('simple', function() {
     var res = lefty.parse(s);
     expect(res).to.eql('migi.createVd("div",[],[ migi.createVd("span",[])\n])');
   });
-  it.skip('spread', function() {
-    var s = '<div attrs={...a} />';
-    var res = lefty.parse(s);
-  });
 });
 
 describe('classes', function() {

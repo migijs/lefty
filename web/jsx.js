@@ -3,6 +3,7 @@ var Tree=function(){var _1=require('./Tree');return _1.hasOwnProperty("default")
 var linkage=function(){var _2=require('./linkage');return _2.hasOwnProperty("default")?_2["default"]:_2}();
 var ignore=function(){var _3=require('./ignore');return _3.hasOwnProperty("default")?_3["default"]:_3}();
 var join=function(){var _4=require('./join');return _4.hasOwnProperty("default")?_4["default"]:_4}();
+var delegate=function(){var _5=require('./delegate');return _5.hasOwnProperty("default")?_5["default"]:_5}();
 
 var Token = homunculus.getClass('token', 'jsx');
 var Node = homunculus.getClass('node', 'jsx');
@@ -108,17 +109,18 @@ function attr(node, inClass, inRender, setHash, getHash) {
   return res;
 }
 function onEvent(node, inClass, inRender) {
-  var tree = new Tree();
-  var res = tree.parse(node);
-  res = res.replace(/^(\s*)\{/, '$1').replace(/}(\s*)$/, '$1');
-  if(inClass && inRender) {
-    if(/^this\s*\.\s*model\b/.test(res)) {
-      return 'new migi.Cb(this.model,' + res + ')';
-    }
-    if(/^\s*this\b/.test(res)) {
-      return 'new migi.Cb(this,' + res + ')';
-    }
-  }
+  //var tree = new Tree();
+  //var res = tree.parse(node);
+  //res = res.replace(/^(\s*)\{/, '$1').replace(/}(\s*)$/, '$1');
+  //if(inClass && inRender) {
+  //  if(/^this\s*\.\s*model\b/.test(res)) {
+  //    return 'new migi.Cb(this.model,' + res + ')';
+  //  }
+  //  if(/^\s*this\b/.test(res)) {
+  //    return 'new migi.Cb(this,' + res + ')';
+  //  }
+  //}
+  var res = delegate(node, inClass, inRender);
   return res;
 }
 function spread(node) {
