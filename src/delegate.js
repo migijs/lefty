@@ -2,6 +2,7 @@ import homunculus from 'homunculus';
 import ignore from './ignore';
 import Tree from './Tree';
 import join from './join';
+import join2 from './join2';
 import jaw from 'jaw';
 
 var Token = homunculus.getClass('token', 'jsx');
@@ -53,19 +54,19 @@ function recursion(objltr) {
   for(var i = 1, len = objltr.size(); i < len - 1; i++) {
     var leaf = objltr.leaf(i);
     if(leaf.isToken()) {
-      var s = join(leaf);
+      var s = join2(leaf);
       res += s;
     }
     else if(leaf.name() == Node.PROPTDEF) {
       res += '[';
       var proptname = leaf.first();
-      res += ignore(proptname, true).res;
-      var s = join(proptname).replace(/^(["'])(.+)\1/, '$2') + '{}';
+      var s = join(proptname).replace(/^(["'])(.+)\1$/, '$2') + '{}';
       s = jaw.parse(s, { noPriority: true });
       res += JSON.stringify(s);
       res += ',';
       res += filter(join(leaf.last()));
       res += ']';
+      res += ignore(leaf, true).res;
     }
   }
   res += ignore(objltr.last(), true).res;
