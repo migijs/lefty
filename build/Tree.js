@@ -156,6 +156,7 @@ var Node = homunculus.getClass('node', 'jsx');
             }
             else if(token.content() == 'get') {
               var name = first.next().first().first().token().content();
+              getHash[name] = getHash[name] || [];
               var param = first.next().next().next();
               param.leaves().forEach(function(leaf, i) {
                 if(i % 2 == 0 && leaf.name() == Node.SINGLENAME) {
@@ -163,7 +164,6 @@ var Node = homunculus.getClass('node', 'jsx');
                   if(first.name() == Node.BINDID) {
                     first = first.first();
                     if(first.isToken()) {
-                      getHash[name] = getHash[name] || [];
                       getHash[name].push(first.token().content());
                     }
                   }

@@ -188,10 +188,15 @@ function cpeapl(node, res) {
 export default function(node, setHash, getHash) {
   var res = {};
   parse(node, res);
-  //取得全部this.xxx后，判断是否有对应的set方法
+  //取得全部this.xxx后，判断是否有对应的set方法，state为兼容rc也特殊处理
+  if(!setHash.hasOwnProperty('state') && !getHash.hasOwnProperty('state')) {
+    setHash.state = true;
+    getHash.state = [];
+  }
   var arr = Object.keys(res).filter(function(item) {
     //this.model特殊处理
-    return setHash.hasOwnProperty(item) || /^model\.[a-zA-Z_$][\w$]*\b/.test(item);
+    return setHash.hasOwnProperty(item) && getHash.hasOwnProperty(item)
+      || /^model\.[a-zA-Z_$][\w$]*\b/.test(item);
   });
   Object.keys(res).forEach(function(item) {
     //如有get方法且显式声明形参依赖

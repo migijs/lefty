@@ -138,7 +138,7 @@ describe('classes', function() {
   it('no get', function() {
     var s = 'class A extends migi.xxx{constructor(){}set t(v){}render(){return <p>{this.t}</p>}}';
     var res = lefty.parse(s);
-    expect(res).to.eql('class A extends migi.xxx{constructor(){}set t(v){;this.__data("t")}render(){return migi.createVd("p",[],[new migi.Obj("t",this,function(){return(this.t)})])}}A.__migiName="A";');
+    expect(res).to.eql('class A extends migi.xxx{constructor(){}set t(v){;this.__data("t")}render(){return migi.createVd("p",[],[this.t])}}A.__migiName="A";');
   });
   it('get from others', function() {
     var s = 'class A extends migi.xxx{constructor(){}set v1(v){}set v2(v){}get t(v1,v2){}render(){return <p>{this.t}</p>}}';
@@ -292,6 +292,21 @@ describe('linkage', function() {
     var s = 'class A extends migi.xxx{constructor(){}render(){return <p onClick={{a:a,"b":this.b}}></p>}}';
     var res = lefty.parse(s);
     expect(res).to.eql('class A extends migi.xxx{constructor(){}render(){return migi.createVd("p",[["onClick",[[{"a":{"_v":[]}},a],[{"b":{"_v":[]}},new migi.Cb(this,this.b)]]]],[])}}A.__migiName="A";');
+  });
+  it('state', function() {
+    var s = 'class A extends migi.xxx{constructor(){}render(){return <p>{this.state.a}</p>}}';
+    var res = lefty.parse(s);
+    expect(res).to.eql('class A extends migi.xxx{constructor(){}render(){return migi.createVd("p",[],[new migi.Obj("state",this,function(){return(this.state.a)})])}}A.__migiName="A";');
+  });
+  it('only get state', function() {
+    var s = 'class A extends migi.xxx{constructor(){}get state(){}render(){return <p>{this.state.a}</p>}}';
+    var res = lefty.parse(s);
+    expect(res).to.eql('class A extends migi.xxx{constructor(){}get state(){}render(){return migi.createVd("p",[],[this.state.a])}}A.__migiName="A";');
+  });
+  it('only set state', function() {
+    var s = 'class A extends migi.xxx{constructor(){}set state(v){}render(){return <p>{this.state.a}</p>}}';
+    var res = lefty.parse(s);
+    expect(res).to.eql('class A extends migi.xxx{constructor(){}set state(v){;this.__data("state")}render(){return migi.createVd("p",[],[this.state.a])}}A.__migiName="A";');
   });
 });
 
