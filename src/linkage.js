@@ -3,62 +3,74 @@ import homunculus from 'homunculus';
 var Token = homunculus.getClass('token', 'jsx');
 var Node = homunculus.getClass('node', 'jsx');
 
-function parse(node, res) {
-  switch(node.name()) {
-    case Node.PRMREXPR:
-      parse(node.first(), res);
-      break;
-    case Node.MMBEXPR:
-      mmbexpr(node, res);
-      break;
-    case Node.CNDTEXPR:
-      parse(node.first(), res);
-      parse(node.leaf(2), res);
-      parse(node.last(), res);
-      break;
-    case Node.LOGOREXPR:
-    case Node.LOGANDEXPR:
-    case Node.BITANDEXPR:
-    case Node.BITOREXPR:
-    case Node.BITXOREXPR:
-    case Node.EQEXPR:
-    case Node.RELTEXPR:
-    case Node.SHIFTEXPR:
-    case Node.ADDEXPR:
-    case Node.MTPLEXPR:
-      parse(node.first(), res);
-      //可能有连续多个表达式
-      for(var i = 2, leaves = node.leaves(), len = leaves.length; i < len; i += 2) {
-        parse(node.leaf(i), res);
-      }
-      break;
-    case Node.UNARYEXPR:
-    case Node.NEWEXPR:
-      parse(node.last(), res);
-      break;
-    case Node.POSTFIXEXPR:
-      parse(node.first(), res);
-    case Node.CALLEXPR:
-      callexpr(node, res);
-      break;
-    case Node.ARRLTR:
-      arrltr(node, res);
-      break;
-    case Node.CPEAPL:
-      cpeapl(node, res);
-      break;
+function parse(node, res, varHash, modelHash, thisHash, thisModelHash) {
+  if(node.isToken()) {
+    var v = node.token().content();
+    if(varHash.hasOwnProperty(v)) {
+      res[varHash[v]] = true;
+    }
+    else if(modelHash.hasOwnProperty(v)) {
+      res['model.' + modelHash[v]] = true;
+    }
+  }
+  else {
+    switch(node.name()) {
+      case Node.PRMREXPR:
+        parse(node.first(), res, varHash, modelHash, thisHash, thisModelHash);
+        break;
+      case Node.MMBEXPR:
+        mmbexpr(node, res, varHash, modelHash, thisHash, thisModelHash);
+        break;
+      case Node.CNDTEXPR:
+        parse(node.first(), res, varHash, modelHash, thisHash, thisModelHash);
+        parse(node.leaf(2), res, varHash, modelHash, thisHash, thisModelHash);
+        parse(node.last(), res, varHash, modelHash, thisHash, thisModelHash);
+        break;
+      case Node.LOGOREXPR:
+      case Node.LOGANDEXPR:
+      case Node.BITANDEXPR:
+      case Node.BITOREXPR:
+      case Node.BITXOREXPR:
+      case Node.EQEXPR:
+      case Node.RELTEXPR:
+      case Node.SHIFTEXPR:
+      case Node.ADDEXPR:
+      case Node.MTPLEXPR:
+        parse(node.first(), res, varHash, modelHash, thisHash, thisModelHash);
+        //可能有连续多个表达式
+        for(var i = 2, leaves = node.leaves(), len = leaves.length; i < len; i += 2) {
+          parse(node.leaf(i), res, varHash, modelHash, thisHash, thisModelHash);
+        }
+        break;
+      case Node.UNARYEXPR:
+      case Node.NEWEXPR:
+        parse(node.last(), res, varHash, modelHash, thisHash, thisModelHash);
+        break;
+      case Node.POSTFIXEXPR:
+        parse(node.first(), res, varHash, modelHash, thisHash, thisModelHash);
+      case Node.CALLEXPR:
+        callexpr(node, res, varHash, modelHash, thisHash, thisModelHash);
+        break;
+      case Node.ARRLTR:
+        arrltr(node, res, varHash, modelHash, thisHash, thisModelHash);
+        break;
+      case Node.CPEAPL:
+        cpeapl(node, res, varHash, modelHash, thisHash, thisModelHash);
+        break;
+    }
   }
 }
-function mmbexpr(node, res) {
+function mmbexpr(node, res, varHash, modelHash, thisHash, thisModelHash) {
   var prmr = node.first();
   if(prmr.name() == Node.PRMREXPR) {
     var first = prmr.first();
     if(first.isToken()) {
-      if(first.token().content() == 'this') {
+      var me = first.token().content();
+      if(me == 'this' || thisHash.hasOwnProperty(me)) {
         var dot = node.leaf(1);
         if(dot.isToken()) {
           if(dot.token().content() == '.') {
-            var id = node.last().token().content();
+            var id = dot.next().token().content();
             if(id == 'model') {
               if(node.name() == Node.MMBEXPR) {
                 var next = node.next();
@@ -92,7 +104,7 @@ function mmbexpr(node, res) {
           else if(dot.token().content() == '[') {
             var expr = dot.next();
             if(expr.name() == Node.EXPR) {
-              parse(expr.last(), res);
+              parse(expr.last(), res, varHash, modelHash, thisHash, thisModelHash);
             }
             else if(expr.name() == Node.PRMREXPR) {
               var s = expr.first();
@@ -104,7 +116,28 @@ function mmbexpr(node, res) {
               }
             }
             else {
-              parse(expr, res);
+              parse(expr, res, varHash, modelHash, thisHash, thisModelHash);
+            }
+          }
+        }
+      }
+      else if(thisModelHash.hasOwnProperty(me)) {
+        var dot = prmr.next();
+        if(dot.isToken()) {
+          if(dot.token().content() == '.') {
+            var id = dot.next().token().content();
+            res['model.' + id] = true;
+          }
+          else if(dot.token().content() == '[') {
+            var expr = dot.next();
+            if(expr.name() == Node.PRMREXPR) {
+              var s = expr.first();
+              if(s.isToken()) {
+                s = s.token();
+                if(s.type() == Token.STRING) {
+                  res['model.' + s.val()] = true;
+                }
+              }
             }
           }
         }
@@ -115,10 +148,10 @@ function mmbexpr(node, res) {
           if(bracket.token().content() == '[') {
             var expr = bracket.next();
             if(expr.name() == Node.EXPR) {
-              parse(expr.last(), res);
+              parse(expr.last(), res, varHash, modelHash, thisHash, thisModelHash);
             }
             else {
-              parse(expr, res);
+              parse(expr, res, varHash, modelHash, thisHash, thisModelHash);
             }
           }
         }
@@ -126,12 +159,12 @@ function mmbexpr(node, res) {
     }
   }
   else if(prmr.name() == Node.MMBEXPR) {
-    mmbexpr(prmr, res);
+    mmbexpr(prmr, res, varHash, modelHash, thisHash, thisModelHash);
     var dot = prmr.next();
     if(dot.isToken() && dot.token().content() == '[') {
       var expr = dot.next();
       if(expr.name() == Node.EXPR) {
-        parse(expr.last(), res);
+        parse(expr.last(), res, varHash, modelHash, thisHash, thisModelHash);
       }
       else if(expr.name() == Node.PRMREXPR) {
         var s = expr.first();
@@ -143,45 +176,45 @@ function mmbexpr(node, res) {
         }
       }
       else {
-        parse(expr, res);
+        parse(expr, res, varHash, modelHash, thisHash, thisModelHash);
       }
     }
   }
 }
-function callexpr(node, res) {
-  parse(node.first(), res);
+function callexpr(node, res, varHash, modelHash, thisHash, thisModelHash) {
+  parse(node.first(), res, varHash, modelHash, thisHash, thisModelHash);
   var args = node.last();
   if(args.name() == Node.ARGS) {
     args.leaf(1).leaves().forEach(function(leaf, i) {
       if(i % 2 == 0) {
-        parse(leaf, res);
+        parse(leaf, res, varHash, modelHash, thisHash, thisModelHash);
       }
     });
   }
 }
 
-function arrltr(node, res) {
+function arrltr(node, res, varHash, modelHash, thisHash, thisModelHash) {
   node.leaves().forEach(function(leaf, i) {
     if(i % 2 == 1) {
       if(!leaf.isToken()) {
-        parse(leaf, res);
+        parse(leaf, res, varHash, modelHash, thisHash, thisModelHash);
       }
     }
   });
 }
 
-function cpeapl(node, res) {
+function cpeapl(node, res, varHash, modelHash, thisHash, thisModelHash) {
   if(node.size() > 2) {
     var leaf = node.leaf(1);
     if(!leaf.isToken()) {
-      parse(leaf, res);
+      parse(leaf, res, varHash, modelHash, thisHash, thisModelHash);
     }
   }
 }
 
-export default function(node, setHash, getHash) {
+export default function(node, setHash, getHash, varHash, modelHash, thisHash, thisModelHash) {
   var res = {};
-  parse(node, res);
+  parse(node, res, varHash, modelHash, thisHash, thisModelHash);
   //取得全部this.xxx后，判断是否有对应的set方法，state为兼容rc也特殊处理
   if(!setHash.hasOwnProperty('state') && !getHash.hasOwnProperty('state')) {
     setHash.state = true;

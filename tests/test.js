@@ -310,6 +310,69 @@ describe('linkage', function() {
   });
 });
 
+describe('var this & model', function() {
+  it('var', function() {
+    var s = 'class A extends migi.xxx{constructor(){}get a(){}set a(v){}render(){var b = this.a;return <p>{b}</p>}}';
+    var res = lefty.parse(s);
+    expect(res).to.eql('class A extends migi.xxx{constructor(){}get a(){}set a(v){;this.__data("a")}render(){var b = this.a;return migi.createVd("p",[],[new migi.Obj("a",this,function(){return(b)})])}}A.__migiName="A";');
+  });
+  it('this', function() {
+    var s = 'class A extends migi.xxx{constructor(){}get a(){}set a(v){}render(){var b = this;return <p>{b.a}</p>}}';
+    var res = lefty.parse(s);
+    expect(res).to.eql('class A extends migi.xxx{constructor(){}get a(){}set a(v){;this.__data("a")}render(){var b = this;return migi.createVd("p",[],[new migi.Obj("a",this,function(){return(b.a)})])}}A.__migiName="A";');
+  });
+  it('this2', function() {
+    var s = 'class A extends migi.xxx{constructor(){}get a(){}set a(v){}render(){var b = this;var c = b;return <p>{c.a}</p>}}';
+    var res = lefty.parse(s);
+    expect(res).to.eql('class A extends migi.xxx{constructor(){}get a(){}set a(v){;this.__data("a")}render(){var b = this;var c = b;return migi.createVd("p",[],[new migi.Obj("a",this,function(){return(c.a)})])}}A.__migiName="A";');
+  });
+  it('this3', function() {
+    var s = 'class A extends migi.xxx{constructor(){}get a(){}set a(v){}render(){var b = this;return <p>{b["a"]}</p>}}';
+    var res = lefty.parse(s);
+    expect(res).to.eql('class A extends migi.xxx{constructor(){}get a(){}set a(v){;this.__data("a")}render(){var b = this;return migi.createVd("p",[],[new migi.Obj("a",this,function(){return(b["a"])})])}}A.__migiName="A";');
+  });
+  it('this4', function() {
+    var s = 'class A extends migi.xxx{constructor(){}get a(){}set a(v){}render(){var b = this;var c = b;return <p>{c["a"]}</p>}}';
+    var res = lefty.parse(s);
+    expect(res).to.eql('class A extends migi.xxx{constructor(){}get a(){}set a(v){;this.__data("a")}render(){var b = this;var c = b;return migi.createVd("p",[],[new migi.Obj("a",this,function(){return(c["a"])})])}}A.__migiName="A";');
+  });
+  it('var model.x', function() {
+    var s = 'class A extends migi.xxx{constructor(){}render(){var b = this.model.a;return <p>{b}</p>}}';
+    var res = lefty.parse(s);
+    expect(res).to.eql('class A extends migi.xxx{constructor(){}render(){var b = this.model.a;return migi.createVd("p",[],[new migi.Obj("model.a",this,function(){return(b)})])}}A.__migiName="A";');
+  });
+  it('var model[x]', function() {
+    var s = 'class A extends migi.xxx{constructor(){}render(){var b = this.model["a"];return <p>{b}</p>}}';
+    var res = lefty.parse(s);
+    expect(res).to.eql('class A extends migi.xxx{constructor(){}render(){var b = this.model["a"];return migi.createVd("p",[],[new migi.Obj("model.a",this,function(){return(b)})])}}A.__migiName="A";');
+  });
+  it('var model this, var.model.x', function() {
+    var s = 'class A extends migi.xxx{constructor(){}render(){var b = this;return <p>{b.model.a}</p>}}';
+    var res = lefty.parse(s);
+    expect(res).to.eql('class A extends migi.xxx{constructor(){}render(){var b = this;return migi.createVd("p",[],[new migi.Obj("model.a",this,function(){return(b.model.a)})])}}A.__migiName="A";');
+  });
+  it('var model this, var.model["x"]', function() {
+    var s = 'class A extends migi.xxx{constructor(){}render(){var b = this;return <p>{b.model.a}</p>}}';
+    var res = lefty.parse(s);
+    expect(res).to.eql('class A extends migi.xxx{constructor(){}render(){var b = this;return migi.createVd("p",[],[new migi.Obj("model.a",this,function(){return(b.model.a)})])}}A.__migiName="A";');
+  });
+  it('var model this, var.x', function() {
+    var s = 'class A extends migi.xxx{constructor(){}render(){var b = this.model;return <p>{b.a}</p>}}';
+    var res = lefty.parse(s);
+    expect(res).to.eql('class A extends migi.xxx{constructor(){}render(){var b = this.model;return migi.createVd("p",[],[new migi.Obj("model.a",this,function(){return(b.a)})])}}A.__migiName="A";');
+  });
+  it('var this, var model.x', function() {
+    var s = 'class A extends migi.xxx{constructor(){}render(){var b = this;var c = b.model;return <p>{c.a}</p>}}';
+    var res = lefty.parse(s);
+    expect(res).to.eql('class A extends migi.xxx{constructor(){}render(){var b = this;var c = b.model;return migi.createVd("p",[],[new migi.Obj("model.a",this,function(){return(c.a)})])}}A.__migiName="A";');
+  });
+  it('var this, var model["x"]', function() {
+    var s = 'class A extends migi.xxx{constructor(){}render(){var b = this;var c = b.model;return <p>{c["a"]}</p>}}';
+    var res = lefty.parse(s);
+    expect(res).to.eql('class A extends migi.xxx{constructor(){}render(){var b = this;var c = b.model;return migi.createVd("p",[],[new migi.Obj("model.a",this,function(){return(c["a"])})])}}A.__migiName="A";');
+  });
+});
+
 describe('lie', function() {
   beforeEach(function() {
     lefty.reset();
