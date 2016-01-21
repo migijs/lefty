@@ -336,6 +336,11 @@ describe('var this & model', function() {
     var res = lefty.parse(s);
     expect(res).to.eql('class A extends migi.xxx{constructor(){}get a(){}set a(v){;this.__data("a")}render(){var b = this;var c = b;return migi.createVd("p",[],[new migi.Obj("a",this,function(){return(c["a"])})])}}A.__migiName="A";');
   });
+  it('this5', function() {
+    var s = 'class A extends migi.xxx{constructor(){}get a(){}set a(v){}render(){var b = this.a;return <p>{b.a.c}</p>}}';
+    var res = lefty.parse(s);
+    expect(res).to.eql('class A extends migi.xxx{constructor(){}get a(){}set a(v){;this.__data("a")}render(){var b = this.a;return migi.createVd("p",[],[new migi.Obj("a",this,function(){return(b.a.c)})])}}A.__migiName="A";');
+  });
   it('var model.x', function() {
     var s = 'class A extends migi.xxx{constructor(){}render(){var b = this.model.a;return <p>{b}</p>}}';
     var res = lefty.parse(s);
@@ -375,6 +380,16 @@ describe('var this & model', function() {
     var s = 'class A extends migi.xxx{constructor(){}render(){var b = this;test;return <p>{test}</p>}}';
     var res = lefty.parse(s);
     expect(res).to.eql('class A extends migi.xxx{constructor(){}render(){var b = this;test;return migi.createVd("p",[],[test])}}A.__migiName="A";');
+  });
+  it('fnexpr', function() {
+    var s = 'class A extends migi.xxx{constructor(){}get a(){}set a(v){}render(){{b.map(function(){return this.a})};return <p>1</p>}}';
+    var res = lefty.parse(s);
+    expect(res).to.eql('class A extends migi.xxx{constructor(){}get a(){}set a(v){;this.__data("a")}render(){{b.map(function(){return this.a})};return migi.createVd("p",[],["1"])}}A.__migiName="A";');
+  });
+  it('inner fn', function() {
+    var s = 'class A extends migi.xxx{constructor(){}get a(){}set a(v){}render(){return <p>{b.map(function(){return this.a})}</p>}}';
+    var res = lefty.parse(s);
+    expect(res).to.eql('class A extends migi.xxx{constructor(){}get a(){}set a(v){;this.__data("a")}render(){return migi.createVd("p",[],[b.map(function(){return this.a})])}}A.__migiName="A";');
   });
 });
 

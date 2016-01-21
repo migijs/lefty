@@ -1,5 +1,6 @@
 import homunculus from 'homunculus';
 import ignore from './ignore';
+import Tree from './Tree';
 import jsx from './jsx';
 import join2 from './join2';
 
@@ -7,6 +8,8 @@ var Token = homunculus.getClass('token', 'jsx');
 var Node = homunculus.getClass('node', 'jsx');
 
 var res;
+
+function mmbexpr() {}
 
 function varstmt(node, varHash, modelHash, thisHash, thisModelHash) {
   node.leaves().forEach(function(leaf) {
@@ -134,6 +137,12 @@ function recursion(node, setHash, getHash, varHash, modelHash, thisHash, thisMod
       case Node.JSXSelfClosingElement:
         res += jsx(node, true, setHash, getHash, varHash, modelHash, thisHash, thisModelHash);
         return;
+      case Node.FNEXPR:
+      case Node.FNDECL:
+      case Node.CLASSEXPR:
+        var tree = new Tree();
+        res += tree.parse(node);
+        return;
     }
     node.leaves().forEach(function(leaf) {
       recursion(leaf, setHash, getHash, varHash, modelHash, thisHash, thisModelHash);
@@ -142,6 +151,9 @@ function recursion(node, setHash, getHash, varHash, modelHash, thisHash, thisMod
 }
 
 function parse(node, setHash, getHash) {
+  if(Tree.hasOwnProperty('default')) {
+    Tree = Tree['default'];
+  }
   res = '';
 
   //存this.get/set

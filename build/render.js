@@ -1,12 +1,15 @@
 var homunculus=function(){var _0=require('homunculus');return _0.hasOwnProperty("default")?_0["default"]:_0}();
 var ignore=function(){var _1=require('./ignore');return _1.hasOwnProperty("default")?_1["default"]:_1}();
-var jsx=function(){var _2=require('./jsx');return _2.hasOwnProperty("default")?_2["default"]:_2}();
-var join2=function(){var _3=require('./join2');return _3.hasOwnProperty("default")?_3["default"]:_3}();
+var Tree=function(){var _2=require('./Tree');return _2.hasOwnProperty("default")?_2["default"]:_2}();
+var jsx=function(){var _3=require('./jsx');return _3.hasOwnProperty("default")?_3["default"]:_3}();
+var join2=function(){var _4=require('./join2');return _4.hasOwnProperty("default")?_4["default"]:_4}();
 
 var Token = homunculus.getClass('token', 'jsx');
 var Node = homunculus.getClass('node', 'jsx');
 
 var res;
+
+function mmbexpr() {}
 
 function varstmt(node, varHash, modelHash, thisHash, thisModelHash) {
   node.leaves().forEach(function(leaf) {
@@ -134,6 +137,12 @@ function recursion(node, setHash, getHash, varHash, modelHash, thisHash, thisMod
       case Node.JSXSelfClosingElement:
         res += jsx(node, true, setHash, getHash, varHash, modelHash, thisHash, thisModelHash);
         return;
+      case Node.FNEXPR:
+      case Node.FNDECL:
+      case Node.CLASSEXPR:
+        var tree = new Tree();
+        res += tree.parse(node);
+        return;
     }
     node.leaves().forEach(function(leaf) {
       recursion(leaf, setHash, getHash, varHash, modelHash, thisHash, thisModelHash);
@@ -142,6 +151,9 @@ function recursion(node, setHash, getHash, varHash, modelHash, thisHash, thisMod
 }
 
 function parse(node, setHash, getHash) {
+  if(Tree.hasOwnProperty('default')) {
+    Tree = Tree['default'];
+  }
   res = '';
 
   //存this.get/set

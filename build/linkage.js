@@ -142,6 +142,9 @@ function mmbexpr(node, res, varHash, modelHash, thisHash, thisModelHash) {
           }
         }
       }
+      else if(varHash.hasOwnProperty(me)) {
+        res[varHash[me]] = true;
+      }
       else {
         var bracket = node.leaf(1);
         if(bracket.isToken()) {

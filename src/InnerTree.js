@@ -1,4 +1,5 @@
 import homunculus from 'homunculus';
+import Tree from './Tree';
 import jsx from './jsx';
 import ignore from './ignore';
 
@@ -7,7 +8,10 @@ var Node = homunculus.getClass('node', 'jsx');
 
 class InnerTree {
   constructor(isBind, setHash, getHash, varHash, modelHash, thisHash, thisModelHash) {
-    this.isBind = isBind;
+    if(Tree.hasOwnProperty('default')) {
+      Tree = Tree['default'];
+    }
+
     this.setHash = setHash;
     this.getHash = getHash;
     this.varHash = varHash;
@@ -47,6 +51,12 @@ class InnerTree {
         case Node.JSXElement:
         case Node.JSXSelfClosingElement:
           this.res += jsx(node, true, this.setHash, this.getHash, this.varHash, this.modelHash, this.thisHash, this.thisModelHash);
+          return;
+        case Node.FNEXPR:
+        case Node.FNDECL:
+        case Node.CLASSEXPR:
+          var tree = new Tree();
+          this.res += tree.parse(node);
           return;
       }
       node.leaves().forEach(function(leaf) {
