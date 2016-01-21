@@ -1,6 +1,7 @@
 define(function(require, exports, module){var homunculus=function(){var _0=require('homunculus');return _0.hasOwnProperty("default")?_0["default"]:_0}();
 var jsx=function(){var _1=require('./jsx');return _1.hasOwnProperty("default")?_1["default"]:_1}();
 var ignore=function(){var _2=require('./ignore');return _2.hasOwnProperty("default")?_2["default"]:_2}();
+var render=function(){var _3=require('./render');return _3.hasOwnProperty("default")?_3["default"]:_3}();
 
 var Token = homunculus.getClass('token', 'jsx');
 var Node = homunculus.getClass('node', 'jsx');
@@ -11,11 +12,11 @@ var Node = homunculus.getClass('node', 'jsx');
   }
 
   Tree.prototype.parse = function(node) {
-    this.recursion(node);
+    this.recursion(node, false, {}, {});
     return this.res;
   }
-  Tree.prototype.recursion = function(node, inClass, inRender, setHash, getHash) {
-    if(setHash===void 0)setHash={};if(getHash===void 0)getHash={};var self = this;
+  Tree.prototype.recursion = function(node, inClass, setHash, getHash) {
+    var self = this;
     var isToken = node.isToken();
     if(isToken) {
       var token = node.token();
@@ -39,7 +40,7 @@ var Node = homunculus.getClass('node', 'jsx');
       switch(node.name()) {
         case Node.JSXElement:
         case Node.JSXSelfClosingElement:
-          this.res += jsx(node, inClass, inRender, setHash, getHash);
+          this.res += jsx(node, false);
           return;
         case Node.CLASSDECL:
           inClass = this.klass(node);
@@ -50,18 +51,25 @@ var Node = homunculus.getClass('node', 'jsx');
           }
           break;
         case Node.METHOD:
-          inRender = this.method(node);
+          var isRender = this.method(node);
+          if(isRender) {
+            this.res += render(node, setHash, getHash);
+            return;
+          }
           break;
       }
       node.leaves().forEach(function(leaf) {
-        self.recursion(leaf, inClass, inRender, setHash, getHash);
+        self.recursion(leaf, inClass, setHash, getHash);
       });
       switch(node.name()) {
         case Node.FNBODY:
-          this.fnbody(node, inClass, inRender, setHash, getHash);
+          this.fnbody(node, inClass, setHash, getHash);
           break;
         case Node.CLASSDECL:
           this.appendName(node);
+          inClass = false;
+          setHash = {};
+          getHash = {};
           break;
       }
     }

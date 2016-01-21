@@ -3,12 +3,6 @@ define(function(require, exports, module){var homunculus=function(){var _0=requi
 var Token = homunculus.getClass('token', 'jsx');
 var Node = homunculus.getClass('node', 'jsx');
 
-var SET_BUILD_IN = {
-  'text': true,
-  'html': true,
-  'style': true
-};
-
 function parse(node, res) {
   switch(node.name()) {
     case Node.PRMREXPR:
@@ -191,7 +185,7 @@ exports["default"]=function(node, setHash, getHash) {
   //取得全部this.xxx后，判断是否有对应的set方法，state为兼容rc也特殊处理
   if(!setHash.hasOwnProperty('state') && !getHash.hasOwnProperty('state')) {
     setHash.state = true;
-    getHash.state = [];
+    getHash.state = getHash.state || [];
   }
   var arr = Object.keys(res).filter(function(item) {
     //this.model特殊处理
@@ -204,7 +198,7 @@ exports["default"]=function(node, setHash, getHash) {
       var deps = getHash[item];
       deps.forEach(function(dep) {
         //声明的依赖需有set方法
-        if((SET_BUILD_IN.hasOwnProperty(dep) || setHash.hasOwnProperty(dep)) && arr.indexOf(dep) == -1) {
+        if(arr.indexOf(dep) == -1) {
           arr.push(dep);
         }
       });

@@ -1,6 +1,7 @@
 import homunculus from 'homunculus';
 import jsx from './jsx';
 import ignore from './ignore';
+import render from './render';
 
 var Token = homunculus.getClass('token', 'jsx');
 var Node = homunculus.getClass('node', 'jsx');
@@ -11,10 +12,10 @@ class Tree {
   }
 
   parse(node) {
-    this.recursion(node);
+    this.recursion(node, false, {}, {});
     return this.res;
   }
-  recursion(node, inClass, inRender, setHash = {}, getHash = {}) {
+  recursion(node, inClass, setHash, getHash) {
     var self = this;
     var isToken = node.isToken();
     if(isToken) {
@@ -39,7 +40,7 @@ class Tree {
       switch(node.name()) {
         case Node.JSXElement:
         case Node.JSXSelfClosingElement:
-          this.res += jsx(node, inClass, inRender, setHash, getHash);
+          this.res += jsx(node, false);
           return;
         case Node.CLASSDECL:
           inClass = this.klass(node);
@@ -50,18 +51,25 @@ class Tree {
           }
           break;
         case Node.METHOD:
-          inRender = this.method(node);
+          var isRender = this.method(node);
+          if(isRender) {
+            this.res += render(node, setHash, getHash);
+            return;
+          }
           break;
       }
       node.leaves().forEach(function(leaf) {
-        self.recursion(leaf, inClass, inRender, setHash, getHash);
+        self.recursion(leaf, inClass, setHash, getHash);
       });
       switch(node.name()) {
         case Node.FNBODY:
-          this.fnbody(node, inClass, inRender, setHash, getHash);
+          this.fnbody(node, inClass, setHash, getHash);
           break;
         case Node.CLASSDECL:
           this.appendName(node);
+          inClass = false;
+          setHash = {};
+          getHash = {};
           break;
       }
     }

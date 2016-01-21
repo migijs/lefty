@@ -13,12 +13,12 @@ S[Token.LINE] = S[Token.COMMENT] = S[Token.BLANK] = true;
 
 var res = '';
 
-function parse(node, inClass, inRender) {
+function parse(node, isBind) {
   //循环依赖fix
   if(Tree.hasOwnProperty('default')) {
     Tree = Tree['default'];
   }
-  if(inClass && inRender) {
+  if(isBind) {
     var prmr = node.leaf(1);
     if(prmr && prmr.name() == Node.PRMREXPR) {
       var objltr = prmr.first();

@@ -8,10 +8,10 @@ import delegate from './delegate';
 var Token = homunculus.getClass('token', 'jsx');
 var Node = homunculus.getClass('node', 'jsx');
 
-function elem(node, inClass, inRender, setHash, getHash) {
+function elem(node, isBind, setHash, getHash) {
   var res = '';
   //open和selfClose逻辑复用
-  res += selfClose(node.first(), inClass, inRender, setHash, getHash);
+  res += selfClose(node.first(), isBind, setHash, getHash);
   res += ',[';
   var comma = false;
   for(var i = 1, len = node.size(); i < len - 1; i++) {
@@ -22,7 +22,7 @@ function elem(node, inClass, inRender, setHash, getHash) {
           res += ',';
           comma = false;
         }
-        res += child(leaf, inClass, inRender, setHash, getHash);
+        res += child(leaf, isBind, setHash, getHash);
         comma = true;
         break;
       case Node.TOKEN:
@@ -50,7 +50,7 @@ function elem(node, inClass, inRender, setHash, getHash) {
           res += ',';
           comma = false;
         }
-        res += parse(leaf, inClass, inRender, setHash, getHash);
+        res += parse(leaf, isBind, setHash, getHash);
         comma = true;
     }
   }
@@ -60,7 +60,7 @@ function elem(node, inClass, inRender, setHash, getHash) {
   }
   return res;
 }
-function selfClose(node, inClass, inRender, setHash, getHash) {
+function selfClose(node, isBind, setHash, getHash) {
   var res = '';
   var name = node.leaf(1).token().content();
   if(/^[A-Z]/.test(name)) {
@@ -79,7 +79,7 @@ function selfClose(node, inClass, inRender, setHash, getHash) {
     }
     switch(leaf.name()) {
       case Node.JSXAttribute:
-        res += attr(leaf, inClass, inRender, setHash, getHash);
+        res += attr(leaf, isBind, setHash, getHash);
         break;
       case Node.JSXSpreadAttribute:
         res += spread(leaf);
@@ -89,7 +89,7 @@ function selfClose(node, inClass, inRender, setHash, getHash) {
   res += ']';
   return res;
 }
-function attr(node, inClass, inRender, setHash, getHash) {
+function attr(node, isBind, setHash, getHash) {
   var res = '';
   var key = node.first().token().content();
   var k = '["' + key + '"';
@@ -100,38 +100,38 @@ function attr(node, inClass, inRender, setHash, getHash) {
     res += v;
   }
   else if(/^on[A-Z]/.test(key)) {
-    res += onEvent(v, inClass, inRender);
+    res += onEvent(v, isBind);
   }
   else {
-    res += child(v, inClass, inRender, setHash, getHash);
+    res += child(v, isBind, setHash, getHash);
   }
   res += ']';
   return res;
 }
-function onEvent(node, inClass, inRender) {
-  var res = delegate(node, inClass, inRender);
+function onEvent(node, isBind) {
+  var res = delegate(node, isBind);
   return res;
 }
 function spread(node) {
   return join(node.leaf(2));
 }
-function child(node, inClass, inRender, setHash, getHash) {
+function child(node, isBind, setHash, getHash) {
   var tree = new Tree();
   var res = tree.parse(node);
   res = res.replace(/^(\s*)\{/, '$1').replace(/}(\s*)$/, '$1');
-  var list = linkage(node.leaf(1), setHash, getHash);
-  if(list.length && inClass && inRender) {
+  if(isBind) {
+    var list = linkage(node.leaf(1), setHash, getHash);
     if(list.length == 1) {
       return 'new migi.Obj("' + list[0] + '",this,function(){return(' + res + ')})';
     }
-    else {
+    else if(list.length > 1) {
       return 'new migi.Obj(' + JSON.stringify(list) + ',this,function(){return(' + res + ')})';
     }
   }
   return res;
 }
 
-function parse(node, inClass, inRender, setHash, getHash) {
+function parse(node, isBind, setHash, getHash, varHash, modelHash, thisHash) {
   //循环依赖fix
   if(Tree.hasOwnProperty('default')) {
     Tree = Tree['default'];
@@ -139,10 +139,10 @@ function parse(node, inClass, inRender, setHash, getHash) {
   var res = '';
   switch(node.name()) {
     case Node.JSXElement:
-      res += elem(node, inClass, inRender, setHash, getHash);
+      res += elem(node, isBind, setHash, getHash, varHash, modelHash, thisHash);
       break;
     case Node.JSXSelfClosingElement:
-      res += selfClose(node, inClass, inRender, setHash, getHash);
+      res += selfClose(node, isBind, setHash, getHash, varHash, modelHash, thisHash);
       res += ')';
       break;
   }
