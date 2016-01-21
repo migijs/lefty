@@ -83,33 +83,13 @@ function varstmt(node, varHash, modelHash, thisHash, thisModelHash) {
 }
 
 function stmt(node, setHash, getHash, varHash, modelHash, thisHash, thisModelHash) {
-  if(node.isToken()) {
-    var token = node.token();
-    if(token.isVirtual()) {
-      return;
-    }
-    if(!token.ignore) {
-      res += token.content();
-    }
-    while(token.next()) {
-      token = token.next();
-      if(token.isVirtual() || !ignore.S.hasOwnProperty(token.type())) {
-        break;
-      }
-      if(!token.ignore) {
-        res += token.content();
-      }
-    }
+  switch(node.name()) {
+    case Node.VARSTMT:
+    case Node.LEXDECL:
+      varstmt(node, varHash, modelHash, thisHash, thisModelHash);
+      break;
   }
-  else {
-    switch(node.name()) {
-      case Node.VARSTMT:
-      case Node.LEXDECL:
-        varstmt(node, varHash, modelHash, thisHash, thisModelHash);
-        break;
-    }
-    recursion(node, setHash, getHash, varHash, modelHash, thisHash, thisModelHash);
-  }
+  recursion(node, setHash, getHash, varHash, modelHash, thisHash, thisModelHash);
 }
 
 function recursion(node, setHash, getHash, varHash, modelHash, thisHash, thisModelHash) {

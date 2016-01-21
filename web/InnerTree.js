@@ -7,9 +7,12 @@ var Token = homunculus.getClass('token', 'jsx');
 var Node = homunculus.getClass('node', 'jsx');
 
 
-  function InnerTree(isBind, setHash, getHash, varHash, modelHash, thisHash, thisModelHash) {
+  function InnerTree(setHash, getHash, varHash, modelHash, thisHash, thisModelHash) {
     if(Tree.hasOwnProperty('default')) {
       Tree = Tree['default'];
+    }
+    if(jsx.hasOwnProperty('default')) {
+      jsx = jsx['default'];
     }
 
     this.setHash = setHash;

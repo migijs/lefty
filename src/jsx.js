@@ -117,7 +117,7 @@ function spread(node) {
   return join(node.leaf(2));
 }
 function child(node, isBind, setHash, getHash, varHash, modelHash, thisHash, thisModelHash) {
-  var tree = isBind ? new InnerTree(true, setHash, getHash, varHash, modelHash, thisHash, thisModelHash) : new Tree();
+  var tree = isBind ? new InnerTree(setHash, getHash, varHash, modelHash, thisHash, thisModelHash) : new Tree();
   var res = tree.parse(node);
   res = res.replace(/^(\s*)\{/, '$1').replace(/}(\s*)$/, '$1');
   if(isBind) {
