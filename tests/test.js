@@ -371,6 +371,11 @@ describe('var this & model', function() {
     var res = lefty.parse(s);
     expect(res).to.eql('class A extends migi.xxx{constructor(){}render(){var b = this;var c = b.model;return migi.createVd("p",[],[new migi.Obj("model.a",this,function(){return(c["a"])})])}}A.__migiName="A";');
   });
+  it('other', function() {
+    var s = 'class A extends migi.xxx{constructor(){}render(){var b = this;test;return <p>{test}</p>}}';
+    var res = lefty.parse(s);
+    expect(res).to.eql('class A extends migi.xxx{constructor(){}render(){var b = this;test;return migi.createVd("p",[],[test])}}A.__migiName="A";');
+  });
 });
 
 describe('lie', function() {

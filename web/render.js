@@ -38,21 +38,6 @@ function varstmt(node, varHash, modelHash, thisHash, thisModelHash) {
                     varHash[id] = v;
                   }
                 }
-                else if(dot.token().content() == '[') {
-                  v = dot.next();
-                  if(v.name() == Node.PRMREXPR) {
-                    v = v.first().token();
-                    if(v.type() == Token.STRING) {
-                      //this.model
-                      if(v.val() == 'model') {
-                        thisModelHash[v.val()] = true;
-                      }
-                      else {
-                        varHash[id] = v.val();
-                      }
-                    }
-                  }
-                }
               }
             }
           }
