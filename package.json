@@ -15,7 +15,7 @@
     "type": "git",
     "url": "git://github.com/migijs/lefty.git"
   },
-  "keywords": ["migijs", "migi", "left", "jsx", "transformer"],
+  "keywords": ["migijs", "migi", "lefty", "jsx transformer"],
   "author": "army8735",
   "license": "MIT",
   "config": {
