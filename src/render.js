@@ -17,9 +17,17 @@ function varstmt(node, varHash, modelHash, thisHash, thisModelHash) {
       var id = leaf.first().first();
       if(id.isToken()) {
         id = id.token().content();
-        var prmr = leaf.leaf(1).leaf(1);
+        var prmr = leaf.leaf(1);
+        if(!prmr) {
+          return;
+        }
+        prmr = prmr.leaf(1);
         if(prmr.name() == Node.PRMREXPR) {
-          var v = prmr.first().token().content();
+          var v = prmr.first();
+          if(!v.isToken()) {
+            return;
+          }
+          v = v.token().content();
           if(v == 'this' || thisHash.hasOwnProperty(v)) {
             thisHash[id] = true;
           }
