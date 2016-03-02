@@ -48,6 +48,7 @@ function parse(node, res, varHash, modelHash, thisHash, thisModelHash) {
         break;
       case Node.POSTFIXEXPR:
         parse(node.first(), res, varHash, modelHash, thisHash, thisModelHash);
+        break;
       case Node.CALLEXPR:
         callexpr(node, res, varHash, modelHash, thisHash, thisModelHash);
         break;

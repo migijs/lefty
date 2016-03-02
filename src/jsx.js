@@ -100,7 +100,7 @@ function attr(node, isBind, setHash, getHash, varHash, modelHash, thisHash, this
     v = v.token().content();
     res += v;
   }
-  else if(/^on[A-Z]/.test(key)) {
+  else if(/^on[a-zA-Z]/.test(key)) {
     res += onEvent(v, isBind);
   }
   else {
