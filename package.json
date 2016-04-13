@@ -1,6 +1,6 @@
 {
   "name": "lefty",
-  "version": "0.11.3",
+  "version": "1.0.0",
   "description": "A JSX transformer for migi",
   "maintainers": [
     {
