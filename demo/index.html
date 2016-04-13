@@ -54,7 +54,6 @@
 <input id="btn" type="button" value="ok"/>
 <pre><code class="brush:jsx"></code></pre>
 <pre><code class="brush:es6"></code></pre>
-<pre><code class="brush:js"></code></pre>
 <script src="sea.js"></script>
 <script src="kinetic-v4.4.0.min.js"></script>
 <script>
@@ -148,11 +147,9 @@
       var res = lefty.parse(node.textContent || node.innerText || node.firstChild && node.firstChild.nodeValue);
       var ast = lefty.ast();
       var tokens = lefty.tokens();
-      var res2 = lefty.parse(node.textContent || node.innerText || node.firstChild && node.firstChild.nodeValue, true);
       nodes[1].innerHTML = res.replace(/</g, '&lt;');
-      nodes[2].innerHTML = res2.replace(/</g, '&lt;');
       if(ast) {
-        draw(0, ast, nodes[2].parentNode.nextSibling);
+        draw(0, ast, nodes[1].parentNode.nextSibling);
       }
       if(tokens) {
         console.table(tokens, ['t', 'c', 'v', 'id', 'si', 'ignore']);
