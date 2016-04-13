@@ -141,7 +141,7 @@ var Node = homunculus.getClass('node', 'jsx');
             }
           }
           //可能组件继承组件，无法得知继承自migi.xxx
-          this.res += ';this instanceof migi.Component||migi.browser.lie&&this.__migiCP||';
+          this.res += ';this instanceof migi.Component&&';
           this.res += 'this.__data("';
           var name = parent.leaf(1).first().first().token().content();
           this.res += name;

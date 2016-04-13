@@ -74,7 +74,7 @@ describe('simple', function() {
   });
   it('parse use es6', function() {
     var s = 'const a = <div/>';
-    var res = lefty.parse(s, false, true);
+    var res = lefty.parse(s, true);
     expect(res).to.eql('var a = migi.createVd("div",[])');
   });
   it('tag blank', function() {
@@ -148,7 +148,7 @@ describe('classes', function() {
   it('extends from custom', function() {
     var s = 'class A extends X{constructor(){}set t(){}get t(){}render(){return <p>{this.t}</p>}}';
     var res = lefty.parse(s);
-    expect(res).to.eql('class A extends X{constructor(){}set t(){;this instanceof migi.Component||migi.browser.lie&&this.__migiCP||this.__data("t")}get t(){}render(){return migi.createVd("p",[],[new migi.Obj("t",this,function(){return(this.t)})])}}A.__migiName="A";');
+    expect(res).to.eql('class A extends X{constructor(){}set t(){;this instanceof migi.Component&&this.__data("t")}get t(){}render(){return migi.createVd("p",[],[new migi.Obj("t",this,function(){return(this.t)})])}}A.__migiName="A";');
   });
 });
 
