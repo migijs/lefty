@@ -291,7 +291,7 @@ describe('linkage', function() {
   it('delegate', function() {
     var s = 'class A extends migi.xxx{constructor(){}render(){return <p onClick={{a:a,"b":this.b}}></p>}}';
     var res = lefty.parse(s);
-    expect(res).to.eql('class A extends migi.xxx{constructor(){}render(){return migi.createVd("p",[["onClick",[[{"a":{"_v":[]}},a],[{"b":{"_v":[]}},new migi.Cb(this,this.b)]]]],[])}}A.__migiName="A";');
+    expect(res).to.eql('class A extends migi.xxx{constructor(){}render(){return migi.createVd("p",[["onClick",[[{"a":{"_v":true}},a],[{"b":{"_v":true}},new migi.Cb(this,this.b)]]]],[])}}A.__migiName="A";');
   });
   it('state', function() {
     var s = 'class A extends migi.xxx{constructor(){}render(){return <p>{this.state.a}</p>}}';
