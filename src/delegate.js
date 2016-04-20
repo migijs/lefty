@@ -57,11 +57,11 @@ function recursion(objltr) {
       var s = join2(leaf);
       res += s;
     }
-    else if(leaf.name() == Node.PROPTDEF) {console.log(1)
+    else if(leaf.name() == Node.PROPTDEF) {
       res += '[';
       var proptname = leaf.first();
       var s = join(proptname).replace(/^(["'])(.+)\1$/, '$2') + '{}';
-      s = jaw.parse(s, { noPriority: true, noValue: true, noMedia: true });console.log(s)
+      s = jaw.parse(s, { noPriority: true, noValue: true, noMedia: true });
       res += JSON.stringify(s);
       res += ',';
       res += filter(join(leaf.last()));
