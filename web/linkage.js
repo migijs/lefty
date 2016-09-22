@@ -195,6 +195,9 @@ function mmbexpr(node, res, varHash, modelHash, thisHash, thisModelHash) {
       }
     }
   }
+  else {
+    parse(prmr, res, varHash, modelHash, thisHash, thisModelHash);
+  }
 }
 function callexpr(node, res, varHash, modelHash, thisHash, thisModelHash) {
   parse(node.first(), res, varHash, modelHash, thisHash, thisModelHash);
