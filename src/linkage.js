@@ -58,6 +58,17 @@ function parse(node, res, varHash, modelHash, thisHash, thisModelHash) {
       case Node.CPEAPL:
         cpeapl(node, res, varHash, modelHash, thisHash, thisModelHash);
         break;
+      case Node.ARGS:
+        parse(node.leaf(1), res, varHash, modelHash, thisHash, thisModelHash);
+        break;
+      case Node.ARGLIST:
+        for(var i = 0, leaves = node.leaves(), len = leaves.length; i < len; i++) {
+          var leaf = node.leaf(i);
+          if(!leaf.isToken()) {
+            parse(leaf, res, varHash, modelHash, thisHash, thisModelHash);
+          }
+        }
+        break;
     }
   }
 }
