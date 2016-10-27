@@ -7,21 +7,15 @@ var Token = homunculus.getClass('token', 'jsx');
 var Node = homunculus.getClass('node', 'jsx');
 
 
-  function InnerTree(setHash, getHash, varHash, modelHash, thisHash, thisModelHash) {
+  function InnerTree(param) {
     if(Tree.hasOwnProperty('default')) {
       Tree = Tree['default'];
     }
     if(jsx.hasOwnProperty('default')) {
       jsx = jsx['default'];
     }
-
-    this.setHash = setHash;
-    this.getHash = getHash;
-    this.varHash = varHash;
-    this.modelHash = modelHash;
-    this.thisHash = thisHash;
-    this.thisModelHash = thisModelHash;
     this.res = '';
+    this.param = param;
   }
 
   InnerTree.prototype.parse = function(node) {
@@ -53,7 +47,7 @@ var Node = homunculus.getClass('node', 'jsx');
       switch(node.name()) {
         case Node.JSXElement:
         case Node.JSXSelfClosingElement:
-          this.res += jsx(node, true, this.setHash, this.getHash, this.varHash, this.modelHash, this.thisHash, this.thisModelHash);
+          this.res += jsx(node, true, self.param);
           return;
         case Node.FNEXPR:
         case Node.FNDECL:

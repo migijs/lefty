@@ -9,10 +9,10 @@ var delegate=function(){var _6=require('./delegate');return _6.hasOwnProperty("d
 var Token = homunculus.getClass('token', 'jsx');
 var Node = homunculus.getClass('node', 'jsx');
 
-function elem(node, isBind, setHash, getHash, varHash, modelHash, thisHash, thisModelHash) {
+function elem(node, isBind, param) {
   var res = '';
   //open和selfClose逻辑复用
-  res += selfClose(node.first(), isBind, setHash, getHash, varHash, modelHash, thisHash, thisModelHash);
+  res += selfClose(node.first(), isBind, param);
   res += ',[';
   var comma = false;
   for(var i = 1, len = node.size(); i < len - 1; i++) {
@@ -23,7 +23,7 @@ function elem(node, isBind, setHash, getHash, varHash, modelHash, thisHash, this
           res += ',';
           comma = false;
         }
-        res += child(leaf, isBind, setHash, getHash, varHash, modelHash, thisHash, thisModelHash);
+        res += child(leaf, isBind, param);
         comma = true;
         break;
       case Node.TOKEN:
@@ -51,7 +51,7 @@ function elem(node, isBind, setHash, getHash, varHash, modelHash, thisHash, this
           res += ',';
           comma = false;
         }
-        res += parse(leaf, isBind, setHash, getHash, varHash, modelHash, thisHash, thisModelHash);
+        res += parse(leaf, isBind, param);
         comma = true;
     }
   }
@@ -61,7 +61,7 @@ function elem(node, isBind, setHash, getHash, varHash, modelHash, thisHash, this
   }
   return res;
 }
-function selfClose(node, isBind, setHash, getHash, varHash, modelHash, thisHash, thisModelHash) {
+function selfClose(node, isBind, param) {
   var res = '';
   var name = node.leaf(1).token().content();
   if(/^[A-Z]/.test(name)) {
@@ -80,7 +80,7 @@ function selfClose(node, isBind, setHash, getHash, varHash, modelHash, thisHash,
     }
     switch(leaf.name()) {
       case Node.JSXAttribute:
-        res += attr(leaf, isBind, setHash, getHash, varHash, modelHash, thisHash, thisModelHash);
+        res += attr(leaf, isBind, param);
         break;
       case Node.JSXSpreadAttribute:
         res += spread(leaf);
@@ -90,7 +90,7 @@ function selfClose(node, isBind, setHash, getHash, varHash, modelHash, thisHash,
   res += ']';
   return res;
 }
-function attr(node, isBind, setHash, getHash, varHash, modelHash, thisHash, thisModelHash) {
+function attr(node, isBind, param) {
   var res = '';
   var key = node.first().token().content();
   var k = '["' + key + '"';
@@ -101,27 +101,27 @@ function attr(node, isBind, setHash, getHash, varHash, modelHash, thisHash, this
     res += v;
   }
   else if(/^on[a-zA-Z]/.test(key)) {
-    res += onEvent(v, isBind);
+    res += onEvent(v, isBind, param);
   }
   else {
-    res += child(v, isBind, setHash, getHash, varHash, modelHash, thisHash, thisModelHash);
+    res += child(v, isBind, param);
   }
   res += ']';
   return res;
 }
-function onEvent(node, isBind) {
-  var res = delegate(node, isBind);
+function onEvent(node, isBind, param) {
+  var res = delegate(node, isBind, param);
   return res;
 }
 function spread(node) {
   return join(node.leaf(2));
 }
-function child(node, isBind, setHash, getHash, varHash, modelHash, thisHash, thisModelHash) {
-  var tree = isBind ? new InnerTree(setHash, getHash, varHash, modelHash, thisHash, thisModelHash) : new Tree();
+function child(node, isBind, param) {
+  var tree = isBind ? new InnerTree(param) : new Tree();
   var res = tree.parse(node);
   res = res.replace(/^(\s*)\{/, '$1').replace(/}(\s*)$/, '$1');
   if(isBind) {
-    var list = linkage(node.leaf(1), setHash, getHash, varHash, modelHash, thisHash, thisModelHash);
+    var list = linkage(node.leaf(1), param);
     if(list.length == 1) {
       return 'new migi.Obj("' + list[0] + '",this,function(){return(' + res + ')})';
     }
@@ -132,7 +132,7 @@ function child(node, isBind, setHash, getHash, varHash, modelHash, thisHash, thi
   return res;
 }
 
-function parse(node, isBind, setHash, getHash, varHash, modelHash, thisHash, thisModelHash) {
+function parse(node, isBind, param) {
   //循环依赖fix
   if(Tree.hasOwnProperty('default')) {
     Tree = Tree['default'];
@@ -140,10 +140,10 @@ function parse(node, isBind, setHash, getHash, varHash, modelHash, thisHash, thi
   var res = '';
   switch(node.name()) {
     case Node.JSXElement:
-      res += elem(node, isBind, setHash, getHash, varHash, modelHash, thisHash, thisModelHash);
+      res += elem(node, isBind, param);
       break;
     case Node.JSXSelfClosingElement:
-      res += selfClose(node, isBind, setHash, getHash, varHash, modelHash, thisHash, thisModelHash);
+      res += selfClose(node, isBind, param);
       res += ')';
       break;
   }

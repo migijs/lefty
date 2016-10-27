@@ -116,19 +116,19 @@ describe('classes', function() {
     expect(res).to.eql('class A{render(){return migi.createVd("div",[])}}');
   });
   it('no constructor', function() {
-    var s = 'class A{set t(){}get t(){}render(){return <p>{this.t}</p>}}';
+    var s = 'class A extends B{set t(){}@bind get t(){}render(){return <p>{this.t}</p>}}';
     var res = lefty.parse(s);
-    expect(res).to.eql('class A{set t(){}get t(){}render(){return migi.createVd("p",[],[this.t])}}');
+    expect(res).to.eql('class A extends B{set t(){} get t(){}render(){return migi.createVd("p",[],[this.t])}}');
   });
   it('not extends', function() {
-    var s = 'class A{constructor(){}set t(){}get t(){}render(){return <p>{this.t}</p>}}';
+    var s = 'class A{constructor(){}set t(){}@bind get t(){}render(){return <p>{this.t}</p>}}';
     var res = lefty.parse(s);
-    expect(res).to.eql('class A{constructor(){}set t(){}get t(){}render(){return migi.createVd("p",[],[this.t])}}');
+    expect(res).to.eql('class A{constructor(){}set t(){} get t(){}render(){return migi.createVd("p",[],[this.t])}}');
   });
-  it('get/set', function() {
-    var s = 'class A extends migi.xxx{constructor(){}set t(){}get t(){}render(){return <p>{this.t}</p>}}';
+  it('@bind', function() {
+    var s = 'class A extends migi.xxx{constructor(){}@bind set t(){}get t(){}render(){return <p>{this.t}</p>}}';
     var res = lefty.parse(s);
-    expect(res).to.eql('class A extends migi.xxx{constructor(){}set t(){;this.__data("t")}get t(){}render(){return migi.createVd("p",[],[new migi.Obj("t",this,function(){return(this.t)})])}}A.__migiName="A";');
+    expect(res).to.eql('class A extends migi.xxx{constructor(){} set t(){;this.__data("t")}get t(){}render(){return migi.createVd("p",[],[new migi.Obj("t",this,function(){return(this.t)})])}}A.__migiName="A";');
   });
   it('no set', function() {
     var s = 'class A extends migi.xxx{constructor(){}get t(){}render(){return <p>{this.t}</p>}}';
@@ -138,105 +138,105 @@ describe('classes', function() {
   it('no get', function() {
     var s = 'class A extends migi.xxx{constructor(){}set t(v){}render(){return <p>{this.t}</p>}}';
     var res = lefty.parse(s);
-    expect(res).to.eql('class A extends migi.xxx{constructor(){}set t(v){;this.__data("t")}render(){return migi.createVd("p",[],[this.t])}}A.__migiName="A";');
+    expect(res).to.eql('class A extends migi.xxx{constructor(){}set t(v){}render(){return migi.createVd("p",[],[this.t])}}A.__migiName="A";');
   });
-  it('get from others', function() {
-    var s = 'class A extends migi.xxx{constructor(){}set v1(v){}set v2(v){}get t(v1,v2){}render(){return <p>{this.t}</p>}}';
+  it('@link', function() {
+    var s = 'class A extends migi.xxx{constructor(){}set v1(v){}set v2(v){}@link(v1,v2)get t(){}render(){return <p>{this.t}</p>}}';
     var res = lefty.parse(s);
-    expect(res).to.eql('class A extends migi.xxx{constructor(){}set v1(v){;this.__data("v1")}set v2(v){;this.__data("v2")}get t(v1,v2){}render(){return migi.createVd("p",[],[new migi.Obj(["v1","v2"],this,function(){return(this.t)})])}}A.__migiName="A";');
+    expect(res).to.eql('class A extends migi.xxx{constructor(){}set v1(v){;this.__data("t")}set v2(v){;this.__data("t")}get t(){}render(){return migi.createVd("p",[],[new migi.Obj("t",this,function(){return(this.t)})])}}A.__migiName="A";');
   });
   it('extends from custom', function() {
-    var s = 'class A extends X{constructor(){}set t(){}get t(){}render(){return <p>{this.t}</p>}}';
+    var s = 'class A extends X{constructor(){}@bind set t(){}get t(){}render(){return <p>{this.t}</p>}}';
     var res = lefty.parse(s);
-    expect(res).to.eql('class A extends X{constructor(){}set t(){;this instanceof migi.Component&&this.__data("t")}get t(){}render(){return migi.createVd("p",[],[new migi.Obj("t",this,function(){return(this.t)})])}}A.__migiName="A";');
+    expect(res).to.eql('class A extends X{constructor(){} set t(){;this.__data("t")}get t(){}render(){return migi.createVd("p",[],[new migi.Obj("t",this,function(){return(this.t)})])}}A.__migiName="A";');
   });
 });
 
 describe('linkage', function() {
   it('cndtexpr', function() {
-    var s = 'class A extends migi.xxx{constructor(){}set t(){}get t(){}render(){return <p>{1?this.t:""}</p>}}';
+    var s = 'class A extends migi.xxx{constructor(){}@bind set t(){}get t(){}render(){return <p>{1?this.t:""}</p>}}';
     var res = lefty.parse(s);
-    expect(res).to.eql('class A extends migi.xxx{constructor(){}set t(){;this.__data("t")}get t(){}render(){return migi.createVd("p",[],[new migi.Obj("t",this,function(){return(1?this.t:"")})])}}A.__migiName="A";');
+    expect(res).to.eql('class A extends migi.xxx{constructor(){} set t(){;this.__data("t")}get t(){}render(){return migi.createVd("p",[],[new migi.Obj("t",this,function(){return(1?this.t:"")})])}}A.__migiName="A";');
   });
   it('mmbexpr', function() {
-    var s = 'class A extends migi.xxx{constructor(){}set t(){}get t(){}render(){return <p>{this.t.a}</p>}}';
+    var s = 'class A extends migi.xxx{constructor(){}@bind set t(){}get t(){}render(){return <p>{this.t.a}</p>}}';
     var res = lefty.parse(s);
-    expect(res).to.eql('class A extends migi.xxx{constructor(){}set t(){;this.__data("t")}get t(){}render(){return migi.createVd("p",[],[new migi.Obj("t",this,function(){return(this.t.a)})])}}A.__migiName="A";');
+    expect(res).to.eql('class A extends migi.xxx{constructor(){} set t(){;this.__data("t")}get t(){}render(){return migi.createVd("p",[],[new migi.Obj("t",this,function(){return(this.t.a)})])}}A.__migiName="A";');
   });
   it('mmbexpr []', function() {
-    var s = 'class A extends migi.xxx{constructor(){}set t(){}get t(){}render(){return <p>{this["t"]}</p>}}';
+    var s = 'class A extends migi.xxx{constructor(){}@bind set t(){}get t(){}render(){return <p>{this["t"]}</p>}}';
     var res = lefty.parse(s);
-    expect(res).to.eql('class A extends migi.xxx{constructor(){}set t(){;this.__data("t")}get t(){}render(){return migi.createVd("p",[],[new migi.Obj("t",this,function(){return(this["t"])})])}}A.__migiName="A";');
+    expect(res).to.eql('class A extends migi.xxx{constructor(){} set t(){;this.__data("t")}get t(){}render(){return migi.createVd("p",[],[new migi.Obj("t",this,function(){return(this["t"])})])}}A.__migiName="A";');
   });
   it('this[mmbexpr]', function() {
-    var s = 'class A extends migi.xxx{constructor(){}set t(){}get t(){}render(){return <p>{this[this.t]}</p>}}';
+    var s = 'class A extends migi.xxx{constructor(){}@bind set t(){}get t(){}render(){return <p>{this[this.t]}</p>}}';
     var res = lefty.parse(s);
-    expect(res).to.eql('class A extends migi.xxx{constructor(){}set t(){;this.__data("t")}get t(){}render(){return migi.createVd("p",[],[new migi.Obj("t",this,function(){return(this[this.t])})])}}A.__migiName="A";');
+    expect(res).to.eql('class A extends migi.xxx{constructor(){} set t(){;this.__data("t")}get t(){}render(){return migi.createVd("p",[],[new migi.Obj("t",this,function(){return(this[this.t])})])}}A.__migiName="A";');
   });
   it('this[expr]', function() {
-    var s = 'class A extends migi.xxx{constructor(){}set t(){}get t(){}render(){return <p>{this[a,this.t]}</p>}}';
+    var s = 'class A extends migi.xxx{constructor(){}@bind set t(){}get t(){}render(){return <p>{this[a,this.t]}</p>}}';
     var res = lefty.parse(s);
-    expect(res).to.eql('class A extends migi.xxx{constructor(){}set t(){;this.__data("t")}get t(){}render(){return migi.createVd("p",[],[new migi.Obj("t",this,function(){return(this[a,this.t])})])}}A.__migiName="A";');
+    expect(res).to.eql('class A extends migi.xxx{constructor(){} set t(){;this.__data("t")}get t(){}render(){return migi.createVd("p",[],[new migi.Obj("t",this,function(){return(this[a,this.t])})])}}A.__migiName="A";');
   });
   it('this.mmbexpr[this.mmbexpr]', function() {
-    var s = 'class A extends migi.xxx{constructor(){}set d(){}get d(){}set t(){}get t(){}render(){return <p>{this.d[this.t]}</p>}}';
+    var s = 'class A extends migi.xxx{constructor(){}@bind set d(){}get d(){}@bind set t(){}get t(){}render(){return <p>{this.d[this.t]}</p>}}';
     var res = lefty.parse(s);
-    expect(res).to.eql('class A extends migi.xxx{constructor(){}set d(){;this.__data("d")}get d(){}set t(){;this.__data("t")}get t(){}render(){return migi.createVd("p",[],[new migi.Obj(["d","t"],this,function(){return(this.d[this.t])})])}}A.__migiName="A";');
+    expect(res).to.eql('class A extends migi.xxx{constructor(){} set d(){;this.__data("d")}get d(){} set t(){;this.__data("t")}get t(){}render(){return migi.createVd("p",[],[new migi.Obj(["d","t"],this,function(){return(this.d[this.t])})])}}A.__migiName="A";');
   });
   it('[mmbexpr]', function() {
-    var s = 'class A extends migi.xxx{constructor(){}set t(){}get t(){}render(){return <p>{a[this.t]}</p>}}';
+    var s = 'class A extends migi.xxx{constructor(){}@bind set t(){}get t(){}render(){return <p>{a[this.t]}</p>}}';
     var res = lefty.parse(s);
-    expect(res).to.eql('class A extends migi.xxx{constructor(){}set t(){;this.__data("t")}get t(){}render(){return migi.createVd("p",[],[new migi.Obj("t",this,function(){return(a[this.t])})])}}A.__migiName="A";');
+    expect(res).to.eql('class A extends migi.xxx{constructor(){} set t(){;this.__data("t")}get t(){}render(){return migi.createVd("p",[],[new migi.Obj("t",this,function(){return(a[this.t])})])}}A.__migiName="A";');
   });
   it('a.b[mmbexpr]', function() {
-    var s = 'class A extends migi.xxx{constructor(){}set t(){}get t(){}render(){return <p>{a.b[this.t]}</p>}}';
+    var s = 'class A extends migi.xxx{constructor(){}@bind set t(){}get t(){}render(){return <p>{a.b[this.t]}</p>}}';
     var res = lefty.parse(s);
-    expect(res).to.eql('class A extends migi.xxx{constructor(){}set t(){;this.__data("t")}get t(){}render(){return migi.createVd("p",[],[new migi.Obj("t",this,function(){return(a.b[this.t])})])}}A.__migiName="A";');
+    expect(res).to.eql('class A extends migi.xxx{constructor(){} set t(){;this.__data("t")}get t(){}render(){return migi.createVd("p",[],[new migi.Obj("t",this,function(){return(a.b[this.t])})])}}A.__migiName="A";');
   });
   it('[expr]', function() {
-    var s = 'class A extends migi.xxx{constructor(){}set t(){}get t(){}render(){return <p>{a[b,this.t]}</p>}}';
+    var s = 'class A extends migi.xxx{constructor(){}@bind set t(){}get t(){}render(){return <p>{a[b,this.t]}</p>}}';
     var res = lefty.parse(s);
-    expect(res).to.eql('class A extends migi.xxx{constructor(){}set t(){;this.__data("t")}get t(){}render(){return migi.createVd("p",[],[new migi.Obj("t",this,function(){return(a[b,this.t])})])}}A.__migiName="A";');
+    expect(res).to.eql('class A extends migi.xxx{constructor(){} set t(){;this.__data("t")}get t(){}render(){return migi.createVd("p",[],[new migi.Obj("t",this,function(){return(a[b,this.t])})])}}A.__migiName="A";');
   });
   it('newexpr', function() {
-    var s = 'class A extends migi.xxx{constructor(){}set t(){}get t(){}render(){return <p>{new this.t}</p>}}';
+    var s = 'class A extends migi.xxx{constructor(){}@bind set t(){}get t(){}render(){return <p>{new this.t}</p>}}';
     var res = lefty.parse(s);
-    expect(res).to.eql('class A extends migi.xxx{constructor(){}set t(){;this.__data("t")}get t(){}render(){return migi.createVd("p",[],[new migi.Obj("t",this,function(){return(new this.t)})])}}A.__migiName="A";');
+    expect(res).to.eql('class A extends migi.xxx{constructor(){} set t(){;this.__data("t")}get t(){}render(){return migi.createVd("p",[],[new migi.Obj("t",this,function(){return(new this.t)})])}}A.__migiName="A";');
   });
   it('postfixexpr', function() {
-    var s = 'class A extends migi.xxx{constructor(){}set t(){}get t(){}render(){return <p>{this.t--}</p>}}';
+    var s = 'class A extends migi.xxx{constructor(){}@bind set t(){}get t(){}render(){return <p>{this.t--}</p>}}';
     var res = lefty.parse(s);
-    expect(res).to.eql('class A extends migi.xxx{constructor(){}set t(){;this.__data("t")}get t(){}render(){return migi.createVd("p",[],[new migi.Obj("t",this,function(){return(this.t--)})])}}A.__migiName="A";');
+    expect(res).to.eql('class A extends migi.xxx{constructor(){} set t(){;this.__data("t")}get t(){}render(){return migi.createVd("p",[],[new migi.Obj("t",this,function(){return(this.t--)})])}}A.__migiName="A";');
   });
   it('arrltr', function() {
-    var s = 'class A extends migi.xxx{constructor(){}set t(){}get t(){}render(){return <p>{[this.t]}</p>}}';
+    var s = 'class A extends migi.xxx{constructor(){}@bind set t(){}get t(){}render(){return <p>{[this.t]}</p>}}';
     var res = lefty.parse(s);
-    expect(res).to.eql('class A extends migi.xxx{constructor(){}set t(){;this.__data("t")}get t(){}render(){return migi.createVd("p",[],[new migi.Obj("t",this,function(){return([this.t])})])}}A.__migiName="A";');
+    expect(res).to.eql('class A extends migi.xxx{constructor(){} set t(){;this.__data("t")}get t(){}render(){return migi.createVd("p",[],[new migi.Obj("t",this,function(){return([this.t])})])}}A.__migiName="A";');
   });
   it('callexpr', function() {
-    var s = 'class A extends migi.xxx{constructor(){}set t(){}get t(){}render(){return <p>{fn(this.t)}</p>}}';
+    var s = 'class A extends migi.xxx{constructor(){}@bind set t(){}get t(){}render(){return <p>{fn(this.t)}</p>}}';
     var res = lefty.parse(s);
-    expect(res).to.eql('class A extends migi.xxx{constructor(){}set t(){;this.__data("t")}get t(){}render(){return migi.createVd("p",[],[new migi.Obj("t",this,function(){return(fn(this.t))})])}}A.__migiName="A";');
+    expect(res).to.eql('class A extends migi.xxx{constructor(){} set t(){;this.__data("t")}get t(){}render(){return migi.createVd("p",[],[new migi.Obj("t",this,function(){return(fn(this.t))})])}}A.__migiName="A";');
   });
   it('addexpr', function() {
-    var s = 'class A extends migi.xxx{constructor(){}set t(){}get t(){}render(){return <p>{this.t+1}</p>}}';
+    var s = 'class A extends migi.xxx{constructor(){}@bind set t(){}get t(){}render(){return <p>{this.t+1}</p>}}';
     var res = lefty.parse(s);
-    expect(res).to.eql('class A extends migi.xxx{constructor(){}set t(){;this.__data("t")}get t(){}render(){return migi.createVd("p",[],[new migi.Obj("t",this,function(){return(this.t+1)})])}}A.__migiName="A";');
+    expect(res).to.eql('class A extends migi.xxx{constructor(){} set t(){;this.__data("t")}get t(){}render(){return migi.createVd("p",[],[new migi.Obj("t",this,function(){return(this.t+1)})])}}A.__migiName="A";');
   });
   it('addexpr 2', function() {
-    var s = 'class A extends migi.xxx{constructor(){}set t(){}get t(){}render(){return <p>{0+this.t+1}</p>}}';
+    var s = 'class A extends migi.xxx{constructor(){}@bind set t(){}get t(){}render(){return <p>{0+this.t+1}</p>}}';
     var res = lefty.parse(s);
-    expect(res).to.eql('class A extends migi.xxx{constructor(){}set t(){;this.__data("t")}get t(){}render(){return migi.createVd("p",[],[new migi.Obj("t",this,function(){return(0+this.t+1)})])}}A.__migiName="A";');
+    expect(res).to.eql('class A extends migi.xxx{constructor(){} set t(){;this.__data("t")}get t(){}render(){return migi.createVd("p",[],[new migi.Obj("t",this,function(){return(0+this.t+1)})])}}A.__migiName="A";');
   });
   it('&&expr', function() {
-    var s = 'class A extends migi.xxx{constructor(){}set t(){}get t(){}render(){return <p>{a||this.t}</p>}}';
+    var s = 'class A extends migi.xxx{constructor(){}@bind set t(){}get t(){}render(){return <p>{a||this.t}</p>}}';
     var res = lefty.parse(s);
-    expect(res).to.eql('class A extends migi.xxx{constructor(){}set t(){;this.__data("t")}get t(){}render(){return migi.createVd("p",[],[new migi.Obj("t",this,function(){return(a||this.t)})])}}A.__migiName="A";');
+    expect(res).to.eql('class A extends migi.xxx{constructor(){} set t(){;this.__data("t")}get t(){}render(){return migi.createVd("p",[],[new migi.Obj("t",this,function(){return(a||this.t)})])}}A.__migiName="A";');
   });
   it('&&expr 2', function() {
-    var s = 'class A extends migi.xxx{constructor(){}set t(){}get t(){}render(){return <p>{a||b||this.t}</p>}}';
+    var s = 'class A extends migi.xxx{constructor(){}@bind set t(){}get t(){}render(){return <p>{a||b||this.t}</p>}}';
     var res = lefty.parse(s);
-    expect(res).to.eql('class A extends migi.xxx{constructor(){}set t(){;this.__data("t")}get t(){}render(){return migi.createVd("p",[],[new migi.Obj("t",this,function(){return(a||b||this.t)})])}}A.__migiName="A";');
+    expect(res).to.eql('class A extends migi.xxx{constructor(){} set t(){;this.__data("t")}get t(){}render(){return migi.createVd("p",[],[new migi.Obj("t",this,function(){return(a||b||this.t)})])}}A.__migiName="A";');
   });
   it('onEvent', function() {
     var s = 'class A extends migi.xxx{constructor(){}render(){return <p onClick={xxx}></p>}}';
@@ -248,15 +248,15 @@ describe('linkage', function() {
     var res = lefty.parse(s);
     expect(res).to.eql('class A extends migi.xxx{constructor(){}cb(){}render(){return migi.createVd("p",[["onClick",new migi.Cb(this,this.cb)]],[])}}A.__migiName="A";');
   });
-  it('explicit', function() {
-    var s = 'class Person extends migi.Component{constructor(){}get name(first,last){}set first(v){}set last(v){}render(){return(<p>{this.name}</p>);}}';
+  it('@link', function() {
+    var s = 'class Person extends migi.Component{constructor(){}@link(first,last)get name(){}set first(v){}set last(v){}render(){return(<p>{this.name}</p>);}}';
     var res = lefty.parse(s);
-    expect(res).to.eql('class Person extends migi.Component{constructor(){}get name(first,last){}set first(v){;this.__data("first")}set last(v){;this.__data("last")}render(){return(migi.createVd("p",[],[new migi.Obj(["first","last"],this,function(){return(this.name)})]));}}Person.__migiName="Person";');
+    expect(res).to.eql('class Person extends migi.Component{constructor(){}get name(){}set first(v){;this.__data("name")}set last(v){;this.__data("name")}render(){return(migi.createVd("p",[],[new migi.Obj("name",this,function(){return(this.name)})]));}}Person.__migiName="Person";');
   });
   it('(expr)', function() {
-    var s = 'class A extends migi.xxx{constructor(){}set t(){}get t(){}render(){return <p>{(this.t)}</p>}}';
+    var s = 'class A extends migi.xxx{constructor(){}@bind set t(){}get t(){}render(){return <p>{(this.t)}</p>}}';
     var res = lefty.parse(s);
-    expect(res).to.eql('class A extends migi.xxx{constructor(){}set t(){;this.__data("t")}get t(){}render(){return migi.createVd("p",[],[new migi.Obj("t",this,function(){return((this.t))})])}}A.__migiName="A";');
+    expect(res).to.eql('class A extends migi.xxx{constructor(){} set t(){;this.__data("t")}get t(){}render(){return migi.createVd("p",[],[new migi.Obj("t",this,function(){return((this.t))})])}}A.__migiName="A";');
   });
   it('model .', function() {
     var s = 'class A extends migi.xxx{constructor(){}render(){return <p>{this.model.a}</p>}}';
@@ -293,68 +293,63 @@ describe('linkage', function() {
     var res = lefty.parse(s);
     expect(res).to.eql('class A extends migi.xxx{constructor(){}render(){return migi.createVd("p",[["onClick",[[{"a":{"_v":true}},a],[{"b":{"_v":true}},new migi.Cb(this,this.b)]]]],[])}}A.__migiName="A";');
   });
-  it('state', function() {
-    var s = 'class A extends migi.xxx{constructor(){}render(){return <p>{this.state.a}</p>}}';
+  it('only get', function() {
+    var s = 'class A extends migi.xxx{constructor(){}get state(){}render(){return <p>{this.state}</p>}}';
     var res = lefty.parse(s);
-    expect(res).to.eql('class A extends migi.xxx{constructor(){}render(){return migi.createVd("p",[],[new migi.Obj("state",this,function(){return(this.state.a)})])}}A.__migiName="A";');
+    expect(res).to.eql('class A extends migi.xxx{constructor(){}get state(){}render(){return migi.createVd("p",[],[this.state])}}A.__migiName="A";');
   });
-  it('only get state', function() {
-    var s = 'class A extends migi.xxx{constructor(){}get state(){}render(){return <p>{this.state.a}</p>}}';
+  it('only set', function() {
+    var s = 'class A extends migi.xxx{constructor(){}@bind set state(v){}render(){return <p>{this.state}</p>}}';
     var res = lefty.parse(s);
-    expect(res).to.eql('class A extends migi.xxx{constructor(){}get state(){}render(){return migi.createVd("p",[],[this.state.a])}}A.__migiName="A";');
-  });
-  it('only set state', function() {
-    var s = 'class A extends migi.xxx{constructor(){}set state(v){}render(){return <p>{this.state.a}</p>}}';
-    var res = lefty.parse(s);
-    expect(res).to.eql('class A extends migi.xxx{constructor(){}set state(v){;this.__data("state")}render(){return migi.createVd("p",[],[this.state.a])}}A.__migiName="A";');
+    expect(res).to.eql('class A extends migi.xxx{constructor(){} set state(v){;this.__data("state")}render(){return migi.createVd("p",[],[this.state])}}A.__migiName="A";');
   });
   it('new expr', function() {
-    var s = 'class A extends migi.xxx{constructor(){}set t(){}get t(){}render(){return <p>{new B(this.t)}</p>}}';
+    var s = 'class A extends migi.xxx{constructor(){}@bind set t(){}get t(){}render(){return <p>{new B(this.t)}</p>}}';
     var res = lefty.parse(s);
-    expect(res).to.eql('class A extends migi.xxx{constructor(){}set t(){;this.__data("t")}get t(){}render(){return migi.createVd("p",[],[new migi.Obj("t",this,function(){return(new B(this.t))})])}}A.__migiName="A";');
+    expect(res).to.eql('class A extends migi.xxx{constructor(){} set t(){;this.__data("t")}get t(){}render(){return migi.createVd("p",[],[new migi.Obj("t",this,function(){return(new B(this.t))})])}}A.__migiName="A";');
   });
   it('new expr2', function() {
-    var s = 'class A extends migi.xxx{constructor(){}set t(){}get t(){}render(){return <p>{new B(a,...this.t)}</p>}}';
+    var s = 'class A extends migi.xxx{constructor(){}@bind set t(){}get t(){}render(){return <p>{new B(a,...this.t)}</p>}}';
     var res = lefty.parse(s);
-    expect(res).to.eql('class A extends migi.xxx{constructor(){}set t(){;this.__data("t")}get t(){}render(){return migi.createVd("p",[],[new migi.Obj("t",this,function(){return(new B(a,...this.t))})])}}A.__migiName="A";');
+    expect(res).to.eql('class A extends migi.xxx{constructor(){} set t(){;this.__data("t")}get t(){}render(){return migi.createVd("p",[],[new migi.Obj("t",this,function(){return(new B(a,...this.t))})])}}A.__migiName="A";');
   });
   it('new expr3', function() {
-    var s = 'class A extends migi.xxx{constructor(){}set t(){}get t(){}render(){return <p>{new B(this.t).toString()}</p>}}';
+    var s = 'class A extends migi.xxx{constructor(){}@bind set t(){}get t(){}render(){return <p>{new B(this.t).toString()}</p>}}';
     var res = lefty.parse(s);
-    expect(res).to.eql('class A extends migi.xxx{constructor(){}set t(){;this.__data("t")}get t(){}render(){return migi.createVd("p",[],[new migi.Obj("t",this,function(){return(new B(this.t).toString())})])}}A.__migiName="A";');
+    expect(res).to.eql('class A extends migi.xxx{constructor(){} set t(){;this.__data("t")}get t(){}render(){return migi.createVd("p",[],[new migi.Obj("t",this,function(){return(new B(this.t).toString())})])}}A.__migiName="A";');
   });
 });
 
 describe('var this/model', function() {
   it('var', function() {
-    var s = 'class A extends migi.xxx{constructor(){}get a(){}set a(v){}render(){var b = this.a;return <p>{b}</p>}}';
+    var s = 'class A extends migi.xxx{constructor(){}get a(){}@bind set a(v){}render(){var b = this.a;return <p>{b}</p>}}';
     var res = lefty.parse(s);
-    expect(res).to.eql('class A extends migi.xxx{constructor(){}get a(){}set a(v){;this.__data("a")}render(){var b = this.a;return migi.createVd("p",[],[new migi.Obj("a",this,function(){return(b)})])}}A.__migiName="A";');
+    expect(res).to.eql('class A extends migi.xxx{constructor(){}get a(){} set a(v){;this.__data("a")}render(){var b = this.a;return migi.createVd("p",[],[new migi.Obj("a",this,function(){return(b)})])}}A.__migiName="A";');
   });
   it('this', function() {
-    var s = 'class A extends migi.xxx{constructor(){}get a(){}set a(v){}render(){var b = this;return <p>{b.a}</p>}}';
+    var s = 'class A extends migi.xxx{constructor(){}get a(){}@bind set a(v){}render(){var b = this;return <p>{b.a}</p>}}';
     var res = lefty.parse(s);
-    expect(res).to.eql('class A extends migi.xxx{constructor(){}get a(){}set a(v){;this.__data("a")}render(){var b = this;return migi.createVd("p",[],[new migi.Obj("a",this,function(){return(b.a)})])}}A.__migiName="A";');
+    expect(res).to.eql('class A extends migi.xxx{constructor(){}get a(){} set a(v){;this.__data("a")}render(){var b = this;return migi.createVd("p",[],[new migi.Obj("a",this,function(){return(b.a)})])}}A.__migiName="A";');
   });
   it('this2', function() {
-    var s = 'class A extends migi.xxx{constructor(){}get a(){}set a(v){}render(){var b = this;var c = b;return <p>{c.a}</p>}}';
+    var s = 'class A extends migi.xxx{constructor(){}get a(){}@bind set a(v){}render(){var b = this;var c = b;return <p>{c.a}</p>}}';
     var res = lefty.parse(s);
-    expect(res).to.eql('class A extends migi.xxx{constructor(){}get a(){}set a(v){;this.__data("a")}render(){var b = this;var c = b;return migi.createVd("p",[],[new migi.Obj("a",this,function(){return(c.a)})])}}A.__migiName="A";');
+    expect(res).to.eql('class A extends migi.xxx{constructor(){}get a(){} set a(v){;this.__data("a")}render(){var b = this;var c = b;return migi.createVd("p",[],[new migi.Obj("a",this,function(){return(c.a)})])}}A.__migiName="A";');
   });
   it('this3', function() {
-    var s = 'class A extends migi.xxx{constructor(){}get a(){}set a(v){}render(){var b = this;return <p>{b["a"]}</p>}}';
+    var s = 'class A extends migi.xxx{constructor(){}get a(){}@bind set a(v){}render(){var b = this;return <p>{b["a"]}</p>}}';
     var res = lefty.parse(s);
-    expect(res).to.eql('class A extends migi.xxx{constructor(){}get a(){}set a(v){;this.__data("a")}render(){var b = this;return migi.createVd("p",[],[new migi.Obj("a",this,function(){return(b["a"])})])}}A.__migiName="A";');
+    expect(res).to.eql('class A extends migi.xxx{constructor(){}get a(){} set a(v){;this.__data("a")}render(){var b = this;return migi.createVd("p",[],[new migi.Obj("a",this,function(){return(b["a"])})])}}A.__migiName="A";');
   });
   it('this4', function() {
-    var s = 'class A extends migi.xxx{constructor(){}get a(){}set a(v){}render(){var b = this;var c = b;return <p>{c["a"]}</p>}}';
+    var s = 'class A extends migi.xxx{constructor(){}get a(){}@bind set a(v){}render(){var b = this;var c = b;return <p>{c["a"]}</p>}}';
     var res = lefty.parse(s);
-    expect(res).to.eql('class A extends migi.xxx{constructor(){}get a(){}set a(v){;this.__data("a")}render(){var b = this;var c = b;return migi.createVd("p",[],[new migi.Obj("a",this,function(){return(c["a"])})])}}A.__migiName="A";');
+    expect(res).to.eql('class A extends migi.xxx{constructor(){}get a(){} set a(v){;this.__data("a")}render(){var b = this;var c = b;return migi.createVd("p",[],[new migi.Obj("a",this,function(){return(c["a"])})])}}A.__migiName="A";');
   });
   it('this5', function() {
-    var s = 'class A extends migi.xxx{constructor(){}get a(){}set a(v){}render(){var b = this.a;return <p>{b.a.c}</p>}}';
+    var s = 'class A extends migi.xxx{constructor(){}get a(){}@bind set a(v){}render(){var b = this.a;return <p>{b.a.c}</p>}}';
     var res = lefty.parse(s);
-    expect(res).to.eql('class A extends migi.xxx{constructor(){}get a(){}set a(v){;this.__data("a")}render(){var b = this.a;return migi.createVd("p",[],[new migi.Obj("a",this,function(){return(b.a.c)})])}}A.__migiName="A";');
+    expect(res).to.eql('class A extends migi.xxx{constructor(){}get a(){} set a(v){;this.__data("a")}render(){var b = this.a;return migi.createVd("p",[],[new migi.Obj("a",this,function(){return(b.a.c)})])}}A.__migiName="A";');
   });
   it('var model.x', function() {
     var s = 'class A extends migi.xxx{constructor(){}render(){var b = this.model.a;return <p>{b}</p>}}';
@@ -392,19 +387,19 @@ describe('var this/model', function() {
     expect(res).to.eql('class A extends migi.xxx{constructor(){}render(){var b = this;var c = b.model;return migi.createVd("p",[],[new migi.Obj("model.a",this,function(){return(c["a"])})])}}A.__migiName="A";');
   });
   it('other', function() {
-    var s = 'class A extends migi.xxx{constructor(){}get a(){}set a(v){}render(){return <p>{this.a?1:<b>1</b>}</p>}}';
+    var s = 'class A extends migi.xxx{constructor(){}get a(){}@bind set a(v){}render(){return <p>{this.a?1:<b>1</b>}</p>}}';
     var res = lefty.parse(s);
-    expect(res).to.eql('class A extends migi.xxx{constructor(){}get a(){}set a(v){;this.__data("a")}render(){return migi.createVd("p",[],[new migi.Obj("a",this,function(){return(this.a?1:migi.createVd("b",[],["1"]))})])}}A.__migiName="A";');
+    expect(res).to.eql('class A extends migi.xxx{constructor(){}get a(){} set a(v){;this.__data("a")}render(){return migi.createVd("p",[],[new migi.Obj("a",this,function(){return(this.a?1:migi.createVd("b",[],["1"]))})])}}A.__migiName="A";');
   });
   it('fnexpr', function() {
-    var s = 'class A extends migi.xxx{constructor(){}get a(){}set a(v){}render(){{b.map(function(){return this.a})};return <p>1</p>}}';
+    var s = 'class A extends migi.xxx{constructor(){}get a(){}@bind set a(v){}render(){{b.map(function(){return this.a})};return <p>1</p>}}';
     var res = lefty.parse(s);
-    expect(res).to.eql('class A extends migi.xxx{constructor(){}get a(){}set a(v){;this.__data("a")}render(){{b.map(function(){return this.a})};return migi.createVd("p",[],["1"])}}A.__migiName="A";');
+    expect(res).to.eql('class A extends migi.xxx{constructor(){}get a(){} set a(v){;this.__data("a")}render(){{b.map(function(){return this.a})};return migi.createVd("p",[],["1"])}}A.__migiName="A";');
   });
   it('inner fn', function() {
-    var s = 'class A extends migi.xxx{constructor(){}get a(){}set a(v){}render(){return <p>{b.map(function(){return this.a})}</p>}}';
+    var s = 'class A extends migi.xxx{constructor(){}get a(){}@bind set a(v){}render(){return <p>{b.map(function(){return this.a})}</p>}}';
     var res = lefty.parse(s);
-    expect(res).to.eql('class A extends migi.xxx{constructor(){}get a(){}set a(v){;this.__data("a")}render(){return migi.createVd("p",[],[b.map(function(){return this.a})])}}A.__migiName="A";');
+    expect(res).to.eql('class A extends migi.xxx{constructor(){}get a(){} set a(v){;this.__data("a")}render(){return migi.createVd("p",[],[b.map(function(){return this.a})])}}A.__migiName="A";');
   });
   it('exception', function() {
     var s = 'class A extends migi.xxx{constructor(){}render(){var a=[];var b;return <p></p>}}';

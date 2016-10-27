@@ -8,10 +8,7 @@ var Token = homunculus.getClass('token', 'jsx');
 var Node = homunculus.getClass('node', 'jsx');
 
 var res;
-
-function mmbexpr() {}
-
-function varstmt(node, varHash, modelHash, thisHash, thisModelHash) {
+function varstmt(node, param) {
   node.leaves().forEach(function(leaf) {
     if([Node.VARDECL, Node.LEXBIND].indexOf(leaf.name()) > -1) {
       var id = leaf.first().first();
@@ -28,25 +25,25 @@ function varstmt(node, varHash, modelHash, thisHash, thisModelHash) {
             return;
           }
           v = v.token().content();
-          if(v == 'this' || thisHash.hasOwnProperty(v)) {
-            thisHash[id] = true;
+          if(v == 'this' || param.thisHash.hasOwnProperty(v)) {
+            param.thisHash[id] = true;
           }
         }
         else if(prmr.name() == Node.MMBEXPR) {
           prmr = prmr.first();
           if(prmr.name() == Node.PRMREXPR) {
             var v = prmr.first().token().content();
-            if(v == 'this' || thisHash.hasOwnProperty(v)) {
+            if(v == 'this' || param.thisHash.hasOwnProperty(v)) {
               var dot = prmr.next();
               if(dot.isToken()) {
                 if(dot.token().content() == '.') {
                   v = dot.next().token().content();
                   //this.model
                   if(v == 'model') {
-                    thisModelHash[id] = true;
+                    param.thisModelHash[id] = true;
                   }
                   else {
-                    varHash[id] = v;
+                    param.varHash[id] = v;
                   }
                 }
               }
@@ -58,7 +55,7 @@ function varstmt(node, varHash, modelHash, thisHash, thisModelHash) {
             prmr = prmr.first();
             if(prmr.name() == Node.PRMREXPR) {
               var v = prmr.first().token().content();
-              if(v == 'this' || thisHash.hasOwnProperty(v)) {
+              if(v == 'this' || param.thisHash.hasOwnProperty(v)) {
                 var dot = prmr.next();
                 if(dot.isToken()) {
                   v = dot.next().token().content();
@@ -67,14 +64,14 @@ function varstmt(node, varHash, modelHash, thisHash, thisModelHash) {
                     if(dot.isToken()) {
                       if(dot.token().content() == '.') {
                         v = dot.next().token().content();
-                        modelHash[id] = v;
+                        param.modelHash[id] = v;
                       }
                       else if(dot.token().content() == '[') {
                         v = dot.next();
                         if(v.name() == Node.PRMREXPR) {
                           v = v.first().token();
                           if(v.type() == Token.STRING) {
-                            modelHash[id] = v.val();
+                            param.modelHash[id] = v.val();
                           }
                         }
                       }
@@ -90,17 +87,17 @@ function varstmt(node, varHash, modelHash, thisHash, thisModelHash) {
   });
 }
 
-function stmt(node, setHash, getHash, varHash, modelHash, thisHash, thisModelHash) {
+function stmt(node, param) {
   switch(node.name()) {
     case Node.VARSTMT:
     case Node.LEXDECL:
-      varstmt(node, varHash, modelHash, thisHash, thisModelHash);
+      varstmt(node, param);
       break;
   }
-  recursion(node, setHash, getHash, varHash, modelHash, thisHash, thisModelHash);
+  recursion(node, param);
 }
 
-function recursion(node, setHash, getHash, varHash, modelHash, thisHash, thisModelHash) {
+function recursion(node, param) {
   if(node.isToken()) {
     var token = node.token();
     if(token.isVirtual()) {
@@ -123,7 +120,7 @@ function recursion(node, setHash, getHash, varHash, modelHash, thisHash, thisMod
     switch(node.name()) {
       case Node.JSXElement:
       case Node.JSXSelfClosingElement:
-        res += jsx(node, true, setHash, getHash, varHash, modelHash, thisHash, thisModelHash);
+        res += jsx(node, true, param);
         return;
       case Node.FNEXPR:
       case Node.FNDECL:
@@ -133,32 +130,32 @@ function recursion(node, setHash, getHash, varHash, modelHash, thisHash, thisMod
         return;
     }
     node.leaves().forEach(function(leaf) {
-      recursion(leaf, setHash, getHash, varHash, modelHash, thisHash, thisModelHash);
+      recursion(leaf, param);
     });
   }
 }
 
-function parse(node, setHash, getHash) {
+function parse(node, param) {
   if(Tree.hasOwnProperty('default')) {
     Tree = Tree['default'];
   }
   res = '';
 
   //存this.get/set
-  var varHash = {};
+  param.varHash = {};
   //存this.model.x
-  var modelHash = {};
+  param.modelHash = {};
   //存this
-  var thisHash = {};
+  param.thisHash = {};
   //存this.model
-  var thisModelHash = {};
+  param.thisModelHash = {};
 
   var len = node.size();
   node.leaves().forEach(function(leaf, i) {
     //fnbody
     if(i == len - 2) {
       leaf.leaves().forEach(function(item) {
-        stmt(item, setHash, getHash, varHash, modelHash, thisHash, thisModelHash);
+        stmt(item, param);
       });
     }
     else {
