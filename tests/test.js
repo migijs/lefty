@@ -318,6 +318,16 @@ describe('linkage', function() {
     var res = lefty.parse(s);
     expect(res).to.eql('class A extends migi.xxx{constructor(){} set t(){;this.__data("t")}get t(){}render(){return migi.createVd("p",[],[new migi.Obj("t",this,function(){return(new B(this.t).toString())})])}}A.__migiName="A";');
   });
+  it('no recursion', function() {
+    var s = 'class A extends migi.xxx{constructor(){}@bind set t(){}get t(){}render(){return <p>{this.t?"-":<a>{this.t}</a>}</p>}}';
+    var res = lefty.parse(s);
+    expect(res).to.eql('class A extends migi.xxx{constructor(){} set t(){;this.__data("t")}get t(){}render(){return migi.createVd("p",[],[new migi.Obj("t",this,function(){return(this.t?"-":migi.createVd("a",[],[this.t]))})])}}A.__migiName="A";');
+  });
+  it('recursion cb', function() {
+    var s = 'class A extends migi.xxx{constructor(){}@bind set t(){}get t(){}render(){return <p>{this.t?"-":<a onClick={this.click}>{this.t}</a>}</p>}}';
+    var res = lefty.parse(s);
+    expect(res).to.eql('class A extends migi.xxx{constructor(){} set t(){;this.__data("t")}get t(){}render(){return migi.createVd("p",[],[new migi.Obj("t",this,function(){return(this.t?"-":migi.createVd("a",[["onClick",new migi.Cb(this,this.click)]],[this.t]))})])}}A.__migiName="A";');
+  });
 });
 
 describe('var this/model', function() {
