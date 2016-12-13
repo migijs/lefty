@@ -34,7 +34,7 @@ function parse(node, isBind) {
         res = filter(res);
       }
     }
-    else {
+    else if(isBind) {
       var tree = new Tree();
       res = tree.parse(node);
       res = res.replace(/^(\s*)\{/, '$1').replace(/}(\s*)$/, '$1');
@@ -42,9 +42,25 @@ function parse(node, isBind) {
     }
   }
   else {
-    var tree = new Tree();
-    res = tree.parse(node);
-    res = res.replace(/^(\s*)\{/, '$1').replace(/}(\s*)$/, '$1');
+    var prmr = node.leaf(1);
+    if(prmr && prmr.name() == Node.PRMREXPR) {
+      var objltr = prmr.first();
+      if(objltr && objltr.name() == Node.OBJLTR) {
+        res = ignore(node.first(), true).res + '[';
+        recursion(objltr);
+        res += ignore(node.last(), true).res + ']';
+      }
+      else {
+        var tree = new Tree();
+        res = tree.parse(node);
+        res = res.replace(/^(\s*)\{/, '$1').replace(/}(\s*)$/, '$1');
+      }
+    }
+    else {
+      var tree = new Tree();
+      res = tree.parse(node);
+      res = res.replace(/^(\s*)\{/, '$1').replace(/}(\s*)$/, '$1');
+    }
   }
   return res;
 }

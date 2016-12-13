@@ -293,6 +293,11 @@ describe('linkage', function() {
     var res = lefty.parse(s);
     expect(res).to.eql('class A extends migi.xxx{constructor(){}render(){return migi.createVd("p",[["onClick",[[{"a":{"_v":true}},a],[{"b":{"_v":true}},new migi.Cb(this,this.b)]]]],[])}}A.__migiName="A";');
   });
+  it('delegate2', function() {
+    var s = 'migi.render(<p onClick={{a:a,"b":this.b}}></p>)';
+    var res = lefty.parse(s);
+    expect(res).to.eql('migi.render(migi.createVd("p",[["onClick",[[{"a":{"_v":true}},a],[{"b":{"_v":true}},new migi.Cb(this,this.b)]]]],[]))');
+  });
   it('only get', function() {
     var s = 'class A extends migi.xxx{constructor(){}get state(){}render(){return <p>{this.state}</p>}}';
     var res = lefty.parse(s);
