@@ -2,6 +2,7 @@ import homunculus from 'homunculus';
 import jsx from './jsx';
 import ignore from './ignore';
 import render from './render';
+import join2 from './join2';
 
 var Token = homunculus.getClass('token', 'jsx');
 var Node = homunculus.getClass('node', 'jsx');
@@ -67,6 +68,12 @@ class Tree {
           break;
         case Node.ANNOT:
           this.res += ignore(node, true).res;
+          break;
+        case Node.LEXBIND:
+          if(inClass && node.parent().name() == Node.CLASSELEM) {
+            this.res += this.bindLex(node);
+            return;
+          }
           break;
       }
       node.leaves().forEach(function(leaf) {
@@ -194,6 +201,35 @@ class Tree {
             }
           }
         }
+        else if(method && method.name() == Node.LEXBIND) {
+          var first = method.first();
+          if(first.name() == Node.BINDID) {
+            var name = first.first().token().content();
+            if(annot == '@bind') {
+              this.param.bindHash[name] = true;
+            }
+            else if(annot == '@link') {
+              this.param.linkHash[name] = this.param.linkHash[name] || [];
+              var params = item.leaf(2);
+              if(params && params.name() == Node.FMPARAMS) {
+                params.leaves().forEach(function(param) {
+                  if(param.name() == Node.SINGLENAME) {
+                    param = param.first();
+                    if(param.name() == Node.BINDID) {
+                      param = param.first();
+                      if(param.isToken()) {
+                        param = param.token().content();
+                        this.param.linkHash[name].push(param);
+                        this.param.linkedHash[param] = this.param.linkedHash[param] || [];
+                        this.param.linkedHash[param].push(name);
+                      }
+                    }
+                  }
+                }.bind(this));
+              }
+            }
+          }
+        }
       }
       else if(item.name() == Node.METHOD) {
         var first = item.first();
@@ -208,6 +244,14 @@ class Tree {
           }
         }
       }
+      else if(item.name() == Node.LEXBIND) {
+        var first = item.first();
+        if(first.name() == Node.BINDID) {
+          var name = first.first().token().content();
+          this.param.getHash[name] = true;
+          this.param.setHash[name] = true;
+        }
+      }
     }
   }
   appendName(node) {
@@ -219,6 +263,52 @@ class Tree {
         var name = node.leaf(1).first().token().content();
         this.res += name + '.__migiName="' + name + '";';
       }
+    }
+  }
+  bindLex(node) {
+    var parent = node.parent();
+    var bindid = node.first();
+    if(bindid.name() == Node.BINDID) {
+      var token = bindid.first();
+      var name = token.token().content();
+      var init = node.leaf(1);
+      
+      var ids = [];
+      var prev = parent.prev();
+      if(prev) {
+        prev = prev.first();
+        if (prev.name() == Node.ANNOT && prev.first().token().content() == '@bind') {
+          ids.push(name);
+        }
+      }
+      ids = ids.concat(this.param.linkedHash[name] || []);
+      
+      var s = '';
+      s += 'set ' + name + '(v){';
+      s += 'this.__setBind("' + name + '",v)';
+      if(ids.length) {
+        if(ids.length == 1) {
+          s += ';this.__data("';
+          s += ids[0];
+          s += '")';
+        }
+        else {
+          s += ';this.__data(["';
+          s += ids.join('","');
+          s += '"])';
+        }
+      }
+      s += '}get ' + name + '(){';
+      s += ignore(token).res;
+      if(init) {
+        s += 'if(this.__initBind("' + name + '"))';
+        s += 'this.__setBind("' + name + '",';
+        s += ignore(init.first()).res;
+        s += join2(init.last());
+        s += ');';
+      }
+      s += 'return this.__getBind("' + name + '")}';
+      return s;
     }
   }
 }

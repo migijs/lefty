@@ -150,6 +150,11 @@ describe('classes', function() {
     var res = lefty.parse(s);
     expect(res).to.eql('class A extends X{constructor(){} set t(){;this.__data("t")}get t(){}render(){return migi.createVd("p",[],[new migi.Obj("t",this,function(){return(this.t)})])}}A.__migiName="A";');
   });
+  it('ab.', function() {
+    var s = 'class A extends X{constructor(){}b render(){return <p>{this.b}</p>}}';
+    var res = lefty.parse(s);
+    expect(res).to.eql('class A extends X{constructor(){}set b(v){this.__setBind("b",v)}get b(){ return this.__getBind("b")}render(){return migi.createVd("p",[],[this.b])}}A.__migiName="A";');
+  });
 });
 
 describe('linkage', function() {
@@ -332,6 +337,16 @@ describe('linkage', function() {
     var s = 'class A extends migi.xxx{constructor(){}@bind set t(){}get t(){}render(){return <p>{this.t?"-":<a onClick={this.click}>{this.t}</a>}</p>}}';
     var res = lefty.parse(s);
     expect(res).to.eql('class A extends migi.xxx{constructor(){} set t(){;this.__data("t")}get t(){}render(){return migi.createVd("p",[],[new migi.Obj("t",this,function(){return(this.t?"-":migi.createVd("a",[["onClick",new migi.Cb(this,this.click)]],[this.t]))})])}}A.__migiName="A";');
+  });
+  it('ab.', function() {
+    var s = 'class A extends X{constructor(){}@bind b render(){return <p>{this.b}</p>}}';
+    var res = lefty.parse(s);
+    expect(res).to.eql('class A extends X{constructor(){} set b(v){this.__setBind("b",v);this.__data("b")}get b(){ return this.__getBind("b")}render(){return migi.createVd("p",[],[new migi.Obj("b",this,function(){return(this.b)})])}}A.__migiName="A";');
+  });
+  it('ab. 2', function() {
+    var s = 'class A extends X{constructor(){}@link(c) b set c(){} render(){return <p>{this.b}</p>}}';
+    var res = lefty.parse(s);
+    expect(res).to.eql('class A extends X{constructor(){} set b(v){this.__setBind("b",v)}get b(){ return this.__getBind("b")}set c(){;this.__data("b")} render(){return migi.createVd("p",[],[new migi.Obj("b",this,function(){return(this.b)})])}}A.__migiName="A";');
   });
 });
 
