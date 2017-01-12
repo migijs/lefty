@@ -135,8 +135,19 @@ var Node = homunculus.getClass('node', 'jsx');
     }
     var parent = node.parent();
     if(parent.name() == Node.METHOD) {
+      var setV;
       var first = parent.first();
       if(first.isToken() && first.token().content() == 'set') {
+        var fmparams = parent.leaf(3);
+        if(fmparams && fmparams.name() == Node.FMPARAMS) {
+          var single = fmparams.first();
+          if(single && single.name() == Node.SINGLENAME) {
+            var bindid = single.first();
+            if(bindid && bindid.name() == Node.BINDID) {
+              setV = bindid.first().token().content();
+            }
+          }
+        }
         var name = parent.leaf(1).first().first().token().content();
         var prev = parent.parent().prev();
         var ids = [];
@@ -148,7 +159,13 @@ var Node = homunculus.getClass('node', 'jsx');
         }
         ids = ids.concat(this.param.linkedHash[name] || []);
         if(ids.length) {
-          if (ids.length == 1) {
+          if(setV) {
+            this.res += ';this.__array("';
+            this.res += name + '",';
+            this.res += setV;
+            this.res += ')';
+          }
+          if(ids.length == 1) {
             this.res += ';this.__data("';
             this.res += ids[0];
             this.res += '")';
@@ -205,28 +222,20 @@ var Node = homunculus.getClass('node', 'jsx');
           var first = method.first();
           if(first.name() == Node.BINDID) {
             var name = first.first().token().content();
-            if(annot == '@bind') {
-              this.param.bindHash[name] = true;
-            }
-            else if(annot == '@link') {
-              this.param.linkHash[name] = this.param.linkHash[name] || [];
-              var params = item.leaf(2);
-              if(params && params.name() == Node.FMPARAMS) {
-                params.leaves().forEach(function(param) {
-                  if(param.name() == Node.SINGLENAME) {
-                    param = param.first();
-                    if(param.name() == Node.BINDID) {
-                      param = param.first();
-                      if(param.isToken()) {
-                        param = param.token().content();
-                        this.param.linkHash[name].push(param);
-                        this.param.linkedHash[param] = this.param.linkedHash[param] || [];
-                        this.param.linkedHash[param].push(name);
-                      }
-                    }
-                  }
-                }.bind(this));
-              }
+            parseLex(this.param, name, item, annot);
+          }
+        }
+        //连续2个
+        else if(method && method.name() == Node.ANNOT) {
+          var item2 = method;
+          var annot2 = method.first().token().content();
+          method = leaves[i+2] ? leaves[i+2].first() : null;
+          if(method && method.name() == Node.LEXBIND) {
+            var first = method.first();
+            if(first.name() == Node.BINDID) {
+              var name = first.first().token().content();
+              parseLex(this.param, name, item, annot);
+              parseLex(this.param, name, item2, annot2);
             }
           }
         }
@@ -277,7 +286,7 @@ var Node = homunculus.getClass('node', 'jsx');
       var prev = parent.prev();
       if(prev) {
         prev = prev.first();
-        if (prev.name() == Node.ANNOT && prev.first().token().content() == '@bind') {
+        if(prev.name() == Node.ANNOT && prev.first().token().content() == '@bind') {
           ids.push(name);
         }
       }
@@ -333,6 +342,32 @@ function hasCons(node) {
           }
         }
       }
+    }
+  }
+}
+
+function parseLex(param, name, item, annot) {
+  if(annot == '@bind') {
+    param.bindHash[name] = true;
+  }
+  else if(annot == '@link') {
+    param.linkHash[name] = param.linkHash[name] || [];
+    var params = item.leaf(2);
+    if(params && params.name() == Node.FMPARAMS) {
+      params.leaves().forEach(function(item) {
+        if(item.name() == Node.SINGLENAME) {
+          item = item.first();
+          if(item.name() == Node.BINDID) {
+            item = item.first();
+            if(item.isToken()) {
+              item = item.token().content();
+              param.linkHash[name].push(item);
+              param.linkedHash[item] = param.linkedHash[item] || [];
+              param.linkedHash[item].push(name);
+            }
+          }
+        }
+      });
     }
   }
 }
