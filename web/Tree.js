@@ -270,7 +270,7 @@ var Node = homunculus.getClass('node', 'jsx');
       //必须有constructor
       if(hasCons(node)) {
         var name = node.leaf(1).first().token().content();
-        this.res += name + '.__migiName="' + name + '";';
+        this.res += 'migi.name(' + name + ',"' + name + '");';
       }
     }
   }
