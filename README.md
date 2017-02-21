@@ -18,14 +18,13 @@ npm install lefty
 https://github.com/migijs/lefty/wiki/%E6%96%87%E6%A1%A3
 
 ## API
-* parse(code:String, lie:Boolean = false, es5:Boolean = false):String 传入要解析的jsx代码，返回翻译好的js代码；lie表示是否兼容ie8，es5表示是否翻译为es5
-* tokens():Array\<Token> 返回css的token列表
-* ast():Object 返回css的语法树
+* parse(code:String):String 传入要解析的jsx代码，返回翻译好的js代码
+* tokens():Array\<Token> 返回jsx的token列表
+* ast():Object 返回jsx的语法树
 
 ## Demo
 * demo目录下是一个web端的实时转换例子，本地浏览需要npm install安装依赖
 * 依赖的语法解析器来自于homunculus：https://github.com/army8735/homunculus
-* 依赖的es5翻译工具来自于jsdc：https://github.com/army8735/jsdc
 * 在线地址：http://army8735.me/migijs/lefty/demo/
 
 # License
