@@ -72,11 +72,6 @@ describe('simple', function() {
       lefty.parse(s);
     }).to.throwError();
   });
-  it('parse use es6', function() {
-    var s = 'const a = <div/>';
-    var res = lefty.parse(s, true);
-    expect(res).to.eql('var a = migi.createVd("div",[])');
-  });
   it('tag blank', function() {
     var s = '<div> {ttt }</div >';
     var res = lefty.parse(s);
