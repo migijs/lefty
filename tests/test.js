@@ -348,6 +348,21 @@ describe('linkage', function() {
     var res = lefty.parse(s);
     expect(res).to.eql('class A extends X{constructor(){} set b(v){this.__setBind("b",v)}get b(){ return this.__getBind("b")}set c(v){;this.__array("c",v);this.__data("b")} render(){return migi.createVd("p",[],[new migi.Obj("b",this,function(){return(this.b)})])}}migi.name(A,"A");');
   });
+  it('cpeapl 1', function() {
+    var s = 'class A extends X{constructor(){}@bind a render(){return <p>{(this.a)}</p>}}';
+    var res = lefty.parse(s);
+    expect(res).to.eql('class A extends X{constructor(){} set a(v){this.__setBind("a",v);this.__data("a")}get a(){ return this.__getBind("a")}render(){return migi.createVd("p",[],[new migi.Obj("a",this,function(){return((this.a))})])}}migi.name(A,"A");');
+  });
+  it('cpeapl 2', function() {
+    var s = 'class A extends X{constructor(){}@bind a render(){return <p>{(this.a).b}</p>}}';
+    var res = lefty.parse(s);
+    expect(res).to.eql('class A extends X{constructor(){} set a(v){this.__setBind("a",v);this.__data("a")}get a(){ return this.__getBind("a")}render(){return migi.createVd("p",[],[new migi.Obj("a",this,function(){return((this.a).b)})])}}migi.name(A,"A");');
+  });
+  it('cpeapl 3', function() {
+    var s = 'class A extends X{constructor(){}@bind a render(){return <p>{(this.a || []).map(function(){})}</p>}}';
+    var res = lefty.parse(s);
+    expect(res).to.eql('class A extends X{constructor(){} set a(v){this.__setBind("a",v);this.__data("a")}get a(){ return this.__getBind("a")}render(){return migi.createVd("p",[],[new migi.Obj("a",this,function(){return((this.a || []).map(function(){}))})])}}migi.name(A,"A");');
+  });
 });
 
 describe('var this/model', function() {

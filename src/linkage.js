@@ -172,6 +172,9 @@ function mmbexpr(node, res, param) {
         }
       }
     }
+    else if(first.name() == Node.CPEAPL) {
+      parse(first, res, param);
+    }
   }
   else if(prmr.name() == Node.MMBEXPR) {
     mmbexpr(prmr, res, param);
