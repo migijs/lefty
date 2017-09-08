@@ -31,7 +31,7 @@ function elem(node, isBind, isCb, param) {
         //open和close之间的空白不能忽略
         if(/^\s+$/.test(s)) {
           if(leaf.prev().name() == Node.JSXOpeningElement && leaf.next().name() == Node.JSXClosingElement) {
-            res += '"' + s.replace(/"/g, '\\"').replace(/\n/g, '\\\n') + '"';
+            res += '"' + s.replace(/"/g, '\\"').replace(/\n/g, '\\n\\\n') + '"';
           }
           else {
             res += s;
@@ -42,7 +42,7 @@ function elem(node, isBind, isCb, param) {
             res += ',';
             comma = false;
           }
-          res += '"' + s.replace(/"/g, '\\"').replace(/\n/g, '\\\n') + '"';
+          res += '"' + s.replace(/"/g, '\\"').replace(/\n/g, '\\n\\\n') + '"';
           comma = true;
         }
         break;

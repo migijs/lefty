@@ -95,7 +95,12 @@ describe('simple', function() {
   it('line', function() {
     var s = '<div>\n</div>';
     var res = lefty.parse(s);
-    expect(res).to.eql('migi.createVd("div",[],["\\\n"])');
+    expect(res).to.eql('migi.createVd("div",[],["\\n\\\n"])');
+  });
+  it('line2', function() {
+    var s = '<pre>a\nb</pre>';
+    var res = lefty.parse(s);
+    expect(res).to.eql('migi.createVd("pre",[],["a\\n\\\nb"])');
   });
   it('blank between tag', function() {
     var s = '<div> <span/>\n</div>';
