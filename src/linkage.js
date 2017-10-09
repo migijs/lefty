@@ -15,6 +15,13 @@ function parse(node, res, param) {
   }
   else {
     switch(node.name()) {
+      case Node.EXPR:
+        parse(node.first(), res, param);
+        //可能有连续多个表达式
+        for(var i = 2, leaves = node.leaves(), len = leaves.length; i < len; i += 2) {
+          parse(node.leaf(i), res, param);
+        }
+        break;
       case Node.PRMREXPR:
         parse(node.first(), res, param);
         break;

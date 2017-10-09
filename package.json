@@ -1,6 +1,6 @@
 {
   "name": "lefty",
-  "version": "3.8.0",
+  "version": "3.8.1",
   "description": "A JSX transformer for migi",
   "maintainers": [
     {
@@ -27,7 +27,7 @@
   },
   "dependencies": {
     "homunculus": "~1.1.0",
-    "jaw": "~3.0.0"
+    "jaw": "~3.0.1"
   },
   "devDependencies": {
     "blanket": "^1.1.6",

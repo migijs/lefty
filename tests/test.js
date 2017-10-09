@@ -158,6 +158,26 @@ describe('classes', function() {
 });
 
 describe('linkage', function() {
+  it('expr', function() {
+    var s = 'class A extends migi.xxx{constructor(){}@bind t render(){return <p>{(this.t)}</p>}}';
+    var res = lefty.parse(s);
+    expect(res).to.eql('class A extends migi.xxx{constructor(){} set t(v){this.__setBind("t",v);this.__data("t")}get t(){ return this.__getBind("t")}render(){return migi.createVd("p",[],[new migi.Obj("t",this,function(){return((this.t))})])}}migi.name(A,"A");');
+  });
+  it('expr2', function() {
+    var s = 'class A extends migi.xxx{constructor(){}@bind t @bind d render(){return <p>{(this.t,this.d)}</p>}}';
+    var res = lefty.parse(s);
+    expect(res).to.eql('class A extends migi.xxx{constructor(){} set t(v){this.__setBind("t",v);this.__data("t")}get t(){ return this.__getBind("t")} set d(v){this.__setBind("d",v);this.__data("d")}get d(){ return this.__getBind("d")}render(){return migi.createVd("p",[],[new migi.Obj(["t","d"],this,function(){return((this.t,this.d))})])}}migi.name(A,"A");');
+  });
+  it('expr3', function() {
+    var s = 'class A extends migi.xxx{constructor(){}@bind t render(){return <p>{(this.t,a)}</p>}}';
+    var res = lefty.parse(s);
+    expect(res).to.eql('class A extends migi.xxx{constructor(){} set t(v){this.__setBind("t",v);this.__data("t")}get t(){ return this.__getBind("t")}render(){return migi.createVd("p",[],[new migi.Obj("t",this,function(){return((this.t,a))})])}}migi.name(A,"A");');
+  });
+  it('expr4', function() {
+    var s = 'class A extends migi.xxx{constructor(){}@bind t render(){return <p>{(a,this.t)}</p>}}';
+    var res = lefty.parse(s);
+    expect(res).to.eql('class A extends migi.xxx{constructor(){} set t(v){this.__setBind("t",v);this.__data("t")}get t(){ return this.__getBind("t")}render(){return migi.createVd("p",[],[new migi.Obj("t",this,function(){return((a,this.t))})])}}migi.name(A,"A");');
+  });
   it('cndtexpr', function() {
     var s = 'class A extends migi.xxx{constructor(){}@bind set t(){}get t(){}render(){return <p>{1?this.t:""}</p>}}';
     var res = lefty.parse(s);
