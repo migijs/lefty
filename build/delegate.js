@@ -92,7 +92,7 @@ function filter(s) {
   if(/^this\s*\.\s*model\b/.test(s)) {
     return 'new migi.Cb(this.model,' + s + ')';
   }
-  else if(/^\s*this\b/.test(s)) {
+  else if(/^\s*this\b/.test(s) || /^\s*function\b/.test(s)) {
     return 'new migi.Cb(this,' + s + ')';
   }
   return s;
