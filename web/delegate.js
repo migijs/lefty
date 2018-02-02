@@ -13,7 +13,7 @@ S[Token.LINE] = S[Token.COMMENT] = S[Token.BLANK] = true;
 
 var res = '';
 
-function parse(node, isBind) {
+function parse(node, isBind, param) {
   //循环依赖fix
   if(Tree.hasOwnProperty('default')) {
     Tree = Tree['default'];
@@ -31,14 +31,14 @@ function parse(node, isBind) {
         var tree = new Tree();
         res = tree.parse(node);
         res = res.replace(/^(\s*)\{/, '$1').replace(/}(\s*)$/, '$1');
-        res = filter(res);
+        res = filter(res, param);
       }
     }
     else if(isBind) {
       var tree = new Tree();
       res = tree.parse(node);
       res = res.replace(/^(\s*)\{/, '$1').replace(/}(\s*)$/, '$1');
-      res = filter(res);
+      res = filter(res, param);
     }
   }
   else {
@@ -47,7 +47,7 @@ function parse(node, isBind) {
       var objltr = prmr.first();
       if(objltr && objltr.name() == Node.OBJLTR) {
         res = ignore(node.first(), true).res + '[';
-        recursion(objltr);
+        recursion(objltr, param);
         res += ignore(node.last(), true).res + ']';
       }
       else {
@@ -65,7 +65,7 @@ function parse(node, isBind) {
   return res;
 }
 
-function recursion(objltr) {
+function recursion(objltr, param) {
   res += ignore(objltr.first(), true).res;
   for(var i = 1, len = objltr.size(); i < len - 1; i++) {
     var leaf = objltr.leaf(i);
@@ -80,7 +80,7 @@ function recursion(objltr) {
       s = jaw.parse(s, { noPriority: true, noValue: true, noMedia: true });
       res += JSON.stringify(s);
       res += ',';
-      res += filter(join(leaf.last()));
+      res += filter(join(leaf.last()), param);
       res += ']';
       res += ignore(leaf, true).res;
     }
@@ -88,12 +88,15 @@ function recursion(objltr) {
   res += ignore(objltr.last(), true).res;
 }
 
-function filter(s) {
-  if(/^this\s*\.\s*model\b/.test(s)) {
-    return 'new migi.Cb(this.model,' + s + ')';
-  }
-  else if(/^\s*this\b/.test(s) || /^\s*function\b/.test(s)) {
+function filter(s, param) {
+  if(/^\s*this\b/.test(s) || /^\s*function\b/.test(s)) {
     return 'new migi.Cb(this,' + s + ')';
+  }
+  else if(/^\s*[a-zA-Z]\w*\b/.test(s)) {
+    var w = /^\s*([a-zA-Z]\w*)\b/.exec(s);
+    if(param.thisHash.hasOwnProperty(w[1])) {
+      return 'new migi.Cb(' + w[1] + ',' + s + ')';
+    }
   }
   return s;
 }

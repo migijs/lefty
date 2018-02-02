@@ -1,6 +1,6 @@
 {
   "name": "lefty",
-  "version": "3.8.2",
+  "version": "4.0.0",
   "description": "A JSX transformer for migi",
   "maintainers": [
     {
@@ -26,18 +26,18 @@
     }
   },
   "dependencies": {
-    "homunculus": "~1.1.0",
+    "homunculus": "~1.2.0",
     "jaw": "~3.0.1"
   },
   "devDependencies": {
-    "blanket": "^1.1.6",
-    "coveralls": "^2.11.2",
+    "blanket": "^1.2.3",
+    "coveralls": "^3.0.0",
     "expect.js": "^0.3.1",
     "gulp": "^3.9.0",
     "gulp-clean": "^0.3.1",
     "gulp-util": "^3.0.1",
-    "mocha": "^2.2.4",
-    "mocha-lcov-reporter": "^0.0.2",
+    "mocha": "^4.1.0",
+    "mocha-lcov-reporter": "^1.3.0",
     "through2": "^2.0.0",
     "jsdc": "~0.6.12"
   },
