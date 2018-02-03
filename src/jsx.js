@@ -64,7 +64,9 @@ function elem(node, isBind, isCb, param) {
 function selfClose(node, isBind, isCb, param) {
   var res = '';
   var name = node.leaf(1).token().content();
+  let isCp;
   if(/^[A-Z]/.test(name)) {
+    isCp = true;
     res += 'migi.createCp(';
     res += name;
   }
@@ -79,8 +81,11 @@ function selfClose(node, isBind, isCb, param) {
       res += ',';
     }
     switch(leaf.name()) {
-      case Node.JSXAttribute:
+      case Node.JSXBindAttribute:
         res += attr(leaf, isBind, isCb, param);
+        break;
+      case Node.JSXAttribute:
+        res += attr(leaf, isBind && !isCp, isCb, param);
         break;
       case Node.JSXSpreadAttribute:
         res += spread(leaf);
@@ -93,6 +98,9 @@ function selfClose(node, isBind, isCb, param) {
 function attr(node, isBind, isCb, param) {
   var res = '';
   var key = node.first().token().content();
+  if(key.charAt(0) == '@') {
+    key = key.slice(1);
+  }
   var k = '["' + key + '"';
   res += k + ',';
   var v = node.last();

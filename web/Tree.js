@@ -42,7 +42,7 @@ var Node = homunculus.getClass('node', 'jsx');
       switch(node.name()) {
         case Node.JSXElement:
         case Node.JSXSelfClosingElement:
-          this.res += jsx(node, false, this.isCb);
+          this.res += jsx(node, false, this.isCb, this.param);
           return;
         case Node.CLASSDECL:
           inClass = this.klass(node);
