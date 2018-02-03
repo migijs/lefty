@@ -108,7 +108,7 @@ function attr(node, isBind, isCb, param) {
     v = v.token().content();
     res += v;
   }
-  else if(/^on[a-zA-Z]/.test(key)) {
+  else if(/^on-?[a-zA-Z]/.test(key)) {
     res += onEvent(v, isBind, isCb, param);
   }
   else {

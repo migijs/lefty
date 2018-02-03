@@ -268,6 +268,21 @@ describe('linkage', function() {
     var res = lefty.parse(s);
     expect(res).to.eql('class A extends migi.xxx{constructor(){}render(){return migi.createVd("p",[["onClick",xxx]],[])}}migi.name(A,"A");');
   });
+  it('on-Event', function() {
+    var s = 'class A extends migi.xxx{constructor(){}render(){return <p on-change={xxx}></p>}}';
+    var res = lefty.parse(s);
+    expect(res).to.eql('class A extends migi.xxx{constructor(){}render(){return migi.createVd("p",[["on-change",xxx]],[])}}migi.name(A,"A");');
+  });
+  it('on-Event2', function() {
+    var s = 'class A extends migi.xxx{constructor(){}render(){return <p on-change={this.xxx}></p>}}';
+    var res = lefty.parse(s);
+    expect(res).to.eql('class A extends migi.xxx{constructor(){}render(){return migi.createVd("p",[["on-change",new migi.Cb(this,this.xxx)]],[])}}migi.name(A,"A");');
+  });
+  it('on-Event3', function() {
+    var s = 'class A extends migi.xxx{constructor(){}render(){return <p on-change={function(){}}></p>}}';
+    var res = lefty.parse(s);
+    expect(res).to.eql('class A extends migi.xxx{constructor(){}render(){return migi.createVd("p",[["on-change",new migi.Cb(this,function(){})]],[])}}migi.name(A,"A");');
+  });
   it('cb event', function() {
     var s = 'class A extends migi.xxx{constructor(){}cb(){}render(){return <p onClick={this.cb}></p>}}';
     var res = lefty.parse(s);
