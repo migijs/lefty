@@ -126,12 +126,26 @@ function spread(node) {
 }
 function child(node, isBind, isCb, param) {
   if(isBind) {
-    var list = linkage(node.leaf(1), param);
+    var temp = linkage(node.leaf(1), param);
+    var list = temp.arr;
+    var single = temp.single;
     if(list.length == 1) {
-      return 'new migi.Obj("' + list[0] + '",this,function(){return(' + new Tree(isCb).parse(node).replace(/^(\s*)\{/, '$1').replace(/}(\s*)$/, '$1') + ')})';
+      return 'new migi.Obj("'
+        + list[0]
+        + '",this,function(){return('
+        + new Tree(isCb).parse(node).replace(/^(\s*)\{/, '$1').replace(/}(\s*)$/, '$1')
+        + ')}'
+        + (single ? ',true' : '')
+        + ')';
     }
     else if(list.length > 1) {
-      return 'new migi.Obj(' + JSON.stringify(list) + ',this,function(){return(' + new Tree(isCb).parse(node).replace(/^(\s*)\{/, '$1').replace(/}(\s*)$/, '$1') + ')})';
+      return 'new migi.Obj('
+        + JSON.stringify(list)
+        + ',this,function(){return('
+        + new Tree(isCb).parse(node).replace(/^(\s*)\{/, '$1').replace(/}(\s*)$/, '$1')
+        + ')}'
+        + (single ? ',true' : '')
+        + ')';
     }
     else {
       return new InnerTree(param).parse(node).replace(/^(\s*)\{/, '$1').replace(/}(\s*)$/, '$1');

@@ -242,7 +242,7 @@ function cpeapl(node, res, param) {
 
 exports["default"]=function(node, param) {
   var res = {};
-  //取得全部this.xxx
+  // 取得全部this.xxx
   parse(node, res, param);
   var arr = Object.keys(res);
   arr = arr.filter(function(item) {
@@ -257,6 +257,54 @@ exports["default"]=function(node, param) {
     //有get需要有bind或link
     return (param.bindHash || {}).hasOwnProperty(item) || (param.linkHash || {}).hasOwnProperty(item);
   });
-  return arr;
+  // 因特殊Array优化需要，this.v或者(..., this.v)形式的侦听变量
+  // see https://github.com/migijs/migi/issues/29
+  var single = false;
+  if(node.name() == Node.MMBEXPR
+    && node.leaves().length == 3
+    && node.first().name() == Node.PRMREXPR) {
+    single = arr.length == 1
+      && node.first().first().isToken()
+      && node.first().first().token().content() == 'this'
+      && node.last().isToken()
+      && node.last().token().content() == arr[0];
+  }
+  else if(node.name() == Node.PRMREXPR
+    && node.first().name() == Node.CPEAPL) {
+    var cpeapl = node.first();
+    if(cpeapl.leaves().length == 3
+      && cpeapl.leaf(1).name() == Node.EXPR) {
+      var expr = cpeapl.leaf(1);
+      if(expr.last().name() == Node.MMBEXPR) {
+        var mmbexpr = expr.last();
+        if(mmbexpr.leaves().length == 3
+          && mmbexpr.first().name() == Node.PRMREXPR
+          && mmbexpr.last().isToken()) {
+          single = arr.length
+            && mmbexpr.first().first().isToken()
+            && mmbexpr.first().first().token().content() == 'this'
+            && mmbexpr.last().token().content() == arr[arr.length - 1];
+        }
+      }
+    }
+    else if(cpeapl.leaves().length == 3
+      && cpeapl.leaf(1).name() == Node.MMBEXPR
+      && cpeapl.first().isToken()
+      && cpeapl.first().token().content() == '(') {
+      var mmbexpr = cpeapl.leaf(1);
+      if(mmbexpr.leaves().length == 3
+        && mmbexpr.first().name() == Node.PRMREXPR
+        && mmbexpr.last().isToken()) {
+        single = arr.length
+          && mmbexpr.first().first().isToken()
+          && mmbexpr.first().first().token().content() == 'this'
+          && mmbexpr.last().token().content() == arr[arr.length - 1];
+      }
+    }
+  }
+  return {
+    arr:arr,
+    single:single,
+  };
 };
 });
