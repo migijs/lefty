@@ -160,10 +160,18 @@ var Node = homunculus.getClass('node', 'jsx');
         ids = ids.concat(this.param.linkedHash[name] || []);
         if(ids.length) {
           if(setV) {
-            this.res += ';this.__array("';
-            this.res += name + '",';
-            this.res += setV;
-            this.res += ')';
+            if(ids.length == 1) {
+              this.res += ';this.__array("';
+              this.res += ids[0] + '",';
+              this.res += setV;
+              this.res += ')';
+            }
+            else {
+              this.res += ';this.__array(["';
+              this.res += ids.join('","') + '"],';
+              this.res += setV;
+              this.res += ')';
+            }
           }
           if(ids.length == 1) {
             this.res += ';this.__data("';
