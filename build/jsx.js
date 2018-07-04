@@ -63,7 +63,17 @@ function elem(node, isBind, isCb, param) {
 }
 function selfClose(node, isBind, isCb, param) {
   var res = '';
-  var name = node.leaf(1).token().content();
+  var name;
+  var first = node.leaf(1);
+  if(first.isToken()) {
+    name = first.token().content();
+  }
+  else if(first.name() == Node.JSXMemberExpression) {
+    name = first.first().token().content();
+    for(var i = 1, len = first.size(); i < len; i++) {
+      name += first.leaf(i).token().content();
+    }
+  }
   var isCp;
   if(/^[A-Z]/.test(name)) {
     isCp = true;

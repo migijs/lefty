@@ -107,6 +107,11 @@ describe('simple', function() {
     var res = lefty.parse(s);
     expect(res).to.eql('migi.createVd("div",[],[ migi.createVd("span",[])\n])');
   });
+  it(':', function() {
+    var s = '<wb:share-button></wb:share-button>';
+    var res = lefty.parse(s);
+    expect(res).to.eql('migi.createVd("wb:share-button",[],[])');
+  });
 });
 
 describe('classes', function() {
