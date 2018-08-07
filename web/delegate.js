@@ -13,28 +13,20 @@ S[Token.LINE] = S[Token.COMMENT] = S[Token.BLANK] = true;
 
 var res = '';
 
-function parse(node, isBind, param) {
+function parse(node, param) {
   //循环依赖fix
   if(Tree.hasOwnProperty('default')) {
     Tree = Tree['default'];
   }
-  if(isBind) {
-    var prmr = node.leaf(1);
-    if(prmr && prmr.name() == Node.PRMREXPR) {
-      var objltr = prmr.first();
-      if(objltr && objltr.name() == Node.OBJLTR) {
-        res = ignore(node.first(), true).res + '[';
-        recursion(objltr, param);
-        res += ignore(node.last(), true).res + ']';
-      }
-      else {
-        var tree = new Tree();
-        res = tree.parse(node);
-        res = res.replace(/^(\s*)\{/, '$1').replace(/}(\s*)$/, '$1');
-        res = filter(res, param);
-      }
+  var prmr = node.leaf(1);
+  if(prmr && prmr.name() == Node.PRMREXPR) {
+    var objltr = prmr.first();
+    if(objltr && objltr.name() == Node.OBJLTR) {
+      res = ignore(node.first(), true).res + '[';
+      recursion(objltr, param);
+      res += ignore(node.last(), true).res + ']';
     }
-    else if(isBind) {
+    else {
       var tree = new Tree();
       res = tree.parse(node);
       res = res.replace(/^(\s*)\{/, '$1').replace(/}(\s*)$/, '$1');
@@ -42,25 +34,10 @@ function parse(node, isBind, param) {
     }
   }
   else {
-    var prmr = node.leaf(1);
-    if(prmr && prmr.name() == Node.PRMREXPR) {
-      var objltr = prmr.first();
-      if(objltr && objltr.name() == Node.OBJLTR) {
-        res = ignore(node.first(), true).res + '[';
-        recursion(objltr, param);
-        res += ignore(node.last(), true).res + ']';
-      }
-      else {
-        var tree = new Tree();
-        res = tree.parse(node);
-        res = res.replace(/^(\s*)\{/, '$1').replace(/}(\s*)$/, '$1');
-      }
-    }
-    else {
-      var tree = new Tree();
-      res = tree.parse(node);
-      res = res.replace(/^(\s*)\{/, '$1').replace(/}(\s*)$/, '$1');
-    }
+    var tree = new Tree();
+    res = tree.parse(node);
+    res = res.replace(/^(\s*)\{/, '$1').replace(/}(\s*)$/, '$1');
+    res = filter(res, param);
   }
   return res;
 }

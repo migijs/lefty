@@ -9,10 +9,10 @@ var delegate=function(){var _6=require('./delegate');return _6.hasOwnProperty("d
 var Token = homunculus.getClass('token', 'jsx');
 var Node = homunculus.getClass('node', 'jsx');
 
-function elem(node, isBind, isCb, param) {
+function elem(node, isBind, param) {
   var res = '';
   //open和selfClose逻辑复用
-  res += selfClose(node.first(), isBind, isCb, param);
+  res += selfClose(node.first(), isBind, param);
   res += ',[';
   var comma = false;
   for(var i = 1, len = node.size(); i < len - 1; i++) {
@@ -23,7 +23,7 @@ function elem(node, isBind, isCb, param) {
           res += ',';
           comma = false;
         }
-        res += child(leaf, isBind, isCb, param);
+        res += child(leaf, isBind, param);
         comma = true;
         break;
       case Node.TOKEN:
@@ -51,7 +51,7 @@ function elem(node, isBind, isCb, param) {
           res += ',';
           comma = false;
         }
-        res += parse(leaf, isBind, isCb, param);
+        res += parse(leaf, isBind, param);
         comma = true;
     }
   }
@@ -61,7 +61,7 @@ function elem(node, isBind, isCb, param) {
   }
   return res;
 }
-function selfClose(node, isBind, isCb, param) {
+function selfClose(node, isBind, param) {
   var res = '';
   var name;
   var first = node.leaf(1);
@@ -92,10 +92,10 @@ function selfClose(node, isBind, isCb, param) {
     }
     switch(leaf.name()) {
       case Node.JSXBindAttribute:
-        res += attr(leaf, isBind, isCb, param);
+        res += attr(leaf, isBind, param);
         break;
       case Node.JSXAttribute:
-        res += attr(leaf, isBind && !isCp, isCb, param);
+        res += attr(leaf, isBind && !isCp, param);
         break;
       case Node.JSXSpreadAttribute:
         res += spread(leaf);
@@ -105,7 +105,7 @@ function selfClose(node, isBind, isCb, param) {
   res += ']';
   return res;
 }
-function attr(node, isBind, isCb, param) {
+function attr(node, isBind, param) {
   var res = '';
   var key = node.first().token().content();
   if(key.charAt(0) == '@') {
@@ -119,22 +119,22 @@ function attr(node, isBind, isCb, param) {
     res += v;
   }
   else if(/^on-?[a-zA-Z]/.test(key)) {
-    res += onEvent(v, isBind, isCb, param);
+    res += onEvent(v, isBind, param);
   }
   else {
-    res += child(v, isBind, isCb, param);
+    res += child(v, isBind, param);
   }
   res += ']';
   return res;
 }
-function onEvent(node, isBind, isCb, param) {
-  var res = delegate(node, isBind || isCb, param);
+function onEvent(node, isBind, param) {
+  var res = delegate(node, param);
   return res;
 }
 function spread(node) {
   return join(node.leaf(2));
 }
-function child(node, isBind, isCb, param) {
+function child(node, isBind, param) {
   if(isBind) {
     var temp = linkage(node.leaf(1), param);
     var list = temp.arr;
@@ -143,7 +143,7 @@ function child(node, isBind, isCb, param) {
       return 'new migi.Obj("'
         + list[0]
         + '",this,function(){return('
-        + new Tree(isCb).parse(node).replace(/^(\s*)\{/, '$1').replace(/}(\s*)$/, '$1')
+        + new Tree().parse(node).replace(/^(\s*)\{/, '$1').replace(/}(\s*)$/, '$1')
         + ')}'
         + (single ? ',true' : '')
         + ')';
@@ -152,7 +152,7 @@ function child(node, isBind, isCb, param) {
       return 'new migi.Obj('
         + JSON.stringify(list)
         + ',this,function(){return('
-        + new Tree(isCb).parse(node).replace(/^(\s*)\{/, '$1').replace(/}(\s*)$/, '$1')
+        + new Tree().parse(node).replace(/^(\s*)\{/, '$1').replace(/}(\s*)$/, '$1')
         + ')}'
         + (single ? ',true' : '')
         + ')';
@@ -161,10 +161,10 @@ function child(node, isBind, isCb, param) {
       return new InnerTree(param).parse(node).replace(/^(\s*)\{/, '$1').replace(/}(\s*)$/, '$1');
     }
   }
-  return new Tree(isCb).parse(node).replace(/^(\s*)\{/, '$1').replace(/}(\s*)$/, '$1');
+  return new Tree().parse(node).replace(/^(\s*)\{/, '$1').replace(/}(\s*)$/, '$1');
 }
 
-function parse(node, isBind, isCb, param) {
+function parse(node, isBind, param) {
   //循环依赖fix
   if(Tree.hasOwnProperty('default')) {
     Tree = Tree['default'];
@@ -172,10 +172,10 @@ function parse(node, isBind, isCb, param) {
   var res = '';
   switch(node.name()) {
     case Node.JSXElement:
-      res += elem(node, isBind, isCb, param);
+      res += elem(node, isBind, param);
       break;
     case Node.JSXSelfClosingElement:
-      res += selfClose(node, isBind, isCb, param);
+      res += selfClose(node, isBind, param);
       res += ')';
       break;
   }

@@ -8,8 +8,7 @@ var Token = homunculus.getClass('token', 'jsx');
 var Node = homunculus.getClass('node', 'jsx');
 
 class Tree {
-  constructor(isCb) {
-    this.isCb = isCb;
+  constructor() {
     this.res = '';
   }
 
@@ -42,7 +41,7 @@ class Tree {
       switch(node.name()) {
         case Node.JSXElement:
         case Node.JSXSelfClosingElement:
-          this.res += jsx(node, false, this.isCb, this.param);
+          this.res += jsx(node, false, this.param);
           return;
         case Node.CLASSDECL:
           inClass = this.klass(node);

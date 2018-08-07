@@ -298,6 +298,16 @@ describe('linkage', function() {
     var res = lefty.parse(s);
     expect(res).to.eql('class A extends migi.xxx{constructor(){}render(){return migi.createVd("p",[["onClick",new migi.Cb(this,function(){})]],[])}}migi.name(A,"A");');
   });
+  it('cb in class', function() {
+    var s = 'class A extends migi.xxx{constructor(){}f(){return <p onClick={a}></p>}render(){return <p></p>}}';
+    var res = lefty.parse(s);
+    expect(res).to.eql('class A extends migi.xxx{constructor(){}f(){return migi.createVd("p",[["onClick",a]],[])}render(){return migi.createVd("p",[],[])}}migi.name(A,"A");');
+  });
+  it('this.cb in class', function() {
+    var s = 'class A extends migi.xxx{constructor(){}f(){return <p onClick={this.a}></p>}render(){return <p></p>}}';
+    var res = lefty.parse(s);
+    expect(res).to.eql('class A extends migi.xxx{constructor(){}f(){return migi.createVd("p",[["onClick",new migi.Cb(this,this.a)]],[])}render(){return migi.createVd("p",[],[])}}migi.name(A,"A");');
+  });
   it('@link', function() {
     var s = 'class Person extends migi.Component{constructor(){}@link(first,last)get name(){}set first(v){}set last(v){}render(){return(<p>{this.name}</p>);}}';
     var res = lefty.parse(s);
