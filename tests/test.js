@@ -443,6 +443,21 @@ describe('linkage', function() {
     var res = lefty.parse(s);
     expect(res).to.eql('class A extends migi.xxx{constructor(){}get a(){} set a(v){;this.__array("a",v);this.__data("a")}render(){return migi.createVd("p",[],[b.map(function(){return this.a})])}}migi.name(A,"A");');
   });
+  it('jsx', function() {
+    var s = 'class A extends migi.xxx{constructor(){}get a(){}@bind a @bind b render(){return <p>{this.a?<b>{this.b?1:2}</b>:3}</p>}}';
+    var res = lefty.parse(s);
+    expect(res).to.eql('class A extends migi.xxx{constructor(){}get a(){} set a(v){this.__setBind("a",v);this.__data("a")}get a(){ return this.__getBind("a")} set b(v){this.__setBind("b",v);this.__data("b")}get b(){ return this.__getBind("b")}render(){return migi.createVd("p",[],[new migi.Obj(["a","b"],this,function(){return(this.a?migi.createVd("b",[],[this.b?1:2]):3)})])}}migi.name(A,"A");');
+  });
+  it('jsx attr', function() {
+    var s = 'class A extends migi.xxx{constructor(){}get a(){}@bind a @bind b render(){return <p>{this.a?<b b={this.b}/>:3}</p>}}';
+    var res = lefty.parse(s);
+    expect(res).to.eql('class A extends migi.xxx{constructor(){}get a(){} set a(v){this.__setBind("a",v);this.__data("a")}get a(){ return this.__getBind("a")} set b(v){this.__setBind("b",v);this.__data("b")}get b(){ return this.__getBind("b")}render(){return migi.createVd("p",[],[new migi.Obj(["a","b"],this,function(){return(this.a?migi.createVd("b",[["b",this.b]]):3)})])}}migi.name(A,"A");');
+  });
+  it('jsx combo', function() {
+    var s = 'class A extends migi.xxx{constructor(){}get a(){}@bind a @bind b render(){return <p>{1?<b>{this.b?1:2}</b>:<i p={this.a}/>}</p>}}';
+    var res = lefty.parse(s);
+    expect(res).to.eql('class A extends migi.xxx{constructor(){}get a(){} set a(v){this.__setBind("a",v);this.__data("a")}get a(){ return this.__getBind("a")} set b(v){this.__setBind("b",v);this.__data("b")}get b(){ return this.__getBind("b")}render(){return migi.createVd("p",[],[new migi.Obj(["b","a"],this,function(){return(1?migi.createVd("b",[],[this.b?1:2]):migi.createVd("i",[["p",this.a]]))})])}}migi.name(A,"A");');
+  });
 });
 
 describe('arrowfn', function() {

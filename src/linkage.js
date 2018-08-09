@@ -86,6 +86,32 @@ function parse(node, res, param) {
           }
         }
         break;
+      case Node.JSXElement:
+        parse(node.first(), res, param);
+        for(var i = 1, leaves = node.leaves(); i < leaves.length - 1; i++) {
+          parse(leaves[i], res, param);
+        }
+        break;
+      case Node.JSXSelfClosingElement:
+      case Node.JSXOpeningElement:
+        for(var i = 1, leaves = node.leaves(); i < leaves.length - 1; i++) {
+          parse(leaves[i], res, param);
+        }
+        break;
+      case Node.JSXAttribute:
+        var value = node.last();
+        if(value.name() == Node.JSXAttributeValue) {
+          let first = value.first();
+          if(first.isToken() && first.token().content() == '{') {
+            parse(value.leaf(1), res, param);
+          }
+        }
+        break;
+      case Node.JSXChild:
+        node.leaves().forEach((leaf) => {
+          parse(leaf, res, param);
+        });
+        break;
     }
   }
 }
