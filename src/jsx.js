@@ -165,10 +165,6 @@ function child(node, isBind, param) {
 }
 
 function parse(node, isBind, param) {
-  //循环依赖fix
-  if(Tree.hasOwnProperty('default')) {
-    Tree = Tree['default'];
-  }
   var res = '';
   switch(node.name()) {
     case Node.JSXElement:

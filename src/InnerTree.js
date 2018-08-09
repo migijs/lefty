@@ -8,12 +8,6 @@ var Node = homunculus.getClass('node', 'jsx');
 
 class InnerTree {
   constructor(param) {
-    if(Tree.hasOwnProperty('default')) {
-      Tree = Tree['default'];
-    }
-    if(jsx.hasOwnProperty('default')) {
-      jsx = jsx['default'];
-    }
     this.res = '';
     this.param = param;
   }

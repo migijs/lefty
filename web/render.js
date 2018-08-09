@@ -1,48 +1,68 @@
-define(function(require, exports, module){var homunculus=function(){var _0=require('homunculus');return _0.hasOwnProperty("default")?_0["default"]:_0}();
-var ignore=function(){var _1=require('./ignore');return _1.hasOwnProperty("default")?_1["default"]:_1}();
-var Tree=function(){var _2=require('./Tree');return _2.hasOwnProperty("default")?_2["default"]:_2}();
-var jsx=function(){var _3=require('./jsx');return _3.hasOwnProperty("default")?_3["default"]:_3}();
-var join2=function(){var _4=require('./join2');return _4.hasOwnProperty("default")?_4["default"]:_4}();
+define(function(require, exports, module){'use strict';
 
-var Token = homunculus.getClass('token', 'jsx');
-var Node = homunculus.getClass('node', 'jsx');
+Object.defineProperty(exports, "__esModule", {
+  value: true
+});
+
+var _homunculus = require('homunculus');
+
+var _homunculus2 = _interopRequireDefault(_homunculus);
+
+var _ignore = require('./ignore');
+
+var _ignore2 = _interopRequireDefault(_ignore);
+
+var _Tree = require('./Tree');
+
+var _Tree2 = _interopRequireDefault(_Tree);
+
+var _jsx = require('./jsx');
+
+var _jsx2 = _interopRequireDefault(_jsx);
+
+var _join = require('./join2');
+
+var _join2 = _interopRequireDefault(_join);
+
+function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
+
+var Token = _homunculus2.default.getClass('token', 'jsx');
+var Node = _homunculus2.default.getClass('node', 'jsx');
 
 var res;
 function varstmt(node, param) {
-  node.leaves().forEach(function(leaf) {
-    if([Node.VARDECL, Node.LEXBIND].indexOf(leaf.name()) > -1) {
+  node.leaves().forEach(function (leaf) {
+    if ([Node.VARDECL, Node.LEXBIND].indexOf(leaf.name()) > -1) {
       var id = leaf.first().first();
-      if(id.isToken()) {
+      if (id.isToken()) {
         id = id.token().content();
         var prmr = leaf.leaf(1);
-        if(!prmr) {
+        if (!prmr) {
           return;
         }
         prmr = prmr.leaf(1);
-        if(prmr.name() == Node.PRMREXPR) {
+        if (prmr.name() == Node.PRMREXPR) {
           var v = prmr.first();
-          if(!v.isToken()) {
+          if (!v.isToken()) {
             return;
           }
           v = v.token().content();
-          if(v == 'this' || param.thisHash.hasOwnProperty(v)) {
+          if (v == 'this' || param.thisHash.hasOwnProperty(v)) {
             param.thisHash[id] = true;
           }
-        }
-        else if(prmr.name() == Node.MMBEXPR) {
+        } else if (prmr.name() == Node.MMBEXPR) {
           prmr = prmr.first();
-          if(prmr.name() == Node.PRMREXPR) {
+          if (prmr.name() == Node.PRMREXPR) {
             var v = prmr.first().token().content();
-            if(v == 'this' || param.thisHash.hasOwnProperty(v)) {
+            if (v == 'this' || param.thisHash.hasOwnProperty(v)) {
               var dot = prmr.next();
-              if(dot.isToken()) {
-                if(dot.token().content() == '.') {
+              if (dot.isToken()) {
+                if (dot.token().content() == '.') {
                   v = dot.next().token().content();
                   //this.model
-                  if(v == 'model') {
+                  if (v == 'model') {
                     param.thisModelHash[id] = true;
-                  }
-                  else {
+                  } else {
                     param.varHash[id] = v;
                   }
                 }
@@ -50,28 +70,28 @@ function varstmt(node, param) {
             }
           }
           //this.model.x
-          else if(prmr.name() == Node.MMBEXPR) {
-            var mmb = prmr;
-            prmr = prmr.first();
-            if(prmr.name() == Node.PRMREXPR) {
-              var v = prmr.first().token().content();
-              if(v == 'this' || param.thisHash.hasOwnProperty(v)) {
-                var dot = prmr.next();
-                if(dot.isToken()) {
-                  v = dot.next().token().content();
-                  if(v == 'model') {
-                    dot = mmb.next();
-                    if(dot.isToken()) {
-                      if(dot.token().content() == '.') {
-                        v = dot.next().token().content();
-                        param.modelHash[id] = v;
-                      }
-                      else if(dot.token().content() == '[') {
-                        v = dot.next();
-                        if(v.name() == Node.PRMREXPR) {
-                          v = v.first().token();
-                          if(v.type() == Token.STRING) {
-                            param.modelHash[id] = v.val();
+          else if (prmr.name() == Node.MMBEXPR) {
+              var mmb = prmr;
+              prmr = prmr.first();
+              if (prmr.name() == Node.PRMREXPR) {
+                var v = prmr.first().token().content();
+                if (v == 'this' || param.thisHash.hasOwnProperty(v)) {
+                  var dot = prmr.next();
+                  if (dot.isToken()) {
+                    v = dot.next().token().content();
+                    if (v == 'model') {
+                      dot = mmb.next();
+                      if (dot.isToken()) {
+                        if (dot.token().content() == '.') {
+                          v = dot.next().token().content();
+                          param.modelHash[id] = v;
+                        } else if (dot.token().content() == '[') {
+                          v = dot.next();
+                          if (v.name() == Node.PRMREXPR) {
+                            v = v.first().token();
+                            if (v.type() == Token.STRING) {
+                              param.modelHash[id] = v.val();
+                            }
                           }
                         }
                       }
@@ -80,7 +100,6 @@ function varstmt(node, param) {
                 }
               }
             }
-          }
         }
       }
     }
@@ -88,7 +107,7 @@ function varstmt(node, param) {
 }
 
 function stmt(node, param) {
-  switch(node.name()) {
+  switch (node.name()) {
     case Node.VARSTMT:
     case Node.LEXDECL:
       varstmt(node, param);
@@ -98,47 +117,43 @@ function stmt(node, param) {
 }
 
 function recursion(node, param) {
-  if(node.isToken()) {
+  if (node.isToken()) {
     var token = node.token();
-    if(token.isVirtual()) {
+    if (token.isVirtual()) {
       return;
     }
-    if(!token.ignore) {
+    if (!token.ignore) {
       res += token.content();
     }
-    while(token.next()) {
+    while (token.next()) {
       token = token.next();
-      if(token.isVirtual() || !ignore.S.hasOwnProperty(token.type())) {
+      if (token.isVirtual() || !_ignore2.default.S.hasOwnProperty(token.type())) {
         break;
       }
-      if(!token.ignore) {
+      if (!token.ignore) {
         res += token.content();
       }
     }
-  }
-  else {
-    switch(node.name()) {
+  } else {
+    switch (node.name()) {
       case Node.JSXElement:
       case Node.JSXSelfClosingElement:
-        res += jsx(node, true, param);
+        res += (0, _jsx2.default)(node, true, param);
         return;
       case Node.FNEXPR:
       case Node.FNDECL:
       case Node.CLASSEXPR:
-        var tree = new Tree();
+        var tree = new _Tree2.default();
         res += tree.parse(node);
         return;
     }
-    node.leaves().forEach(function(leaf) {
+    node.leaves().forEach(function (leaf) {
       recursion(leaf, param);
     });
   }
 }
 
 function parse(node, param) {
-  if(Tree.hasOwnProperty('default')) {
-    Tree = Tree['default'];
-  }
   res = '';
 
   //存this.get/set
@@ -151,19 +166,17 @@ function parse(node, param) {
   param.thisModelHash = {};
 
   var len = node.size();
-  node.leaves().forEach(function(leaf, i) {
+  node.leaves().forEach(function (leaf, i) {
     //fnbody
-    if(i == len - 2) {
-      leaf.leaves().forEach(function(item) {
+    if (i == len - 2) {
+      leaf.leaves().forEach(function (item) {
         stmt(item, param);
       });
-    }
-    else {
-      res += join2(leaf);
+    } else {
+      res += (0, _join2.default)(leaf);
     }
   });
   return res;
 }
 
-exports["default"]=parse;
-});
+exports.default = parse;});

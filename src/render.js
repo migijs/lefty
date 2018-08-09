@@ -136,9 +136,6 @@ function recursion(node, param) {
 }
 
 function parse(node, param) {
-  if(Tree.hasOwnProperty('default')) {
-    Tree = Tree['default'];
-  }
   res = '';
 
   //存this.get/set

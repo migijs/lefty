@@ -15,7 +15,12 @@
     "type": "git",
     "url": "git://github.com/migijs/lefty.git"
   },
-  "keywords": ["migijs", "migi", "lefty", "jsx transformer"],
+  "keywords": [
+    "migijs",
+    "migi",
+    "lefty",
+    "jsx transformer"
+  ],
   "author": "army8735",
   "license": "MIT",
   "config": {
@@ -30,16 +35,17 @@
     "jaw": "~4.0.0"
   },
   "devDependencies": {
+    "babel-core": "^6.26.3",
+    "babel-preset-es2015": "^6.24.1",
     "blanket": "^1.2.3",
     "coveralls": "^3.0.0",
     "expect.js": "^0.3.1",
     "gulp": "^3.9.0",
-    "gulp-clean": "^0.3.1",
+    "gulp-rimraf": "^0.2.2",
     "gulp-util": "^3.0.1",
     "mocha": "^4.1.0",
     "mocha-lcov-reporter": "^1.3.0",
-    "through2": "^2.0.0",
-    "jsdc": "~0.6.12"
+    "through2": "^2.0.0"
   },
   "main": "./index",
   "engines": {
