@@ -1,6 +1,6 @@
 {
   "name": "lefty",
-  "version": "4.2.1",
+  "version": "5.0.0",
   "description": "A JSX transformer for migi",
   "maintainers": [
     {
@@ -32,7 +32,7 @@
   },
   "dependencies": {
     "homunculus": "~1.2.0",
-    "jaw": "~4.0.0"
+    "jaw": "~4.0.1"
   },
   "devDependencies": {
     "babel-core": "^6.26.3",

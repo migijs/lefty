@@ -1,4 +1,5 @@
 import homunculus from 'homunculus';
+import arrowfn from './arrowfn';
 
 var Token = homunculus.getClass('token', 'jsx');
 var Node = homunculus.getClass('node', 'jsx');
@@ -73,6 +74,22 @@ function parse(node, res, param) {
           var leaf = node.leaf(i);
           if(!leaf.isToken()) {
             parse(leaf, res, param);
+          }
+        }
+        break;
+      case Node.ARROWFN:
+        var temp = node.parent();
+        if(temp && temp.name() == Node.ARGLIST) {
+          temp = temp.parent();
+          if(temp && temp.name() == Node.ARGS) {
+            temp = temp.prev();
+            if(temp && temp.name() == Node.MMBEXPR) {
+              temp = temp.leaf(2);
+              if(temp.isToken() && temp.token().content() == 'map') {
+                var body = node.last().leaf(1);
+                arrowfn(body, res, param);
+              }
+            }
           }
         }
         break;
