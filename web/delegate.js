@@ -86,11 +86,6 @@ function recursion(objltr, param) {
 function filter(s, param) {
   if (/^\s*this\b/.test(s) || /^\s*function\b/.test(s)) {
     return 'new migi.Cb(this,' + s + ')';
-  } else if (param && param.thisHash && /^\s*[a-zA-Z]\w*\b/.test(s)) {
-    var w = /^\s*([a-zA-Z]\w*)\b/.exec(s);
-    if (param.thisHash.hasOwnProperty(w[1])) {
-      return 'new migi.Cb(' + w[1] + ',' + s + ')';
-    }
   }
   return s;
 }

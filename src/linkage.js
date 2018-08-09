@@ -6,13 +6,6 @@ var Node = homunculus.getClass('node', 'jsx');
 
 function parse(node, res, param) {
   if(node.isToken()) {
-    var v = node.token().content();
-    if(param.varHash.hasOwnProperty(v)) {
-      res[param.varHash[v]] = true;
-    }
-    else if(param.modelHash.hasOwnProperty(v)) {
-      res['model.' + param.modelHash[v]] = true;
-    }
   }
   else {
     switch(node.name()) {
@@ -102,7 +95,7 @@ function mmbexpr(node, res, param) {
     var first = prmr.first();
     if(first.isToken()) {
       var me = first.token().content();
-      if(me == 'this' || param.thisHash.hasOwnProperty(me)) {
+      if(me == 'this') {
         var dot = node.leaf(1);
         if(dot.isToken()) {
           if(dot.token().content() == '.') {
@@ -156,30 +149,6 @@ function mmbexpr(node, res, param) {
             }
           }
         }
-      }
-      else if(param.thisModelHash.hasOwnProperty(me)) {
-        var dot = prmr.next();
-        if(dot.isToken()) {
-          if(dot.token().content() == '.') {
-            var id = dot.next().token().content();
-            res['model.' + id] = true;
-          }
-          else if(dot.token().content() == '[') {
-            var expr = dot.next();
-            if(expr.name() == Node.PRMREXPR) {
-              var s = expr.first();
-              if(s.isToken()) {
-                s = s.token();
-                if(s.type() == Token.STRING) {
-                  res['model.' + s.val()] = true;
-                }
-              }
-            }
-          }
-        }
-      }
-      else if(param.varHash.hasOwnProperty(me)) {
-        res[param.varHash[me]] = true;
       }
       else {
         var bracket = node.leaf(1);
