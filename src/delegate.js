@@ -13,32 +13,32 @@ S[Token.LINE] = S[Token.COMMENT] = S[Token.BLANK] = true;
 
 var res = '';
 
-function parse(node, param) {
+function parse(node) {
   var prmr = node.leaf(1);
   if(prmr && prmr.name() == Node.PRMREXPR) {
     var objltr = prmr.first();
     if(objltr && objltr.name() == Node.OBJLTR) {
       res = ignore(node.first(), true).res + '[';
-      recursion(objltr, param);
+      recursion(objltr);
       res += ignore(node.last(), true).res + ']';
     }
     else {
       var tree = new Tree();
       res = tree.parse(node);
       res = res.replace(/^(\s*)\{/, '$1').replace(/}(\s*)$/, '$1');
-      res = filter(res, param);
+      res = filter(res);
     }
   }
   else {
     var tree = new Tree();
     res = tree.parse(node);
     res = res.replace(/^(\s*)\{/, '$1').replace(/}(\s*)$/, '$1');
-    res = filter(res, param);
+    res = filter(res);
   }
   return res;
 }
 
-function recursion(objltr, param) {
+function recursion(objltr) {
   res += ignore(objltr.first(), true).res;
   for(var i = 1, len = objltr.size(); i < len - 1; i++) {
     var leaf = objltr.leaf(i);
@@ -53,7 +53,7 @@ function recursion(objltr, param) {
       s = jaw.parse(s, { noPriority: true, noValue: true, noMedia: true });
       res += JSON.stringify(s);
       res += ',';
-      res += filter(join(leaf.last()), param);
+      res += filter(join(leaf.last()));
       res += ']';
       res += ignore(leaf, true).res;
     }
@@ -61,8 +61,11 @@ function recursion(objltr, param) {
   res += ignore(objltr.last(), true).res;
 }
 
-function filter(s, param) {
+function filter(s) {
   if(/^\s*this\b/.test(s) || /^\s*function\b/.test(s)) {
+    if(/^\s*this\s*\.\s*model\s*\./.test(s)) {
+      return 'new migi.Cb(this.model,' + s + ')';
+    }
     return 'new migi.Cb(this,' + s + ')';
   }
   return s;
