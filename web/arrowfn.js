@@ -26,14 +26,13 @@ var Node = _homunculus2.default.getClass('node', 'jsx');
 function parse(node, res, param) {
   switch (node.name()) {
     case Node.EXPRSTMT:
-      var temp = (0, _linkage2.default)(node.first(), param);
-      temp.arr.forEach(function (item) {
+      (0, _linkage2.default)(node.first(), param).arr.forEach(function (item) {
         res[item] = true;
       });
       break;
     case Node.VARSTMT:
       node.leaves().forEach(function (leaf, i) {
-        if (i % 2 == 1) {
+        if (i % 2 === 1) {
           var initlz = leaf.leaf(1);
           var temp = (0, _linkage2.default)(initlz.leaf(1), param);
           temp.arr.forEach(function (item) {
@@ -44,27 +43,26 @@ function parse(node, res, param) {
       break;
     case Node.BLOCKSTMT:
       var block = node.first();
-      for (var i = 1, leaves = block.leaves(); i < leaves.length - 1; i++) {
-        parse(leaves[i], res, param);
+      for (var i = 1, _leaves = block.leaves(); i < _leaves.length - 1; i++) {
+        parse(_leaves[i], res, param);
       }
       break;
     case Node.IFSTMT:
       var condition = node.leaf(2);
-      var temp = (0, _linkage2.default)(condition, param);
-      temp.arr.forEach(function (item) {
+      (0, _linkage2.default)(condition, param).arr.forEach(function (item) {
         res[item] = true;
       });
       parse(node.last(), res, param);
       break;
     case Node.ITERSTMT:
       var peek = node.first().token().content();
-      if (peek == 'for') {
+      if (peek === 'for') {
         var first = node.leaf(2);
         // for(;...
         if (first.isToken()) {} else {
-          if (first.name() == Node.LEXDECL) {
+          if (first.name() === Node.LEXDECL) {
             parse(first, res, param);
-          } else if (first.name() == Node.VARSTMT) {
+          } else if (first.name() === Node.VARSTMT) {
             parse(first, res, param);
           }
         }
@@ -80,27 +78,27 @@ function parse(node, res, param) {
         if (third.isToken()) {
           third = node.leaf(5);
           if (third.isToken()) {} else {
-            var temp = (0, _linkage2.default)(third, param);
-            temp.arr.forEach(function (item) {
+            var _temp = (0, _linkage2.default)(third, param);
+            _temp.arr.forEach(function (item) {
               res[item] = true;
             });
           }
         } else {
-          var temp = (0, _linkage2.default)(third, param);
-          temp.arr.forEach(function (item) {
+          var _temp2 = (0, _linkage2.default)(third, param);
+          _temp2.arr.forEach(function (item) {
             res[item] = true;
           });
         }
-      } else if (peek == 'do') {
+      } else if (peek === 'do') {
         var _blockstmt = node.leaf(1);
         parse(_blockstmt, res, param);
-        var temp = (0, _linkage2.default)(node.leaf(4), param);
-        temp.arr.forEach(function (item) {
+        var _temp3 = (0, _linkage2.default)(node.leaf(4), param);
+        _temp3.arr.forEach(function (item) {
           res[item] = true;
         });
-      } else if (peek == 'while') {
-        var temp = (0, _linkage2.default)(node.leaf(2), param);
-        temp.arr.forEach(function (item) {
+      } else if (peek === 'while') {
+        var _temp4 = (0, _linkage2.default)(node.leaf(2), param);
+        _temp4.arr.forEach(function (item) {
           res[item] = true;
         });
         var stmt = node.last();
@@ -109,35 +107,29 @@ function parse(node, res, param) {
       break;
     case Node.LEXDECL:
       node.leaves().forEach(function (leaf, i) {
-        if (i % 2 == 1) {
+        if (i % 2 === 1) {
           var initlz = leaf.leaf(1);
-          var temp = (0, _linkage2.default)(initlz.leaf(1), param);
-          temp.arr.forEach(function (item) {
+          var _temp5 = (0, _linkage2.default)(initlz.leaf(1), param);
+          _temp5.arr.forEach(function (item) {
             res[item] = true;
           });
         }
       });
       break;
     case Node.RETSTMT:
-      var expr = node.leaf(1);
-      var temp = (0, _linkage2.default)(expr, param);
-      temp.arr.forEach(function (item) {
+      (0, _linkage2.default)(node.leaf(1), param).arr.forEach(function (item) {
         res[item] = true;
       });
       break;
     case Node.WITHSTMT:
-      var expr = node.leaf(2);
-      var temp = (0, _linkage2.default)(expr, param);
-      temp.arr.forEach(function (item) {
+      (0, _linkage2.default)(node.leaf(2), param).arr.forEach(function (item) {
         res[item] = true;
       });
       var blockstmt = node.last();
       parse(blockstmt, res, param);
       break;
     case Node.SWCHSTMT:
-      var expr = node.leaf(2);
-      var temp = (0, _linkage2.default)(expr, param);
-      temp.arr.forEach(function (item) {
+      (0, _linkage2.default)(node.leaf(2), param).arr.forEach(function (item) {
         res[item] = true;
       });
       var caseblock = node.last();
@@ -145,16 +137,16 @@ function parse(node, res, param) {
       break;
     case Node.CASEBLOCK:
       var leaves = node.leaves();
-      for (var i = 1; i < leaves.length - 1; i++) {
-        var leaf = leaves[i];
-        if (leaf.name() == Node.CASECLAUSE) {
+      for (var _i = 1; _i < leaves.length - 1; _i++) {
+        var leaf = leaves[_i];
+        if (leaf.name() === Node.CASECLAUSE) {
           var expr = leaf.leaf(1);
-          var temp = (0, _linkage2.default)(expr, param);
-          temp.arr.forEach(function (item) {
+          var _temp6 = (0, _linkage2.default)(expr, param);
+          _temp6.arr.forEach(function (item) {
             res[item] = true;
           });
           parse(leaf.last(), res, param);
-        } else if (leaf.name() == Node.DFTCLAUSE) {
+        } else if (leaf.name() === Node.DFTCLAUSE) {
           parse(leaf.last(), res, param);
         }
       }

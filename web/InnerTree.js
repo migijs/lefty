@@ -10,10 +10,6 @@ var _homunculus = require('homunculus');
 
 var _homunculus2 = _interopRequireDefault(_homunculus);
 
-var _Tree = require('./Tree');
-
-var _Tree2 = _interopRequireDefault(_Tree);
-
 var _jsx = require('./jsx');
 
 var _jsx2 = _interopRequireDefault(_jsx);
@@ -30,10 +26,14 @@ var Token = _homunculus2.default.getClass('token', 'jsx');
 var Node = _homunculus2.default.getClass('node', 'jsx');
 
 var InnerTree = function () {
-  function InnerTree(param) {
+  function InnerTree() {
+    var opt = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : {};
+    var param = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : {};
+
     _classCallCheck(this, InnerTree);
 
     this.res = '';
+    this.opt = opt;
     this.param = param;
   }
 
@@ -69,13 +69,7 @@ var InnerTree = function () {
         switch (node.name()) {
           case Node.JSXElement:
           case Node.JSXSelfClosingElement:
-            this.res += (0, _jsx2.default)(node, true, self.param);
-            return;
-          case Node.FNEXPR:
-          case Node.FNDECL:
-          case Node.CLASSEXPR:
-            var tree = new _Tree2.default();
-            this.res += tree.parse(node);
+            this.res += (0, _jsx2.default)(node, { isInnerBind: this.opt.isBind }, self.param);
             return;
         }
         node.leaves().forEach(function (leaf) {

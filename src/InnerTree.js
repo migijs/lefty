@@ -1,14 +1,14 @@
 import homunculus from 'homunculus';
-import Tree from './Tree';
 import jsx from './jsx';
 import ignore from './ignore';
 
-var Token = homunculus.getClass('token', 'jsx');
-var Node = homunculus.getClass('node', 'jsx');
+let Token = homunculus.getClass('token', 'jsx');
+let Node = homunculus.getClass('node', 'jsx');
 
 class InnerTree {
-  constructor(param) {
+  constructor(opt = {}, param = {}) {
     this.res = '';
+    this.opt = opt;
     this.param = param;
   }
 
@@ -17,10 +17,10 @@ class InnerTree {
     return this.res;
   }
   recursion(node) {
-    var self = this;
-    var isToken = node.isToken();
+    let self = this;
+    let isToken = node.isToken();
     if(isToken) {
-      var token = node.token();
+      let token = node.token();
       if(token.isVirtual()) {
         return;
       }
@@ -41,13 +41,7 @@ class InnerTree {
       switch(node.name()) {
         case Node.JSXElement:
         case Node.JSXSelfClosingElement:
-          this.res += jsx(node, true, self.param);
-          return;
-        case Node.FNEXPR:
-        case Node.FNDECL:
-        case Node.CLASSEXPR:
-          var tree = new Tree();
-          this.res += tree.parse(node);
+          this.res += jsx(node, { isInnerBind: this.opt.isBind }, self.param);
           return;
       }
       node.leaves().forEach(function(leaf) {

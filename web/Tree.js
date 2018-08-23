@@ -72,7 +72,7 @@ var Tree = function () {
         switch (node.name()) {
           case Node.JSXElement:
           case Node.JSXSelfClosingElement:
-            this.res += (0, _jsx2.default)(node, false, this.param);
+            this.res += (0, _jsx2.default)(node, {}, this.param);
             return;
           case Node.CLASSDECL:
             inClass = this.klass(node);
@@ -100,7 +100,7 @@ var Tree = function () {
             this.res += (0, _ignore2.default)(node, true).res;
             break;
           case Node.LEXBIND:
-            if (inClass && node.parent().name() == Node.CLASSELEM) {
+            if (inClass && node.parent().name() === Node.CLASSELEM) {
               this.res += this.bindLex(node);
               return;
             }
@@ -124,21 +124,21 @@ var Tree = function () {
     key: 'klass',
     value: function klass(node) {
       var heritage = node.leaf(2);
-      if (heritage && heritage.name() == Node.HERITAGE) {
+      if (heritage && heritage.name() === Node.HERITAGE) {
         var body = node.last().prev();
         var leaves = body.leaves();
         for (var i = 0, len = leaves.length; i < len; i++) {
           var leaf = leaves[i];
           var method = leaf.first();
-          if (method.name() == Node.METHOD) {
+          if (method.name() === Node.METHOD) {
             var first = method.first();
-            if (first.name() == Node.PROPTNAME) {
+            if (first.name() === Node.PROPTNAME) {
               var id = first.first();
-              if (id.name() == Node.LTRPROPT) {
+              if (id.name() === Node.LTRPROPT) {
                 id = id.first();
                 if (id.isToken()) {
                   id = id.token().content();
-                  if (id == 'constructor') {
+                  if (id === 'constructor') {
                     return true;
                   }
                 }
@@ -153,11 +153,11 @@ var Tree = function () {
     key: 'method',
     value: function method(node) {
       var first = node.first();
-      if (first.name() == Node.PROPTNAME) {
+      if (first.name() === Node.PROPTNAME) {
         first = first.first();
-        if (first.name() == Node.LTRPROPT) {
+        if (first.name() === Node.LTRPROPT) {
           first = first.first();
-          if (first.isToken() && first.token().content() == 'render') {
+          if (first.isToken() && first.token().content() === 'render') {
             return true;
           }
         }
@@ -170,16 +170,16 @@ var Tree = function () {
         return;
       }
       var parent = node.parent();
-      if (parent.name() == Node.METHOD) {
-        var setV;
+      if (parent.name() === Node.METHOD) {
+        var setV = void 0;
         var first = parent.first();
-        if (first.isToken() && first.token().content() == 'set') {
+        if (first.isToken() && first.token().content() === 'set') {
           var fmparams = parent.leaf(3);
-          if (fmparams && fmparams.name() == Node.FMPARAMS) {
+          if (fmparams && fmparams.name() === Node.FMPARAMS) {
             var single = fmparams.first();
-            if (single && single.name() == Node.SINGLENAME) {
+            if (single && single.name() === Node.SINGLENAME) {
               var bindid = single.first();
-              if (bindid && bindid.name() == Node.BINDID) {
+              if (bindid && bindid.name() === Node.BINDID) {
                 setV = bindid.first().token().content();
               }
             }
@@ -189,14 +189,14 @@ var Tree = function () {
           var ids = [];
           if (prev) {
             prev = prev.first();
-            if (prev.name() == Node.ANNOT && prev.first().token().content() == '@bind') {
+            if (prev.name() === Node.ANNOT && prev.first().token().content() === '@bind') {
               ids.push(name);
             }
           }
           ids = ids.concat(this.param.linkedHash[name] || []);
           if (ids.length) {
             if (setV) {
-              if (ids.length == 1) {
+              if (ids.length === 1) {
                 this.res += ';this.__array("';
                 this.res += ids[0] + '",';
                 this.res += setV;
@@ -208,7 +208,7 @@ var Tree = function () {
                 this.res += ')';
               }
             }
-            if (ids.length == 1) {
+            if (ids.length === 1) {
               this.res += ';this.__data("';
               this.res += ids[0];
               this.res += '")';
@@ -224,80 +224,84 @@ var Tree = function () {
   }, {
     key: 'list',
     value: function list(node) {
+      var _this = this;
+
       var leaves = node.leaves();
       var length = leaves.length;
       for (var i = 0; i < length; i++) {
         var item = leaves[i].first();
-        if (item.name() == Node.ANNOT) {
+        if (item.name() === Node.ANNOT) {
           var annot = item.first().token().content();
           var method = leaves[i + 1] ? leaves[i + 1].first() : null;
-          if (method && method.name() == Node.METHOD) {
+          if (method && method.name() === Node.METHOD) {
             var first = method.first();
             if (first.isToken()) {
               var token = first.token().content();
-              if (token == 'set' && annot == '@bind') {
+              if (token === 'set' && annot === '@bind') {
                 var name = first.next().first().first().token().content();
                 this.param.bindHash[name] = true;
-              } else if (token == 'get' && annot == '@link') {
-                var name = first.next().first().first().token().content();
-                this.param.linkHash[name] = this.param.linkHash[name] || [];
-                var params = item.leaf(2);
-                if (params && params.name() == Node.FMPARAMS) {
-                  params.leaves().forEach(function (param) {
-                    if (param.name() == Node.SINGLENAME) {
-                      param = param.first();
-                      if (param.name() == Node.BINDID) {
+              } else if (token === 'get' && annot === '@link') {
+                (function () {
+                  var name = first.next().first().first().token().content();
+                  _this.param.linkHash[name] = _this.param.linkHash[name] || [];
+                  var params = item.leaf(2);
+                  if (params && params.name() === Node.FMPARAMS) {
+                    params.leaves().forEach(function (param) {
+                      if (param.name() === Node.SINGLENAME) {
                         param = param.first();
-                        if (param.isToken()) {
-                          param = param.token().content();
-                          this.param.linkHash[name].push(param);
-                          this.param.linkedHash[param] = this.param.linkedHash[param] || [];
-                          this.param.linkedHash[param].push(name);
+                        if (param.name() === Node.BINDID) {
+                          param = param.first();
+                          if (param.isToken()) {
+                            param = param.token().content();
+                            this.param.linkHash[name].push(param);
+                            this.param.linkedHash[param] = this.param.linkedHash[param] || [];
+                            this.param.linkedHash[param].push(name);
+                          }
                         }
                       }
-                    }
-                  }.bind(this));
-                }
+                    }.bind(_this));
+                  }
+                })();
               }
             }
-          } else if (method && method.name() == Node.LEXBIND) {
-            var first = method.first();
-            if (first.name() == Node.BINDID) {
-              var name = first.first().token().content();
-              parseLex(this.param, name, item, annot);
+          } else if (method && method.name() === Node.LEXBIND) {
+            var _first = method.first();
+            if (_first.name() === Node.BINDID) {
+              var _name = _first.first().token().content();
+              parseLex(this.param, _name, item, annot);
             }
           }
           //连续2个
-          else if (method && method.name() == Node.ANNOT) {
+          else if (method && method.name() === Node.ANNOT) {
               var item2 = method;
               var annot2 = method.first().token().content();
               method = leaves[i + 2] ? leaves[i + 2].first() : null;
-              if (method && method.name() == Node.LEXBIND) {
-                var first = method.first();
-                if (first.name() == Node.BINDID) {
-                  var name = first.first().token().content();
-                  parseLex(this.param, name, item, annot);
-                  parseLex(this.param, name, item2, annot2);
+              if (method && method.name() === Node.LEXBIND) {
+                var _first2 = method.first();
+                if (_first2.name() === Node.BINDID) {
+                  var _name2 = _first2.first().token().content();
+                  parseLex(this.param, _name2, item, annot);
+                  parseLex(this.param, _name2, item2, annot2);
                 }
               }
             }
-        } else if (item.name() == Node.METHOD) {
-          var first = item.first();
-          if (first.isToken()) {
-            var token = first.token().content();
-            var name = first.next().first().first().token().content();
-            if (token == 'get') {
-              this.param.getHash[name] = true;
-            } else if (token == 'set') {
-              this.param.setHash[name] = true;
+        } else if (item.name() === Node.METHOD) {
+          var _first3 = item.first();
+          if (_first3.isToken()) {
+            var _token = _first3.token().content();
+            var _name3 = _first3.next().first().first().token().content();
+            if (_token === 'get') {
+              this.param.getHash[_name3] = true;
+            } else if (_token === 'set') {
+              this.param.setHash[_name3] = true;
             }
           }
-        } else if (item.name() == Node.LEXBIND) {
-          var first = item.first();
-          if (first.name() == Node.BINDID) {
-            var name = first.first().token().content();
-            this.param.getHash[name] = true;
-            this.param.setHash[name] = true;
+        } else if (item.name() === Node.LEXBIND) {
+          var _first4 = item.first();
+          if (_first4.name() === Node.BINDID) {
+            var _name4 = _first4.first().token().content();
+            this.param.getHash[_name4] = true;
+            this.param.setHash[_name4] = true;
           }
         }
       }
@@ -307,7 +311,7 @@ var Tree = function () {
     value: function appendName(node) {
       var heritage = node.leaf(2);
       //必须有继承
-      if (heritage && heritage.name() == Node.HERITAGE) {
+      if (heritage && heritage.name() === Node.HERITAGE) {
         //必须有constructor
         if (hasCons(node)) {
           var name = node.leaf(1).first().token().content();
@@ -320,7 +324,7 @@ var Tree = function () {
     value: function bindLex(node) {
       var parent = node.parent();
       var bindid = node.first();
-      if (bindid.name() == Node.BINDID) {
+      if (bindid.name() === Node.BINDID) {
         var token = bindid.first();
         var name = token.token().content();
         var init = node.leaf(1);
@@ -329,7 +333,7 @@ var Tree = function () {
         var prev = parent.prev();
         if (prev) {
           prev = prev.first();
-          if (prev.name() == Node.ANNOT && prev.first().token().content() == '@bind') {
+          if (prev.name() === Node.ANNOT && prev.first().token().content() === '@bind') {
             ids.push(name);
           }
         }
@@ -339,7 +343,7 @@ var Tree = function () {
         s += 'set ' + name + '(v){';
         s += 'this.__setBind("' + name + '",v)';
         if (ids.length) {
-          if (ids.length == 1) {
+          if (ids.length === 1) {
             s += ';this.__data("';
             s += ids[0];
             s += '")';
@@ -373,15 +377,15 @@ function hasCons(node) {
   for (var i = 0, len = leaves.length; i < len; i++) {
     var leaf = leaves[i];
     var method = leaf.first();
-    if (method.name() == Node.METHOD) {
+    if (method.name() === Node.METHOD) {
       var first = method.first();
-      if (first.name() == Node.PROPTNAME) {
+      if (first.name() === Node.PROPTNAME) {
         var id = first.first();
-        if (id.name() == Node.LTRPROPT) {
+        if (id.name() === Node.LTRPROPT) {
           id = id.first();
           if (id.isToken()) {
             id = id.token().content();
-            if (id == 'constructor') {
+            if (id === 'constructor') {
               return true;
             }
           }
@@ -392,16 +396,16 @@ function hasCons(node) {
 }
 
 function parseLex(param, name, item, annot) {
-  if (annot == '@bind') {
+  if (annot === '@bind') {
     param.bindHash[name] = true;
-  } else if (annot == '@link') {
+  } else if (annot === '@link') {
     param.linkHash[name] = param.linkHash[name] || [];
     var params = item.leaf(2);
-    if (params && params.name() == Node.FMPARAMS) {
+    if (params && params.name() === Node.FMPARAMS) {
       params.leaves().forEach(function (item) {
-        if (item.name() == Node.SINGLENAME) {
+        if (item.name() === Node.SINGLENAME) {
           item = item.first();
-          if (item.name() == Node.BINDID) {
+          if (item.name() === Node.BINDID) {
             item = item.first();
             if (item.isToken()) {
               item = item.token().content();

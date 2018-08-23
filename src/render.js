@@ -1,13 +1,13 @@
 import homunculus from 'homunculus';
 import ignore from './ignore';
-import Tree from './Tree';
+import InnerTree from './InnerTree';
 import jsx from './jsx';
 import join2 from './join2';
 
-var Token = homunculus.getClass('token', 'jsx');
-var Node = homunculus.getClass('node', 'jsx');
+let Token = homunculus.getClass('token', 'jsx');
+let Node = homunculus.getClass('node', 'jsx');
 
-var res;
+let res;
 
 function stmt(node, param) {
   recursion(node, param);
@@ -15,7 +15,7 @@ function stmt(node, param) {
 
 function recursion(node, param) {
   if(node.isToken()) {
-    var token = node.token();
+    let token = node.token();
     if(token.isVirtual()) {
       return;
     }
@@ -36,12 +36,12 @@ function recursion(node, param) {
     switch(node.name()) {
       case Node.JSXElement:
       case Node.JSXSelfClosingElement:
-        res += jsx(node, true, param);
+        res += jsx(node, { isBind: true }, param);
         return;
       case Node.FNEXPR:
       case Node.FNDECL:
       case Node.CLASSEXPR:
-        var tree = new Tree();
+        let tree = new InnerTree();
         res += tree.parse(node);
         return;
     }
@@ -54,10 +54,10 @@ function recursion(node, param) {
 function parse(node, param) {
   res = '';
 
-  var len = node.size();
+  let len = node.size();
   node.leaves().forEach(function(leaf, i) {
     //fnbody
-    if(i == len - 2) {
+    if(i === len - 2) {
       leaf.leaves().forEach(function(item) {
         stmt(item, param);
       });

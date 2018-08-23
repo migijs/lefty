@@ -1,36 +1,35 @@
 import homunculus from 'homunculus';
-import Tree from './Tree';
 import InnerTree from './InnerTree';
 import linkage from './linkage';
 import ignore from './ignore';
 import join from './join';
 import delegate from './delegate';
 
-var Token = homunculus.getClass('token', 'jsx');
-var Node = homunculus.getClass('node', 'jsx');
+let Token = homunculus.getClass('token', 'jsx');
+let Node = homunculus.getClass('node', 'jsx');
 
-function elem(node, isBind, param) {
-  var res = '';
+function elem(node, opt, param) {
+  let res = '';
   //open和selfClose逻辑复用
-  res += selfClose(node.first(), isBind, param);
+  res += selfClose(node.first(), opt, param);
   res += ',[';
-  var comma = false;
-  for(var i = 1, len = node.size(); i < len - 1; i++) {
-    var leaf = node.leaf(i);
+  let comma = false;
+  for(let i = 1, len = node.size(); i < len - 1; i++) {
+    let leaf = node.leaf(i);
     switch(leaf.name()) {
       case Node.JSXChild:
         if(comma) {
           res += ',';
           comma = false;
         }
-        res += child(leaf, isBind, param);
+        res += child(leaf, opt, param);
         comma = true;
         break;
       case Node.TOKEN:
-        var s = leaf.token().content();
+        let s = leaf.token().content();
         //open和close之间的空白不能忽略
         if(/^\s+$/.test(s)) {
-          if(leaf.prev().name() == Node.JSXOpeningElement && leaf.next().name() == Node.JSXClosingElement) {
+          if(leaf.prev().name() === Node.JSXOpeningElement && leaf.next().name() === Node.JSXClosingElement) {
             res += '"' + s.replace(/"/g, '\\"').replace(/\n/g, '\\n\\\n') + '"';
           }
           else {
@@ -51,26 +50,26 @@ function elem(node, isBind, param) {
           res += ',';
           comma = false;
         }
-        res += parse(leaf, isBind, param);
+        res += parse(leaf, opt, param);
         comma = true;
     }
   }
   res += '])';
-  if(node.last().name() == Node.JSXClosingElement) {
+  if(node.last().name() === Node.JSXClosingElement) {
     res += ignore(node.last(), true).res;
   }
   return res;
 }
-function selfClose(node, isBind, param) {
-  var res = '';
-  var name;
-  var first = node.leaf(1);
+function selfClose(node, opt, param) {
+  let res = '';
+  let name;
+  let first = node.leaf(1);
   if(first.isToken()) {
     name = first.token().content();
   }
-  else if(first.name() == Node.JSXMemberExpression) {
+  else if(first.name() === Node.JSXMemberExpression) {
     name = first.first().token().content();
-    for(var i = 1, len = first.size(); i < len; i++) {
+    for(let i = 1, len = first.size(); i < len; i++) {
       name += first.leaf(i).token().content();
     }
   }
@@ -85,17 +84,17 @@ function selfClose(node, isBind, param) {
     res += '"' + name + '"';
   }
   res += ',[';
-  for(var i = 2, len = node.size(); i < len - 1; i++) {
-    var leaf = node.leaf(i);
-    if(i != 2) {
+  for(let i = 2, len = node.size(); i < len - 1; i++) {
+    let leaf = node.leaf(i);
+    if(i !== 2) {
       res += ',';
     }
     switch(leaf.name()) {
       case Node.JSXBindAttribute:
-        res += attr(leaf, isBind, param);
+        res += attr(leaf, opt, param);
         break;
       case Node.JSXAttribute:
-        res += attr(leaf, isBind && !isCp, param);
+        res += attr(leaf, opt, param);
         break;
       case Node.JSXSpreadAttribute:
         res += spread(leaf);
@@ -105,45 +104,52 @@ function selfClose(node, isBind, param) {
   res += ']';
   return res;
 }
-function attr(node, isBind, param) {
-  var res = '';
-  var key = node.first().token().content();
-  if(key.charAt(0) == '@') {
+function attr(node, opt, param) {
+  let res = '';
+  let key = node.first().token().content();
+  if(key.charAt(0) === '@') {
     key = key.slice(1);
   }
-  var k = '["' + key + '"';
+  let k = '["' + key + '"';
   res += k + ',';
-  var v = node.last();
+  let v = node.last();
   if(v.isToken()) {
     v = v.token().content();
     res += v;
   }
   else if(/^on-?[a-zA-Z]/.test(key)) {
-    res += onEvent(v, isBind, param);
+    res += onEvent(v, opt, param);
   }
   else {
-    res += child(v, isBind, param);
+    res += child(v, opt, param, true);
   }
   res += ']';
   return res;
 }
-function onEvent(node, isBind, param) {
-  var res = delegate(node, param);
-  return res;
+function onEvent(node, opt, param) {
+  return delegate(node, param);
 }
 function spread(node) {
   return join(node.leaf(2));
 }
-function child(node, isBind, param) {
-  if(isBind) {
-    var temp = linkage(node.leaf(1), param);
-    var list = temp.arr;
-    var single = temp.single;
-    if(list.length == 1) {
+function child(node, opt, param, isAttr) {
+  if(opt.isBind) {
+    let top = node.parent().parent();
+    if(top.name() === Node.JSXSelfClosingElement || top.name() === Node.JSXElement) {
+      let tag = top.leaf(1);
+      // 组件上的属性和孩子均不需要Obj
+      if(tag.isToken() && /^[A-Z]/.test(tag.token().content())) {
+        return new InnerTree(opt, param).parse(node).replace(/^(\s*){/, '$1').replace(/}(\s*)$/, '$1');
+      }
+    }
+    let temp = linkage(node.leaf(1), param);
+    let list = temp.arr;
+    let single = temp.single;
+    if(list.length === 1) {
       return 'new migi.Obj("'
         + list[0]
         + '",this,function(){return('
-        + new Tree().parse(node).replace(/^(\s*)\{/, '$1').replace(/}(\s*)$/, '$1')
+        + new InnerTree(opt, param).parse(node).replace(/^(\s*){/, '$1').replace(/}(\s*)$/, '$1')
         + ')}'
         + (single ? ',true' : '')
         + ')';
@@ -152,26 +158,70 @@ function child(node, isBind, param) {
       return 'new migi.Obj('
         + JSON.stringify(list)
         + ',this,function(){return('
-        + new Tree().parse(node).replace(/^(\s*)\{/, '$1').replace(/}(\s*)$/, '$1')
+        + new InnerTree(opt, param).parse(node).replace(/^(\s*){/, '$1').replace(/}(\s*)$/, '$1')
         + ')}'
         + (single ? ',true' : '')
         + ')';
     }
+  }
+  else if(opt.isInnerBind) {
+    if(isAttr) {
+      let key = node.prev().prev().token().content();
+      if(key === 'value') {
+        let tag = node.parent().parent().leaf(1).token().content();
+        if(tag === 'input' || tag === 'select') {
+          let temp = linkage(node.leaf(1), param);
+          let list = temp.arr;
+          if(list.length === 1) {
+            return 'new migi.Obj("'
+              + list[0]
+              + '",this,function(){return('
+              + new InnerTree(opt, param).parse(node).replace(/^(\s*){/, '$1').replace(/}(\s*)$/, '$1')
+              + ')})';
+          }
+          else if(list.length > 1) {
+            return 'new migi.Obj('
+              + JSON.stringify(list)
+              + ',this,function(){return('
+              + new InnerTree(opt, param).parse(node).replace(/^(\s*){/, '$1').replace(/}(\s*)$/, '$1')
+              + ')})';
+          }
+        }
+      }
+    }
     else {
-      return new InnerTree(param).parse(node).replace(/^(\s*)\{/, '$1').replace(/}(\s*)$/, '$1');
+      let key = node.prev().leaf(1).token().content();
+      if(key === 'textarea') {
+        let temp = linkage(node.leaf(1), param);
+        let list = temp.arr;
+        if(list.length === 1) {
+          return 'new migi.Obj("'
+            + list[0]
+            + '",this,function(){return('
+            + new InnerTree(opt, param).parse(node).replace(/^(\s*){/, '$1').replace(/}(\s*)$/, '$1')
+            + ')})';
+        }
+        else if(list.length > 1) {
+          return 'new migi.Obj('
+            + JSON.stringify(list)
+            + ',this,function(){return('
+            + new InnerTree(opt, param).parse(node).replace(/^(\s*){/, '$1').replace(/}(\s*)$/, '$1')
+            + ')})';
+        }
+      }
     }
   }
-  return new Tree().parse(node).replace(/^(\s*)\{/, '$1').replace(/}(\s*)$/, '$1');
+  return new InnerTree(opt, param).parse(node).replace(/^(\s*){/, '$1').replace(/}(\s*)$/, '$1');
 }
 
-function parse(node, isBind, param) {
-  var res = '';
+function parse(node, opt, param) {
+  let res = '';
   switch(node.name()) {
     case Node.JSXElement:
-      res += elem(node, isBind, param);
+      res += elem(node, opt, param);
       break;
     case Node.JSXSelfClosingElement:
-      res += selfClose(node, isBind, param);
+      res += selfClose(node, opt, param);
       res += ')';
       break;
   }

@@ -1,14 +1,14 @@
 import homunculus from 'homunculus';
 
-var ES6Token = homunculus.getClass('token', 'js');
-var Token = homunculus.getClass('token', 'jsx');
-var Node = homunculus.getClass('node', 'jsx');
+let ES6Token = homunculus.getClass('token', 'js');
+let Token = homunculus.getClass('token', 'jsx');
+let Node = homunculus.getClass('node', 'jsx');
 
-var S = {};
+let S = {};
 S[Token.LINE] = S[Token.COMMENT] = S[Token.BLANK] = true;
 
-var res;
-var append;
+let res;
+let append;
 
 function ignore(node, includeLine) {
   if(node instanceof Token || node instanceof ES6Token) {
@@ -21,7 +21,7 @@ function ignore(node, includeLine) {
       if(node.isVirtual() || !S.hasOwnProperty(node.type())) {
         break;
       }
-      var s = node.content();
+      let s = node.content();
       res += s;
       append += s;
       if(includeLine || s != '\n') {

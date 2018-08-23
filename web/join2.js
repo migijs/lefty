@@ -21,8 +21,8 @@ var Token = _homunculus2.default.getClass('token', 'jsx');
 var S = {};
 S[Token.LINE] = S[Token.COMMENT] = S[Token.BLANK] = true;
 
-var index;
-var res;
+var index = void 0;
+var res = void 0;
 
 function recursion(node, excludeLine) {
   if (node.isToken()) {

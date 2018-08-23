@@ -1,16 +1,16 @@
 import homunculus from 'homunculus';
 
-var Token = homunculus.getClass('token', 'jsx');
+let Token = homunculus.getClass('token', 'jsx');
 
-var S = {};
+let S = {};
 S[Token.LINE] = S[Token.COMMENT] = S[Token.BLANK] = true;
 
-var index;
-var res;
+let index;
+let res;
 
 function recursion(node, excludeLine) {
   if(node.isToken()) {
-    var token = node.token();
+    let token = node.token();
     if(!token.isVirtual()) {
       res += token.content();
       while(token.next()) {
@@ -18,7 +18,7 @@ function recursion(node, excludeLine) {
         if(token.isVirtual() || !S.hasOwnProperty(token.type())) {
           break;
         }
-        var s = token.content();
+        let s = token.content();
         if(!excludeLine || s != '\n') {
           res += token.content();
         }

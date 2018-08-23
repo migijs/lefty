@@ -1,38 +1,38 @@
 import homunculus from 'homunculus';
 import ignore from './ignore';
-import Tree from './Tree';
+import InnerTree from './InnerTree';
 import join from './join';
 import join2 from './join2';
 import jaw from 'jaw';
 
-var Token = homunculus.getClass('token', 'jsx');
-var Node = homunculus.getClass('node', 'jsx');
+let Token = homunculus.getClass('token', 'jsx');
+let Node = homunculus.getClass('node', 'jsx');
 
-var S = {};
+let S = {};
 S[Token.LINE] = S[Token.COMMENT] = S[Token.BLANK] = true;
 
-var res = '';
+let res = '';
 
 function parse(node) {
-  var prmr = node.leaf(1);
-  if(prmr && prmr.name() == Node.PRMREXPR) {
-    var objltr = prmr.first();
-    if(objltr && objltr.name() == Node.OBJLTR) {
+  let prmr = node.leaf(1);
+  if(prmr && prmr.name() === Node.PRMREXPR) {
+    let objltr = prmr.first();
+    if(objltr && objltr.name() === Node.OBJLTR) {
       res = ignore(node.first(), true).res + '[';
       recursion(objltr);
       res += ignore(node.last(), true).res + ']';
     }
     else {
-      var tree = new Tree();
+      let tree = new InnerTree();
       res = tree.parse(node);
-      res = res.replace(/^(\s*)\{/, '$1').replace(/}(\s*)$/, '$1');
+      res = res.replace(/^(\s*){/, '$1').replace(/}(\s*)$/, '$1');
       res = filter(res);
     }
   }
   else {
-    var tree = new Tree();
+    let tree = new InnerTree();
     res = tree.parse(node);
-    res = res.replace(/^(\s*)\{/, '$1').replace(/}(\s*)$/, '$1');
+    res = res.replace(/^(\s*){/, '$1').replace(/}(\s*)$/, '$1');
     res = filter(res);
   }
   return res;
@@ -40,16 +40,16 @@ function parse(node) {
 
 function recursion(objltr) {
   res += ignore(objltr.first(), true).res;
-  for(var i = 1, len = objltr.size(); i < len - 1; i++) {
-    var leaf = objltr.leaf(i);
+  for(let i = 1, len = objltr.size(); i < len - 1; i++) {
+    let leaf = objltr.leaf(i);
     if(leaf.isToken()) {
-      var s = join2(leaf);
+      let s = join2(leaf);
       res += s;
     }
-    else if(leaf.name() == Node.PROPTDEF) {
+    else if(leaf.name() === Node.PROPTDEF) {
       res += '[';
-      var proptname = leaf.first();
-      var s = join(proptname).replace(/^(["'])(.+)\1$/, '$2') + '{}';
+      let proptname = leaf.first();
+      let s = join(proptname).replace(/^(["'])(.+)\1$/, '$2') + '{}';
       s = jaw.parse(s, { noPriority: true, noValue: true, noMedia: true });
       res += JSON.stringify(s);
       res += ',';

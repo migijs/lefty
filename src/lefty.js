@@ -10,7 +10,7 @@ class Lefty {
   parse(code) {
     this.parser = homunculus.getParser('jsx');
     this.node = this.parser.parse(code);
-    var tree = new Tree();
+    let tree = new Tree();
     return tree.parse(this.node);
   }
 

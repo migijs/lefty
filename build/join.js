@@ -15,20 +15,20 @@ module.exports = function (node, word) {
 };
 
 function recursion(node, res) {
-  var isToken = node.name() == JsNode.TOKEN;
-  var isVirtual = isToken && node.token().type() == Token.VIRTUAL;
+  var isToken = node.name() === JsNode.TOKEN;
+  var isVirtual = isToken && node.token().type() === Token.VIRTUAL;
   if (isToken) {
     var token = node.token();
     if (!isVirtual) {
       if (res.word && [Token.ID, Token.NUMBER, Token.KEYWORD].indexOf(token.type()) > -1) {
         res.s += ' ';
       }
-      if (token.content() == '}' && res.s.charAt(res.s.length - 1) == ';') {
+      if (token.content() === '}' && res.s.charAt(res.s.length - 1) === ';') {
         res.s = res.s.replace(/;$/, '');
       }
       res.s += token.content();
       res.word = [Token.ID, Token.NUMBER, Token.KEYWORD].indexOf(token.type()) > -1;
-    } else if (token.content() == ';') {
+    } else if (token.content() === ';') {
       res.s += ';';
       res.word = false;
     }

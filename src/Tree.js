@@ -4,8 +4,8 @@ import ignore from './ignore';
 import render from './render';
 import join2 from './join2';
 
-var Token = homunculus.getClass('token', 'jsx');
-var Node = homunculus.getClass('node', 'jsx');
+let Token = homunculus.getClass('token', 'jsx');
+let Node = homunculus.getClass('node', 'jsx');
 
 class Tree {
   constructor() {
@@ -17,10 +17,10 @@ class Tree {
     return this.res;
   }
   recursion(node, inClass) {
-    var self = this;
-    var isToken = node.isToken();
+    let self = this;
+    let isToken = node.isToken();
     if(isToken) {
-      var token = node.token();
+      let token = node.token();
       if(token.isVirtual()) {
         return;
       }
@@ -41,7 +41,7 @@ class Tree {
       switch(node.name()) {
         case Node.JSXElement:
         case Node.JSXSelfClosingElement:
-          this.res += jsx(node, false, this.param);
+          this.res += jsx(node, {}, this.param);
           return;
         case Node.CLASSDECL:
           inClass = this.klass(node);
@@ -53,13 +53,13 @@ class Tree {
               setHash: {},
               bindHash: {},
               linkHash: {},
-              linkedHash: {}
+              linkedHash: {},
             };
             this.list(node);
           }
           break;
         case Node.METHOD:
-          var isRender = this.method(node);
+          let isRender = this.method(node);
           if(isRender) {
             this.res += render(node, this.param || {});
             return;
@@ -69,7 +69,7 @@ class Tree {
           this.res += ignore(node, true).res;
           break;
         case Node.LEXBIND:
-          if(inClass && node.parent().name() == Node.CLASSELEM) {
+          if(inClass && node.parent().name() === Node.CLASSELEM) {
             this.res += this.bindLex(node);
             return;
           }
@@ -90,22 +90,22 @@ class Tree {
     }
   }
   klass(node) {
-    var heritage = node.leaf(2);
-    if(heritage && heritage.name() == Node.HERITAGE) {
-      var body = node.last().prev();
-      var leaves = body.leaves();
-      for(var i = 0, len = leaves.length; i < len; i++) {
-        var leaf = leaves[i];
-        var method = leaf.first();
-        if(method.name() == Node.METHOD) {
-          var first = method.first();
-          if(first.name() == Node.PROPTNAME) {
-            var id = first.first();
-            if(id.name() == Node.LTRPROPT) {
+    let heritage = node.leaf(2);
+    if(heritage && heritage.name() === Node.HERITAGE) {
+      let body = node.last().prev();
+      let leaves = body.leaves();
+      for(let i = 0, len = leaves.length; i < len; i++) {
+        let leaf = leaves[i];
+        let method = leaf.first();
+        if(method.name() === Node.METHOD) {
+          let first = method.first();
+          if(first.name() === Node.PROPTNAME) {
+            let id = first.first();
+            if(id.name() === Node.LTRPROPT) {
               id = id.first();
               if(id.isToken()) {
                 id = id.token().content();
-                if(id == 'constructor') {
+                if(id === 'constructor') {
                   return true;
                 }
               }
@@ -117,12 +117,12 @@ class Tree {
     return false;
   }
   method(node) {
-    var first = node.first();
-    if(first.name() == Node.PROPTNAME) {
+    let first = node.first();
+    if(first.name() === Node.PROPTNAME) {
       first = first.first();
-      if(first.name() == Node.LTRPROPT) {
+      if(first.name() === Node.LTRPROPT) {
         first = first.first();
-        if(first.isToken() && first.token().content() == 'render') {
+        if(first.isToken() && first.token().content() === 'render') {
           return true;
         }
       }
@@ -132,34 +132,34 @@ class Tree {
     if(!inClass) {
       return;
     }
-    var parent = node.parent();
-    if(parent.name() == Node.METHOD) {
-      var setV;
-      var first = parent.first();
-      if(first.isToken() && first.token().content() == 'set') {
-        var fmparams = parent.leaf(3);
-        if(fmparams && fmparams.name() == Node.FMPARAMS) {
-          var single = fmparams.first();
-          if(single && single.name() == Node.SINGLENAME) {
-            var bindid = single.first();
-            if(bindid && bindid.name() == Node.BINDID) {
+    let parent = node.parent();
+    if(parent.name() === Node.METHOD) {
+      let setV;
+      let first = parent.first();
+      if(first.isToken() && first.token().content() === 'set') {
+        let fmparams = parent.leaf(3);
+        if(fmparams && fmparams.name() === Node.FMPARAMS) {
+          let single = fmparams.first();
+          if(single && single.name() === Node.SINGLENAME) {
+            let bindid = single.first();
+            if(bindid && bindid.name() === Node.BINDID) {
               setV = bindid.first().token().content();
             }
           }
         }
-        var name = parent.leaf(1).first().first().token().content();
-        var prev = parent.parent().prev();
-        var ids = [];
+        let name = parent.leaf(1).first().first().token().content();
+        let prev = parent.parent().prev();
+        let ids = [];
         if(prev) {
           prev = prev.first();
-          if (prev.name() == Node.ANNOT && prev.first().token().content() == '@bind') {
+          if (prev.name() === Node.ANNOT && prev.first().token().content() === '@bind') {
             ids.push(name);
           }
         }
         ids = ids.concat(this.param.linkedHash[name] || []);
         if(ids.length) {
           if(setV) {
-            if(ids.length == 1) {
+            if(ids.length === 1) {
               this.res += ';this.__array("';
               this.res += ids[0] + '",';
               this.res += setV;
@@ -172,7 +172,7 @@ class Tree {
               this.res += ')';
             }
           }
-          if(ids.length == 1) {
+          if(ids.length === 1) {
             this.res += ';this.__data("';
             this.res += ids[0];
             this.res += '")';
@@ -187,30 +187,30 @@ class Tree {
     }
   }
   list(node) {
-    var leaves = node.leaves();
-    var length = leaves.length;
-    for(var i = 0; i < length; i++) {
-      var item = leaves[i].first();
-      if(item.name() == Node.ANNOT) {
-        var annot = item.first().token().content();
-        var method = leaves[i+1] ? leaves[i+1].first() : null;
-        if(method && method.name() == Node.METHOD) {
-          var first = method.first();
+    let leaves = node.leaves();
+    let length = leaves.length;
+    for(let i = 0; i < length; i++) {
+      let item = leaves[i].first();
+      if(item.name() === Node.ANNOT) {
+        let annot = item.first().token().content();
+        let method = leaves[i+1] ? leaves[i+1].first() : null;
+        if(method && method.name() === Node.METHOD) {
+          let first = method.first();
           if(first.isToken()) {
-            var token = first.token().content();
-            if(token == 'set' && annot == '@bind') {
-              var name = first.next().first().first().token().content();
+            let token = first.token().content();
+            if(token === 'set' && annot === '@bind') {
+              let name = first.next().first().first().token().content();
               this.param.bindHash[name] = true;
             }
-            else if(token == 'get' && annot == '@link') {
-              var name = first.next().first().first().token().content();
+            else if(token === 'get' && annot === '@link') {
+              let name = first.next().first().first().token().content();
               this.param.linkHash[name] = this.param.linkHash[name] || [];
-              var params = item.leaf(2);
-              if(params && params.name() == Node.FMPARAMS) {
+              let params = item.leaf(2);
+              if(params && params.name() === Node.FMPARAMS) {
                 params.leaves().forEach(function(param) {
-                  if(param.name() == Node.SINGLENAME) {
+                  if(param.name() === Node.SINGLENAME) {
                     param = param.first();
-                    if(param.name() == Node.BINDID) {
+                    if(param.name() === Node.BINDID) {
                       param = param.first();
                       if(param.isToken()) {
                         param = param.token().content();
@@ -225,45 +225,45 @@ class Tree {
             }
           }
         }
-        else if(method && method.name() == Node.LEXBIND) {
-          var first = method.first();
-          if(first.name() == Node.BINDID) {
-            var name = first.first().token().content();
+        else if(method && method.name() === Node.LEXBIND) {
+          let first = method.first();
+          if(first.name() === Node.BINDID) {
+            let name = first.first().token().content();
             parseLex(this.param, name, item, annot);
           }
         }
         //连续2个
-        else if(method && method.name() == Node.ANNOT) {
-          var item2 = method;
-          var annot2 = method.first().token().content();
+        else if(method && method.name() === Node.ANNOT) {
+          let item2 = method;
+          let annot2 = method.first().token().content();
           method = leaves[i+2] ? leaves[i+2].first() : null;
-          if(method && method.name() == Node.LEXBIND) {
-            var first = method.first();
-            if(first.name() == Node.BINDID) {
-              var name = first.first().token().content();
+          if(method && method.name() === Node.LEXBIND) {
+            let first = method.first();
+            if(first.name() === Node.BINDID) {
+              let name = first.first().token().content();
               parseLex(this.param, name, item, annot);
               parseLex(this.param, name, item2, annot2);
             }
           }
         }
       }
-      else if(item.name() == Node.METHOD) {
-        var first = item.first();
+      else if(item.name() === Node.METHOD) {
+        let first = item.first();
         if(first.isToken()) {
-          var token = first.token().content();
-          var name = first.next().first().first().token().content();
-          if(token == 'get') {
+          let token = first.token().content();
+          let name = first.next().first().first().token().content();
+          if(token === 'get') {
             this.param.getHash[name] = true;
           }
-          else if(token == 'set') {
+          else if(token === 'set') {
             this.param.setHash[name] = true;
           }
         }
       }
-      else if(item.name() == Node.LEXBIND) {
-        var first = item.first();
-        if(first.name() == Node.BINDID) {
-          var name = first.first().token().content();
+      else if(item.name() === Node.LEXBIND) {
+        let first = item.first();
+        if(first.name() === Node.BINDID) {
+          let name = first.first().token().content();
           this.param.getHash[name] = true;
           this.param.setHash[name] = true;
         }
@@ -271,39 +271,39 @@ class Tree {
     }
   }
   appendName(node) {
-    var heritage = node.leaf(2);
+    let heritage = node.leaf(2);
     //必须有继承
-    if(heritage && heritage.name() == Node.HERITAGE) {
+    if(heritage && heritage.name() === Node.HERITAGE) {
       //必须有constructor
       if(hasCons(node)) {
-        var name = node.leaf(1).first().token().content();
+        let name = node.leaf(1).first().token().content();
         this.res += 'migi.name(' + name + ',"' + name + '");';
       }
     }
   }
   bindLex(node) {
-    var parent = node.parent();
-    var bindid = node.first();
-    if(bindid.name() == Node.BINDID) {
-      var token = bindid.first();
-      var name = token.token().content();
-      var init = node.leaf(1);
+    let parent = node.parent();
+    let bindid = node.first();
+    if(bindid.name() === Node.BINDID) {
+      let token = bindid.first();
+      let name = token.token().content();
+      let init = node.leaf(1);
       
-      var ids = [];
-      var prev = parent.prev();
+      let ids = [];
+      let prev = parent.prev();
       if(prev) {
         prev = prev.first();
-        if(prev.name() == Node.ANNOT && prev.first().token().content() == '@bind') {
+        if(prev.name() === Node.ANNOT && prev.first().token().content() === '@bind') {
           ids.push(name);
         }
       }
       ids = ids.concat(this.param.linkedHash[name] || []);
       
-      var s = '';
+      let s = '';
       s += 'set ' + name + '(v){';
       s += 'this.__setBind("' + name + '",v)';
       if(ids.length) {
-        if(ids.length == 1) {
+        if(ids.length === 1) {
           s += ';this.__data("';
           s += ids[0];
           s += '")';
@@ -330,20 +330,20 @@ class Tree {
 }
 
 function hasCons(node) {
-  var body = node.last().prev();
-  var leaves = body.leaves();
-  for(var i = 0, len = leaves.length; i < len; i++) {
-    var leaf = leaves[i];
-    var method = leaf.first();
-    if(method.name() == Node.METHOD) {
-      var first = method.first();
-      if(first.name() == Node.PROPTNAME) {
-        var id = first.first();
-        if(id.name() == Node.LTRPROPT) {
+  let body = node.last().prev();
+  let leaves = body.leaves();
+  for(let i = 0, len = leaves.length; i < len; i++) {
+    let leaf = leaves[i];
+    let method = leaf.first();
+    if(method.name() === Node.METHOD) {
+      let first = method.first();
+      if(first.name() === Node.PROPTNAME) {
+        let id = first.first();
+        if(id.name() === Node.LTRPROPT) {
           id = id.first();
           if(id.isToken()) {
             id = id.token().content();
-            if(id == 'constructor') {
+            if(id === 'constructor') {
               return true;
             }
           }
@@ -354,17 +354,17 @@ function hasCons(node) {
 }
 
 function parseLex(param, name, item, annot) {
-  if(annot == '@bind') {
+  if(annot === '@bind') {
     param.bindHash[name] = true;
   }
-  else if(annot == '@link') {
+  else if(annot === '@link') {
     param.linkHash[name] = param.linkHash[name] || [];
-    var params = item.leaf(2);
-    if(params && params.name() == Node.FMPARAMS) {
+    let params = item.leaf(2);
+    if(params && params.name() === Node.FMPARAMS) {
       params.leaves().forEach(function(item) {
-        if(item.name() == Node.SINGLENAME) {
+        if(item.name() === Node.SINGLENAME) {
           item = item.first();
-          if(item.name() == Node.BINDID) {
+          if(item.name() === Node.BINDID) {
             item = item.first();
             if(item.isToken()) {
               item = item.token().content();

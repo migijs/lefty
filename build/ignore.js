@@ -17,8 +17,8 @@ var Node = _homunculus2.default.getClass('node', 'jsx');
 var S = {};
 S[Token.LINE] = S[Token.COMMENT] = S[Token.BLANK] = true;
 
-var res;
-var append;
+var res = void 0;
+var append = void 0;
 
 function ignore(node, includeLine) {
   if (node instanceof Token || node instanceof ES6Token) {

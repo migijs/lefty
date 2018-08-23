@@ -12,9 +12,9 @@ var _ignore = require('./ignore');
 
 var _ignore2 = _interopRequireDefault(_ignore);
 
-var _Tree = require('./Tree');
+var _InnerTree = require('./InnerTree');
 
-var _Tree2 = _interopRequireDefault(_Tree);
+var _InnerTree2 = _interopRequireDefault(_InnerTree);
 
 var _jsx = require('./jsx');
 
@@ -29,7 +29,7 @@ function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { de
 var Token = _homunculus2.default.getClass('token', 'jsx');
 var Node = _homunculus2.default.getClass('node', 'jsx');
 
-var res;
+var res = void 0;
 
 function stmt(node, param) {
   recursion(node, param);
@@ -57,12 +57,12 @@ function recursion(node, param) {
     switch (node.name()) {
       case Node.JSXElement:
       case Node.JSXSelfClosingElement:
-        res += (0, _jsx2.default)(node, true, param);
+        res += (0, _jsx2.default)(node, { isBind: true }, param);
         return;
       case Node.FNEXPR:
       case Node.FNDECL:
       case Node.CLASSEXPR:
-        var tree = new _Tree2.default();
+        var tree = new _InnerTree2.default();
         res += tree.parse(node);
         return;
     }
@@ -78,7 +78,7 @@ function parse(node, param) {
   var len = node.size();
   node.leaves().forEach(function (leaf, i) {
     //fnbody
-    if (i == len - 2) {
+    if (i === len - 2) {
       leaf.leaves().forEach(function (item) {
         stmt(item, param);
       });

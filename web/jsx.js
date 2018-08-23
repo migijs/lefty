@@ -8,10 +8,6 @@ var _homunculus = require('homunculus');
 
 var _homunculus2 = _interopRequireDefault(_homunculus);
 
-var _Tree = require('./Tree');
-
-var _Tree2 = _interopRequireDefault(_Tree);
-
 var _InnerTree = require('./InnerTree');
 
 var _InnerTree2 = _interopRequireDefault(_InnerTree);
@@ -37,10 +33,10 @@ function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { de
 var Token = _homunculus2.default.getClass('token', 'jsx');
 var Node = _homunculus2.default.getClass('node', 'jsx');
 
-function elem(node, isBind, param) {
+function elem(node, opt, param) {
   var res = '';
   //open和selfClose逻辑复用
-  res += selfClose(node.first(), isBind, param);
+  res += selfClose(node.first(), opt, param);
   res += ',[';
   var comma = false;
   for (var i = 1, len = node.size(); i < len - 1; i++) {
@@ -51,14 +47,14 @@ function elem(node, isBind, param) {
           res += ',';
           comma = false;
         }
-        res += child(leaf, isBind, param);
+        res += child(leaf, opt, param);
         comma = true;
         break;
       case Node.TOKEN:
         var s = leaf.token().content();
         //open和close之间的空白不能忽略
         if (/^\s+$/.test(s)) {
-          if (leaf.prev().name() == Node.JSXOpeningElement && leaf.next().name() == Node.JSXClosingElement) {
+          if (leaf.prev().name() === Node.JSXOpeningElement && leaf.next().name() === Node.JSXClosingElement) {
             res += '"' + s.replace(/"/g, '\\"').replace(/\n/g, '\\n\\\n') + '"';
           } else {
             res += s;
@@ -77,23 +73,23 @@ function elem(node, isBind, param) {
           res += ',';
           comma = false;
         }
-        res += parse(leaf, isBind, param);
+        res += parse(leaf, opt, param);
         comma = true;
     }
   }
   res += '])';
-  if (node.last().name() == Node.JSXClosingElement) {
+  if (node.last().name() === Node.JSXClosingElement) {
     res += (0, _ignore2.default)(node.last(), true).res;
   }
   return res;
 }
-function selfClose(node, isBind, param) {
+function selfClose(node, opt, param) {
   var res = '';
-  var name;
+  var name = void 0;
   var first = node.leaf(1);
   if (first.isToken()) {
     name = first.token().content();
-  } else if (first.name() == Node.JSXMemberExpression) {
+  } else if (first.name() === Node.JSXMemberExpression) {
     name = first.first().token().content();
     for (var i = 1, len = first.size(); i < len; i++) {
       name += first.leaf(i).token().content();
@@ -109,17 +105,17 @@ function selfClose(node, isBind, param) {
     res += '"' + name + '"';
   }
   res += ',[';
-  for (var i = 2, len = node.size(); i < len - 1; i++) {
-    var leaf = node.leaf(i);
-    if (i != 2) {
+  for (var _i = 2, _len = node.size(); _i < _len - 1; _i++) {
+    var leaf = node.leaf(_i);
+    if (_i !== 2) {
       res += ',';
     }
     switch (leaf.name()) {
       case Node.JSXBindAttribute:
-        res += attr(leaf, isBind, param);
+        res += attr(leaf, opt, param);
         break;
       case Node.JSXAttribute:
-        res += attr(leaf, isBind && !isCp, param);
+        res += attr(leaf, opt, param);
         break;
       case Node.JSXSpreadAttribute:
         res += spread(leaf);
@@ -129,10 +125,10 @@ function selfClose(node, isBind, param) {
   res += ']';
   return res;
 }
-function attr(node, isBind, param) {
+function attr(node, opt, param) {
   var res = '';
   var key = node.first().token().content();
-  if (key.charAt(0) == '@') {
+  if (key.charAt(0) === '@') {
     key = key.slice(1);
   }
   var k = '["' + key + '"';
@@ -142,44 +138,76 @@ function attr(node, isBind, param) {
     v = v.token().content();
     res += v;
   } else if (/^on-?[a-zA-Z]/.test(key)) {
-    res += onEvent(v, isBind, param);
+    res += onEvent(v, opt, param);
   } else {
-    res += child(v, isBind, param);
+    res += child(v, opt, param, true);
   }
   res += ']';
   return res;
 }
-function onEvent(node, isBind, param) {
-  var res = (0, _delegate2.default)(node, param);
-  return res;
+function onEvent(node, opt, param) {
+  return (0, _delegate2.default)(node, param);
 }
 function spread(node) {
   return (0, _join2.default)(node.leaf(2));
 }
-function child(node, isBind, param) {
-  if (isBind) {
+function child(node, opt, param, isAttr) {
+  if (opt.isBind) {
+    var top = node.parent().parent();
+    if (top.name() === Node.JSXSelfClosingElement || top.name() === Node.JSXElement) {
+      var tag = top.leaf(1);
+      // 组件上的属性和孩子均不需要Obj
+      if (tag.isToken() && /^[A-Z]/.test(tag.token().content())) {
+        return new _InnerTree2.default(opt, param).parse(node).replace(/^(\s*){/, '$1').replace(/}(\s*)$/, '$1');
+      }
+    }
     var temp = (0, _linkage2.default)(node.leaf(1), param);
     var list = temp.arr;
     var single = temp.single;
-    if (list.length == 1) {
-      return 'new migi.Obj("' + list[0] + '",this,function(){return(' + new _Tree2.default().parse(node).replace(/^(\s*)\{/, '$1').replace(/}(\s*)$/, '$1') + ')}' + (single ? ',true' : '') + ')';
+    if (list.length === 1) {
+      return 'new migi.Obj("' + list[0] + '",this,function(){return(' + new _InnerTree2.default(opt, param).parse(node).replace(/^(\s*){/, '$1').replace(/}(\s*)$/, '$1') + ')}' + (single ? ',true' : '') + ')';
     } else if (list.length > 1) {
-      return 'new migi.Obj(' + JSON.stringify(list) + ',this,function(){return(' + new _Tree2.default().parse(node).replace(/^(\s*)\{/, '$1').replace(/}(\s*)$/, '$1') + ')}' + (single ? ',true' : '') + ')';
+      return 'new migi.Obj(' + JSON.stringify(list) + ',this,function(){return(' + new _InnerTree2.default(opt, param).parse(node).replace(/^(\s*){/, '$1').replace(/}(\s*)$/, '$1') + ')}' + (single ? ',true' : '') + ')';
+    }
+  } else if (opt.isInnerBind) {
+    if (isAttr) {
+      var key = node.prev().prev().token().content();
+      if (key === 'value') {
+        var _tag = node.parent().parent().leaf(1).token().content();
+        if (_tag === 'input' || _tag === 'select') {
+          var _temp = (0, _linkage2.default)(node.leaf(1), param);
+          var _list = _temp.arr;
+          if (_list.length === 1) {
+            return 'new migi.Obj("' + _list[0] + '",this,function(){return(' + new _InnerTree2.default(opt, param).parse(node).replace(/^(\s*){/, '$1').replace(/}(\s*)$/, '$1') + ')})';
+          } else if (_list.length > 1) {
+            return 'new migi.Obj(' + JSON.stringify(_list) + ',this,function(){return(' + new _InnerTree2.default(opt, param).parse(node).replace(/^(\s*){/, '$1').replace(/}(\s*)$/, '$1') + ')})';
+          }
+        }
+      }
     } else {
-      return new _InnerTree2.default(param).parse(node).replace(/^(\s*)\{/, '$1').replace(/}(\s*)$/, '$1');
+      var _key = node.prev().leaf(1).token().content();
+      if (_key === 'textarea') {
+        var _temp2 = (0, _linkage2.default)(node.leaf(1), param);
+        var _list2 = _temp2.arr;
+        if (_list2.length === 1) {
+          return 'new migi.Obj("' + _list2[0] + '",this,function(){return(' + new _InnerTree2.default(opt, param).parse(node).replace(/^(\s*){/, '$1').replace(/}(\s*)$/, '$1') + ')})';
+        } else if (_list2.length > 1) {
+          return 'new migi.Obj(' + JSON.stringify(_list2) + ',this,function(){return(' + new _InnerTree2.default(opt, param).parse(node).replace(/^(\s*){/, '$1').replace(/}(\s*)$/, '$1') + ')})';
+        }
+      }
     }
   }
-  return new _Tree2.default().parse(node).replace(/^(\s*)\{/, '$1').replace(/}(\s*)$/, '$1');
+  return new _InnerTree2.default(opt, param).parse(node).replace(/^(\s*){/, '$1').replace(/}(\s*)$/, '$1');
 }
 
-function parse(node, isBind, param) {
+function parse(node, opt, param) {
   var res = '';
   switch (node.name()) {
     case Node.JSXElement:
-      res += elem(node, isBind, param);
+      res += elem(node, opt, param);
       break;
     case Node.JSXSelfClosingElement:
-      res += selfClose(node, isBind, param);
+      res += selfClose(node, opt, param);
       res += ')';
       break;
   }
