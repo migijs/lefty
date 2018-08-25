@@ -119,6 +119,7 @@ function parse(node, res, param, opt) {
         parse(node.leaf(1), res, param, opt);
         break;
       case Node.ARGLIST:
+      case Node.TEMPLATE:
         for (var _i2 = 0, _leaves2 = node.leaves(), _len2 = _leaves2.length; _i2 < _len2; _i2++) {
           var leaf = node.leaf(_i2);
           if (!leaf.isToken()) {

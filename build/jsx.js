@@ -158,16 +158,7 @@ function spread(node) {
   return (0, _join2.default)(node.leaf(2));
 }
 function child(node, opt, param, isAttr) {
-  // 初次进arrowFn标识isArrowFn，且在innerTree中isInArrowFn；再次进入时识别出来
   var callexpr = node.leaf(1);
-  // if(callexpr.name() === Node.CALLEXPR
-  //   && callexpr.first().name() === Node.MMBEXPR
-  //   && callexpr.first().last().isToken()
-  //   && callexpr.first().last().token().content() === 'map'
-  //   && callexpr.last().leaf(1).first()
-  //   && callexpr.last().leaf(1).first().name() === Node.ARROWFN) {
-  //   opt.arrowFn = opt.arrowFn || [];
-  // }
   if (opt.isBind) {
     var temp = (0, _linkage2.default)(callexpr, param, {
       arrowFn: opt.arrowFn

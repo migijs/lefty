@@ -63,6 +63,7 @@ function parse(node, res, param, opt) {
         parse(node.leaf(1), res, param, opt);
         break;
       case Node.ARGLIST:
+      case Node.TEMPLATE:
         for(let i = 0, leaves = node.leaves(), len = leaves.length; i < len; i++) {
           let leaf = node.leaf(i);
           if(!leaf.isToken()) {
