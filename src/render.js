@@ -36,7 +36,7 @@ function recursion(node, param) {
     switch(node.name()) {
       case Node.JSXElement:
       case Node.JSXSelfClosingElement:
-        res += jsx(node, { isBind: true }, param);
+        res += jsx(node, { isBind: true, }, param);
         return;
       case Node.FNEXPR:
       case Node.FNDECL:

@@ -4,10 +4,10 @@ Object.defineProperty(exports, "__esModule", {
   value: true
 });
 
-exports.default = function (node, param) {
+exports.default = function (node, param, opt) {
   var res = {};
   // 取得全部this.xxx
-  parse(node, res, param);
+  parse(node, res, param, opt);
   var arr = Object.keys(res);
   arr = arr.filter(function (item) {
     //model.xxx全部通过
@@ -62,26 +62,26 @@ function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { de
 var Token = _homunculus2.default.getClass('token', 'jsx');
 var Node = _homunculus2.default.getClass('node', 'jsx');
 
-function parse(node, res, param) {
+function parse(node, res, param, opt) {
   if (node.isToken()) {} else {
     switch (node.name()) {
       case Node.EXPR:
-        parse(node.first(), res, param);
+        parse(node.first(), res, param, opt);
         //可能有连续多个表达式
         for (var i = 2, leaves = node.leaves(), len = leaves.length; i < len; i += 2) {
-          parse(node.leaf(i), res, param);
+          parse(node.leaf(i), res, param, opt);
         }
         break;
       case Node.PRMREXPR:
-        parse(node.first(), res, param);
+        parse(node.first(), res, param, opt);
         break;
       case Node.MMBEXPR:
-        mmbexpr(node, res, param);
+        mmbexpr(node, res, param, opt);
         break;
       case Node.CNDTEXPR:
-        parse(node.first(), res, param);
-        parse(node.leaf(2), res, param);
-        parse(node.last(), res, param);
+        parse(node.first(), res, param, opt);
+        parse(node.leaf(2), res, param, opt);
+        parse(node.last(), res, param, opt);
         break;
       case Node.LOGOREXPR:
       case Node.LOGANDEXPR:
@@ -93,65 +93,73 @@ function parse(node, res, param) {
       case Node.SHIFTEXPR:
       case Node.ADDEXPR:
       case Node.MTPLEXPR:
-        parse(node.first(), res, param);
+        parse(node.first(), res, param, opt);
         //可能有连续多个表达式
         for (var _i = 2, _leaves = node.leaves(), _len = _leaves.length; _i < _len; _i += 2) {
-          parse(node.leaf(_i), res, param);
+          parse(node.leaf(_i), res, param, opt);
         }
         break;
       case Node.UNARYEXPR:
       case Node.NEWEXPR:
-        parse(node.last(), res, param);
+        parse(node.last(), res, param, opt);
         break;
       case Node.POSTFIXEXPR:
-        parse(node.first(), res, param);
+        parse(node.first(), res, param, opt);
         break;
       case Node.CALLEXPR:
-        callexpr(node, res, param);
+        callexpr(node, res, param, opt);
         break;
       case Node.ARRLTR:
-        arrltr(node, res, param);
+        arrltr(node, res, param, opt);
         break;
       case Node.CPEAPL:
-        cpeapl(node, res, param);
+        cpeapl(node, res, param, opt);
         break;
       case Node.ARGS:
-        parse(node.leaf(1), res, param);
+        parse(node.leaf(1), res, param, opt);
         break;
       case Node.ARGLIST:
         for (var _i2 = 0, _leaves2 = node.leaves(), _len2 = _leaves2.length; _i2 < _len2; _i2++) {
           var leaf = node.leaf(_i2);
           if (!leaf.isToken()) {
-            parse(leaf, res, param);
+            parse(leaf, res, param, opt);
           }
         }
         break;
       case Node.ARROWFN:
+        opt.arrowFn = opt.arrowFn || [];
         var temp = node.parent();
         if (temp && temp.name() === Node.ARGLIST) {
           temp = temp.parent();
           if (temp && temp.name() === Node.ARGS) {
             temp = temp.prev();
             if (temp && temp.name() === Node.MMBEXPR) {
+              var _callexpr = temp.parent();
               temp = temp.leaf(2);
               if (temp.isToken() && temp.token().content() === 'map') {
                 var body = node.last().leaf(1);
-                (0, _arrowfn2.default)(body, res, param);
+                if (opt.arrowFn.length === 0) {
+                  opt.arrowFn.push(true);
+                } else {
+                  opt.arrowFn.push(_callexpr.parent().name() === Node.RETSTMT);
+                }
+                (0, _arrowfn2.default)(body, res, param, opt);
+                opt.arrowFn.pop();
               }
             }
           }
         }
         break;
       case Node.JSXElement:
-        parse(node.first(), res, param);
+        parse(node.first(), res, param, opt);
         for (var _i3 = 1, _leaves3 = node.leaves(); _i3 < _leaves3.length - 1; _i3++) {
-          parse(_leaves3[_i3], res, param);
+          parse(_leaves3[_i3], res, param, opt);
         }
         break;
       case Node.JSXSelfClosingElement:
       case Node.JSXOpeningElement:
         for (var _i4 = 1, _leaves4 = node.leaves(); _i4 < _leaves4.length - 1; _i4++) {
-          parse(_leaves4[_i4], res, param);
+          parse(_leaves4[_i4], res, param, opt);
         }
         break;
       case Node.JSXAttribute:
@@ -159,19 +167,19 @@ function parse(node, res, param) {
         if (value.name() === Node.JSXAttributeValue) {
           var first = value.first();
           if (first.isToken() && first.token().content() === '{') {
-            parse(value.leaf(1), res, param);
+            parse(value.leaf(1), res, param, opt);
           }
         }
         break;
       case Node.JSXChild:
         node.leaves().forEach(function (leaf) {
-          parse(leaf, res, param);
+          parse(leaf, res, param, opt);
         });
         break;
     }
   }
 }
-function mmbexpr(node, res, param) {
+function mmbexpr(node, res, param, opt) {
   var prmr = node.first();
   if (prmr.name() === Node.PRMREXPR) {
     var first = prmr.first();
@@ -213,7 +221,7 @@ function mmbexpr(node, res, param) {
           } else if (dot.token().content() === '[') {
             var _expr = dot.next();
             if (_expr.name() === Node.EXPR) {
-              parse(_expr.last(), res, param);
+              parse(_expr.last(), res, param, opt);
             } else if (_expr.name() === Node.PRMREXPR) {
               var _s = _expr.first();
               if (_s.isToken()) {
@@ -223,7 +231,7 @@ function mmbexpr(node, res, param) {
                 }
               }
             } else {
-              parse(_expr, res, param);
+              parse(_expr, res, param, opt);
             }
           }
         }
@@ -233,23 +241,23 @@ function mmbexpr(node, res, param) {
           if (bracket.token().content() === '[') {
             var _expr2 = bracket.next();
             if (_expr2.name() === Node.EXPR) {
-              parse(_expr2.last(), res, param);
+              parse(_expr2.last(), res, param, opt);
             } else {
-              parse(_expr2, res, param);
+              parse(_expr2, res, param, opt);
             }
           }
         }
       }
     } else if (first.name() === Node.CPEAPL) {
-      parse(first, res, param);
+      parse(first, res, param, opt);
     }
   } else if (prmr.name() === Node.MMBEXPR) {
-    mmbexpr(prmr, res, param);
+    mmbexpr(prmr, res, param, opt);
     var _dot = prmr.next();
     if (_dot.isToken() && _dot.token().content() === '[') {
       var _expr3 = _dot.next();
       if (_expr3.name() === Node.EXPR) {
-        parse(_expr3.last(), res, param);
+        parse(_expr3.last(), res, param, opt);
       } else if (_expr3.name() === Node.PRMREXPR) {
         var _s2 = _expr3.first();
         if (_s2.isToken()) {
@@ -259,40 +267,40 @@ function mmbexpr(node, res, param) {
           }
         }
       } else {
-        parse(_expr3, res, param);
+        parse(_expr3, res, param, opt);
       }
     }
   } else {
-    parse(prmr, res, param);
+    parse(prmr, res, param, opt);
   }
 }
-function callexpr(node, res, param) {
-  parse(node.first(), res, param);
+function callexpr(node, res, param, opt) {
+  parse(node.first(), res, param, opt);
   var args = node.last();
   if (args.name() === Node.ARGS) {
     args.leaf(1).leaves().forEach(function (leaf, i) {
       if (i % 2 === 0) {
-        parse(leaf, res, param);
+        parse(leaf, res, param, opt);
       }
     });
   }
 }
 
-function arrltr(node, res, param) {
+function arrltr(node, res, param, opt) {
   node.leaves().forEach(function (leaf, i) {
     if (i % 2 === 1) {
       if (!leaf.isToken()) {
-        parse(leaf, res, param);
+        parse(leaf, res, param, opt);
       }
     }
   });
 }
 
-function cpeapl(node, res, param) {
+function cpeapl(node, res, param, opt) {
   if (node.size() > 2) {
     var leaf = node.leaf(1);
     if (!leaf.isToken()) {
-      parse(leaf, res, param);
+      parse(leaf, res, param, opt);
     }
   }
 }

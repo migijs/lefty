@@ -107,8 +107,14 @@ function selfClose(node, opt, param) {
 function attr(node, opt, param) {
   let res = '';
   let key = node.first().token().content();
+  let name = node.parent().leaf(1).token().content();
+  let isCp = /^[A-Z]/.test(name);
   if(key.charAt(0) === '@') {
     key = key.slice(1);
+  }
+  // 组件属性非@申明均不bind
+  else if(isCp && opt.isBind) {
+    opt.isBind = false;
   }
   let k = '["' + key + '"';
   res += k + ',';
@@ -133,16 +139,20 @@ function spread(node) {
   return join(node.leaf(2));
 }
 function child(node, opt, param, isAttr) {
+  // 初次进arrowFn标识isArrowFn，且在innerTree中isInArrowFn；再次进入时识别出来
+  let callexpr = node.leaf(1);
+  // if(callexpr.name() === Node.CALLEXPR
+  //   && callexpr.first().name() === Node.MMBEXPR
+  //   && callexpr.first().last().isToken()
+  //   && callexpr.first().last().token().content() === 'map'
+  //   && callexpr.last().leaf(1).first()
+  //   && callexpr.last().leaf(1).first().name() === Node.ARROWFN) {
+  //   opt.arrowFn = opt.arrowFn || [];
+  // }
   if(opt.isBind) {
-    let top = node.parent().parent();
-    if(top.name() === Node.JSXSelfClosingElement || top.name() === Node.JSXElement) {
-      let tag = top.leaf(1);
-      // 组件上的属性和孩子均不需要Obj
-      if(tag.isToken() && /^[A-Z]/.test(tag.token().content())) {
-        return new InnerTree(opt, param).parse(node).replace(/^(\s*){/, '$1').replace(/}(\s*)$/, '$1');
-      }
-    }
-    let temp = linkage(node.leaf(1), param);
+    let temp = linkage(callexpr, param, {
+      arrowFn: opt.arrowFn,
+    });
     let list = temp.arr;
     let single = temp.single;
     if(list.length === 1) {
@@ -164,13 +174,16 @@ function child(node, opt, param, isAttr) {
         + ')';
     }
   }
-  else if(opt.isInnerBind) {
+  // Obj中再次出现的:input的value还需要添加Obj
+  else if(opt.isInBind) {
     if(isAttr) {
       let key = node.prev().prev().token().content();
       if(key === 'value') {
         let tag = node.parent().parent().leaf(1).token().content();
         if(tag === 'input' || tag === 'select') {
-          let temp = linkage(node.leaf(1), param);
+          let temp = linkage(callexpr, param, {
+            arrowFn: opt.arrowFn,
+          });
           let list = temp.arr;
           if(list.length === 1) {
             return 'new migi.Obj("'
@@ -192,7 +205,9 @@ function child(node, opt, param, isAttr) {
     else {
       let key = node.prev().leaf(1).token().content();
       if(key === 'textarea') {
-        let temp = linkage(node.leaf(1), param);
+        let temp = linkage(callexpr, param, {
+          arrowFn: opt.arrowFn,
+        });
         let list = temp.arr;
         if(list.length === 1) {
           return 'new migi.Obj("'

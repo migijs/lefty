@@ -4,28 +4,28 @@ import arrowfn from './arrowfn';
 let Token = homunculus.getClass('token', 'jsx');
 let Node = homunculus.getClass('node', 'jsx');
 
-function parse(node, res, param) {
+function parse(node, res, param, opt) {
   if(node.isToken()) {
   }
   else {
     switch(node.name()) {
       case Node.EXPR:
-        parse(node.first(), res, param);
+        parse(node.first(), res, param, opt);
         //可能有连续多个表达式
         for(let i = 2, leaves = node.leaves(), len = leaves.length; i < len; i += 2) {
-          parse(node.leaf(i), res, param);
+          parse(node.leaf(i), res, param, opt);
         }
         break;
       case Node.PRMREXPR:
-        parse(node.first(), res, param);
+        parse(node.first(), res, param, opt);
         break;
       case Node.MMBEXPR:
-        mmbexpr(node, res, param);
+        mmbexpr(node, res, param, opt);
         break;
       case Node.CNDTEXPR:
-        parse(node.first(), res, param);
-        parse(node.leaf(2), res, param);
-        parse(node.last(), res, param);
+        parse(node.first(), res, param, opt);
+        parse(node.leaf(2), res, param, opt);
+        parse(node.last(), res, param, opt);
         break;
       case Node.LOGOREXPR:
       case Node.LOGANDEXPR:
@@ -37,65 +37,74 @@ function parse(node, res, param) {
       case Node.SHIFTEXPR:
       case Node.ADDEXPR:
       case Node.MTPLEXPR:
-        parse(node.first(), res, param);
+        parse(node.first(), res, param, opt);
         //可能有连续多个表达式
         for(let i = 2, leaves = node.leaves(), len = leaves.length; i < len; i += 2) {
-          parse(node.leaf(i), res, param);
+          parse(node.leaf(i), res, param, opt);
         }
         break;
       case Node.UNARYEXPR:
       case Node.NEWEXPR:
-        parse(node.last(), res, param);
+        parse(node.last(), res, param, opt);
         break;
       case Node.POSTFIXEXPR:
-        parse(node.first(), res, param);
+        parse(node.first(), res, param, opt);
         break;
       case Node.CALLEXPR:
-        callexpr(node, res, param);
+        callexpr(node, res, param, opt);
         break;
       case Node.ARRLTR:
-        arrltr(node, res, param);
+        arrltr(node, res, param, opt);
         break;
       case Node.CPEAPL:
-        cpeapl(node, res, param);
+        cpeapl(node, res, param, opt);
         break;
       case Node.ARGS:
-        parse(node.leaf(1), res, param);
+        parse(node.leaf(1), res, param, opt);
         break;
       case Node.ARGLIST:
         for(let i = 0, leaves = node.leaves(), len = leaves.length; i < len; i++) {
           let leaf = node.leaf(i);
           if(!leaf.isToken()) {
-            parse(leaf, res, param);
+            parse(leaf, res, param, opt);
           }
         }
         break;
       case Node.ARROWFN:
+        opt.arrowFn = opt.arrowFn || [];
         let temp = node.parent();
         if(temp && temp.name() === Node.ARGLIST) {
           temp = temp.parent();
           if(temp && temp.name() === Node.ARGS) {
             temp = temp.prev();
             if(temp && temp.name() === Node.MMBEXPR) {
+              let callexpr = temp.parent();
               temp = temp.leaf(2);
               if(temp.isToken() && temp.token().content() === 'map') {
                 let body = node.last().leaf(1);
-                arrowfn(body, res, param);
+                if(opt.arrowFn.length === 0) {
+                  opt.arrowFn.push(true);
+                }
+                else {
+                  opt.arrowFn.push(callexpr.parent().name() === Node.RETSTMT);
+                }
+                arrowfn(body, res, param, opt);
+                opt.arrowFn.pop();
               }
             }
           }
         }
         break;
       case Node.JSXElement:
-        parse(node.first(), res, param);
+        parse(node.first(), res, param, opt);
         for(let i = 1, leaves = node.leaves(); i < leaves.length - 1; i++) {
-          parse(leaves[i], res, param);
+          parse(leaves[i], res, param, opt);
         }
         break;
       case Node.JSXSelfClosingElement:
       case Node.JSXOpeningElement:
         for(let i = 1, leaves = node.leaves(); i < leaves.length - 1; i++) {
-          parse(leaves[i], res, param);
+          parse(leaves[i], res, param, opt);
         }
         break;
       case Node.JSXAttribute:
@@ -103,19 +112,19 @@ function parse(node, res, param) {
         if(value.name() === Node.JSXAttributeValue) {
           let first = value.first();
           if(first.isToken() && first.token().content() === '{') {
-            parse(value.leaf(1), res, param);
+            parse(value.leaf(1), res, param, opt);
           }
         }
         break;
       case Node.JSXChild:
         node.leaves().forEach((leaf) => {
-          parse(leaf, res, param);
+          parse(leaf, res, param, opt);
         });
         break;
     }
   }
 }
-function mmbexpr(node, res, param) {
+function mmbexpr(node, res, param, opt) {
   let prmr = node.first();
   if(prmr.name() === Node.PRMREXPR) {
     let first = prmr.first();
@@ -160,7 +169,7 @@ function mmbexpr(node, res, param) {
           else if(dot.token().content() === '[') {
             let expr = dot.next();
             if(expr.name() === Node.EXPR) {
-              parse(expr.last(), res, param);
+              parse(expr.last(), res, param, opt);
             }
             else if(expr.name() === Node.PRMREXPR) {
               let s = expr.first();
@@ -172,7 +181,7 @@ function mmbexpr(node, res, param) {
               }
             }
             else {
-              parse(expr, res, param);
+              parse(expr, res, param, opt);
             }
           }
         }
@@ -183,26 +192,26 @@ function mmbexpr(node, res, param) {
           if(bracket.token().content() === '[') {
             let expr = bracket.next();
             if(expr.name() === Node.EXPR) {
-              parse(expr.last(), res, param);
+              parse(expr.last(), res, param, opt);
             }
             else {
-              parse(expr, res, param);
+              parse(expr, res, param, opt);
             }
           }
         }
       }
     }
     else if(first.name() === Node.CPEAPL) {
-      parse(first, res, param);
+      parse(first, res, param, opt);
     }
   }
   else if(prmr.name() === Node.MMBEXPR) {
-    mmbexpr(prmr, res, param);
+    mmbexpr(prmr, res, param, opt);
     let dot = prmr.next();
     if(dot.isToken() && dot.token().content() === '[') {
       let expr = dot.next();
       if(expr.name() === Node.EXPR) {
-        parse(expr.last(), res, param);
+        parse(expr.last(), res, param, opt);
       }
       else if(expr.name() === Node.PRMREXPR) {
         let s = expr.first();
@@ -214,49 +223,49 @@ function mmbexpr(node, res, param) {
         }
       }
       else {
-        parse(expr, res, param);
+        parse(expr, res, param, opt);
       }
     }
   }
   else {
-    parse(prmr, res, param);
+    parse(prmr, res, param, opt);
   }
 }
-function callexpr(node, res, param) {
-  parse(node.first(), res, param);
+function callexpr(node, res, param, opt) {
+  parse(node.first(), res, param, opt);
   let args = node.last();
   if(args.name() === Node.ARGS) {
     args.leaf(1).leaves().forEach(function(leaf, i) {
       if(i % 2 === 0) {
-        parse(leaf, res, param);
+        parse(leaf, res, param, opt);
       }
     });
   }
 }
 
-function arrltr(node, res, param) {
+function arrltr(node, res, param, opt) {
   node.leaves().forEach(function(leaf, i) {
     if(i % 2 === 1) {
       if(!leaf.isToken()) {
-        parse(leaf, res, param);
+        parse(leaf, res, param, opt);
       }
     }
   });
 }
 
-function cpeapl(node, res, param) {
+function cpeapl(node, res, param, opt) {
   if(node.size() > 2) {
     let leaf = node.leaf(1);
     if(!leaf.isToken()) {
-      parse(leaf, res, param);
+      parse(leaf, res, param, opt);
     }
   }
 }
 
-export default function(node, param) {
+export default function(node, param, opt) {
   let res = {};
   // 取得全部this.xxx
-  parse(node, res, param);
+  parse(node, res, param, opt);
   let arr = Object.keys(res);
   arr = arr.filter(function(item) {
     //model.xxx全部通过

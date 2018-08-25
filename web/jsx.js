@@ -128,9 +128,15 @@ function selfClose(node, opt, param) {
 function attr(node, opt, param) {
   var res = '';
   var key = node.first().token().content();
+  var name = node.parent().leaf(1).token().content();
+  var isCp = /^[A-Z]/.test(name);
   if (key.charAt(0) === '@') {
     key = key.slice(1);
   }
+  // 组件属性非@申明均不bind
+  else if (isCp && opt.isBind) {
+      opt.isBind = false;
+    }
   var k = '["' + key + '"';
   res += k + ',';
   var v = node.last();
@@ -152,16 +158,20 @@ function spread(node) {
   return (0, _join2.default)(node.leaf(2));
 }
 function child(node, opt, param, isAttr) {
+  // 初次进arrowFn标识isArrowFn，且在innerTree中isInArrowFn；再次进入时识别出来
+  var callexpr = node.leaf(1);
+  // if(callexpr.name() === Node.CALLEXPR
+  //   && callexpr.first().name() === Node.MMBEXPR
+  //   && callexpr.first().last().isToken()
+  //   && callexpr.first().last().token().content() === 'map'
+  //   && callexpr.last().leaf(1).first()
+  //   && callexpr.last().leaf(1).first().name() === Node.ARROWFN) {
+  //   opt.arrowFn = opt.arrowFn || [];
+  // }
   if (opt.isBind) {
-    var top = node.parent().parent();
-    if (top.name() === Node.JSXSelfClosingElement || top.name() === Node.JSXElement) {
-      var tag = top.leaf(1);
-      // 组件上的属性和孩子均不需要Obj
-      if (tag.isToken() && /^[A-Z]/.test(tag.token().content())) {
-        return new _InnerTree2.default(opt, param).parse(node).replace(/^(\s*){/, '$1').replace(/}(\s*)$/, '$1');
-      }
-    }
-    var temp = (0, _linkage2.default)(node.leaf(1), param);
+    var temp = (0, _linkage2.default)(callexpr, param, {
+      arrowFn: opt.arrowFn
+    });
     var list = temp.arr;
     var single = temp.single;
     if (list.length === 1) {
@@ -169,34 +179,40 @@ function child(node, opt, param, isAttr) {
     } else if (list.length > 1) {
       return 'new migi.Obj(' + JSON.stringify(list) + ',this,function(){return(' + new _InnerTree2.default(opt, param).parse(node).replace(/^(\s*){/, '$1').replace(/}(\s*)$/, '$1') + ')}' + (single ? ',true' : '') + ')';
     }
-  } else if (opt.isInnerBind) {
-    if (isAttr) {
-      var key = node.prev().prev().token().content();
-      if (key === 'value') {
-        var _tag = node.parent().parent().leaf(1).token().content();
-        if (_tag === 'input' || _tag === 'select') {
-          var _temp = (0, _linkage2.default)(node.leaf(1), param);
-          var _list = _temp.arr;
-          if (_list.length === 1) {
-            return 'new migi.Obj("' + _list[0] + '",this,function(){return(' + new _InnerTree2.default(opt, param).parse(node).replace(/^(\s*){/, '$1').replace(/}(\s*)$/, '$1') + ')})';
-          } else if (_list.length > 1) {
-            return 'new migi.Obj(' + JSON.stringify(_list) + ',this,function(){return(' + new _InnerTree2.default(opt, param).parse(node).replace(/^(\s*){/, '$1').replace(/}(\s*)$/, '$1') + ')})';
+  }
+  // Obj中再次出现的:input的value还需要添加Obj
+  else if (opt.isInBind) {
+      if (isAttr) {
+        var key = node.prev().prev().token().content();
+        if (key === 'value') {
+          var tag = node.parent().parent().leaf(1).token().content();
+          if (tag === 'input' || tag === 'select') {
+            var _temp = (0, _linkage2.default)(callexpr, param, {
+              arrowFn: opt.arrowFn
+            });
+            var _list = _temp.arr;
+            if (_list.length === 1) {
+              return 'new migi.Obj("' + _list[0] + '",this,function(){return(' + new _InnerTree2.default(opt, param).parse(node).replace(/^(\s*){/, '$1').replace(/}(\s*)$/, '$1') + ')})';
+            } else if (_list.length > 1) {
+              return 'new migi.Obj(' + JSON.stringify(_list) + ',this,function(){return(' + new _InnerTree2.default(opt, param).parse(node).replace(/^(\s*){/, '$1').replace(/}(\s*)$/, '$1') + ')})';
+            }
+          }
+        }
+      } else {
+        var _key = node.prev().leaf(1).token().content();
+        if (_key === 'textarea') {
+          var _temp2 = (0, _linkage2.default)(callexpr, param, {
+            arrowFn: opt.arrowFn
+          });
+          var _list2 = _temp2.arr;
+          if (_list2.length === 1) {
+            return 'new migi.Obj("' + _list2[0] + '",this,function(){return(' + new _InnerTree2.default(opt, param).parse(node).replace(/^(\s*){/, '$1').replace(/}(\s*)$/, '$1') + ')})';
+          } else if (_list2.length > 1) {
+            return 'new migi.Obj(' + JSON.stringify(_list2) + ',this,function(){return(' + new _InnerTree2.default(opt, param).parse(node).replace(/^(\s*){/, '$1').replace(/}(\s*)$/, '$1') + ')})';
           }
         }
       }
-    } else {
-      var _key = node.prev().leaf(1).token().content();
-      if (_key === 'textarea') {
-        var _temp2 = (0, _linkage2.default)(node.leaf(1), param);
-        var _list2 = _temp2.arr;
-        if (_list2.length === 1) {
-          return 'new migi.Obj("' + _list2[0] + '",this,function(){return(' + new _InnerTree2.default(opt, param).parse(node).replace(/^(\s*){/, '$1').replace(/}(\s*)$/, '$1') + ')})';
-        } else if (_list2.length > 1) {
-          return 'new migi.Obj(' + JSON.stringify(_list2) + ',this,function(){return(' + new _InnerTree2.default(opt, param).parse(node).replace(/^(\s*){/, '$1').replace(/}(\s*)$/, '$1') + ')})';
-        }
-      }
     }
-  }
   return new _InnerTree2.default(opt, param).parse(node).replace(/^(\s*){/, '$1').replace(/}(\s*)$/, '$1');
 }
 
