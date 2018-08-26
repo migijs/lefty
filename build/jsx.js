@@ -184,14 +184,13 @@ function child(node, opt, param, isAttr) {
             return 'new migi.Obj(' + listener + ',()=>{return(' + new _InnerTree2.default(opt, param).parse(node).replace(/^(\s*){/, '$1').replace(/}(\s*)$/, '$1') + ')}' + (single ? ',true' : '') + ')';
           }
         }
-      } else {
+      } else if (node.prev() && node.prev().name() === Node.JSXOpeningElement) {
         var _key = node.prev().leaf(1).token().content();
         if (_key === 'textarea') {
           var _value = node.leaf(1);
           if (_value.name() === Node.MMBEXPR) {
             return 'new migi.Obj(' + listener + ',()=>{return(' + new _InnerTree2.default(opt, param).parse(node).replace(/^(\s*){/, '$1').replace(/}(\s*)$/, '$1') + ')}' + (single ? ',true' : '') + ',(v)=>{' + (0, _join4.default)(_value) + '=v}))';
           }
-          return 'new migi.Obj(' + listener + ',()=>{return(' + new _InnerTree2.default(opt, param).parse(node).replace(/^(\s*){/, '$1').replace(/}(\s*)$/, '$1') + ')}' + (single ? ',true' : '') + ')';
         }
       }
       return 'new migi.Obj(' + listener + ',()=>{return(' + new _InnerTree2.default(opt, param).parse(node).replace(/^(\s*){/, '$1').replace(/}(\s*)$/, '$1') + ')}' + (single ? ',true' : '') + ')';
@@ -218,7 +217,7 @@ function child(node, opt, param, isAttr) {
             }
           }
         }
-      } else {
+      } else if (node.prev() && node.prev().name() === Node.JSXOpeningElement) {
         var _key3 = node.prev().leaf(1).token().content();
         if (_key3 === 'textarea') {
           var _temp2 = (0, _linkage2.default)(callexpr, param, {

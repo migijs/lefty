@@ -179,7 +179,7 @@ function child(node, opt, param, isAttr) {
           }
         }
       }
-      else {
+      else if(node.prev() && node.prev().name() === Node.JSXOpeningElement) {
         let key = node.prev().leaf(1).token().content();
         if(key === 'textarea') {
           let value = node.leaf(1);
@@ -194,13 +194,6 @@ function child(node, opt, param, isAttr) {
               + join2(value)
               + '=v}))';
           }
-          return 'new migi.Obj('
-            + listener
-            + ',()=>{return('
-            + new InnerTree(opt, param).parse(node).replace(/^(\s*){/, '$1').replace(/}(\s*)$/, '$1')
-            + ')}'
-            + (single ? ',true' : '')
-            + ')';
         }
       }
       return 'new migi.Obj('
@@ -249,7 +242,7 @@ function child(node, opt, param, isAttr) {
         }
       }
     }
-    else {
+    else if(node.prev() && node.prev().name() === Node.JSXOpeningElement) {
       let key = node.prev().leaf(1).token().content();
       if(key === 'textarea') {
         let temp = linkage(callexpr, param, {
