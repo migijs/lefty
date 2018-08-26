@@ -493,10 +493,25 @@ describe('linkage', function() {
     var res = lefty.parse(s);
     expect(res).to.eql('class A extends migi.xxx{constructor(){} set a(v){this.__setBind("a",v);this.__data("a")}get a(){ return this.__getBind("a")}render(){return migi.createVd("textarea",[],[new migi.Obj("a",()=>{return(this.a)},true,(v)=>{this.a=v})])}}migi.name(A,"A");');
   });
+  it('textarea 2', function() {
+    var s = 'class A extends migi.xxx{constructor(){}@bind a render(){return <textarea>{this.a + 1}</textarea>}}';
+    var res = lefty.parse(s);
+    expect(res).to.eql('class A extends migi.xxx{constructor(){} set a(v){this.__setBind("a",v);this.__data("a")}get a(){ return this.__getBind("a")}render(){return migi.createVd("textarea",[],[new migi.Obj("a",()=>{return(this.a + 1)})])}}migi.name(A,"A");');
+  });
   it('text', function() {
     var s = 'class A extends migi.xxx{constructor(){}@bind a render(){return <p>1{this.a}2</p>}}';
     var res = lefty.parse(s);
     expect(res).to.eql('class A extends migi.xxx{constructor(){} set a(v){this.__setBind("a",v);this.__data("a")}get a(){ return this.__getBind("a")}render(){return migi.createVd("p",[],["1",new migi.Obj("a",()=>{return(this.a)},true),"2"])}}migi.name(A,"A");');
+  });
+  it('input', function() {
+    var s = 'class A extends migi.xxx{constructor(){}@bind a render(){return <input value={b[this.a[}/>}}';
+    var res = lefty.parse(s);
+    expect(res).to.eql('class A extends migi.xxx{constructor(){} set a(v){this.__setBind("a",v);this.__data("a")}get a(){ return this.__getBind("a")}render(){return migi.createVd("input",[["value",new migi.Obj("a",()=>{return(b[this.a])},false,(v)=>{b[this.a]=v})]])}}migi.name(A,"A");');
+  });
+  it('input 2', function() {
+    var s = 'class A extends migi.xxx{constructor(){}@bind a render(){return <input value={this.a+1}/>}}';
+    var res = lefty.parse(s);
+    expect(res).to.eql('class A extends migi.xxx{constructor(){} set a(v){this.__setBind("a",v);this.__data("a")}get a(){ return this.__getBind("a")}render(){return migi.createVd("input",[["value",new migi.Obj("a",()=>{return(this.a+1)})]])}}migi.name(A,"A");');
   });
 });
 
