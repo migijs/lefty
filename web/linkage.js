@@ -249,7 +249,7 @@ function mmbexpr(node, res, param, opt) {
           }
         }
       }
-    } else if (first.name() === Node.CPEAPL) {
+    } else {
       parse(first, res, param, opt);
     }
   } else if (prmr.name() === Node.MMBEXPR) {
