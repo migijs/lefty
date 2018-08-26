@@ -24,6 +24,10 @@ var _join = require('./join');
 
 var _join2 = _interopRequireDefault(_join);
 
+var _join3 = require('./join2');
+
+var _join4 = _interopRequireDefault(_join3);
+
 var _delegate = require('./delegate');
 
 var _delegate2 = _interopRequireDefault(_delegate);
@@ -165,41 +169,69 @@ function child(node, opt, param, isAttr) {
     });
     var list = temp.arr;
     var single = temp.single;
-    if (list.length === 1) {
-      return 'new migi.Obj("' + list[0] + '",this,function(){return(' + new _InnerTree2.default(opt, param).parse(node).replace(/^(\s*){/, '$1').replace(/}(\s*)$/, '$1') + ')}' + (single ? ',true' : '') + ')';
-    } else if (list.length > 1) {
-      return 'new migi.Obj(' + JSON.stringify(list) + ',this,function(){return(' + new _InnerTree2.default(opt, param).parse(node).replace(/^(\s*){/, '$1').replace(/}(\s*)$/, '$1') + ')}' + (single ? ',true' : '') + ')';
-    }
-  }
-  // Obj中再次出现的:input的value还需要添加Obj
-  else if (opt.isInBind) {
+    if (list.length) {
+      var listener = list.length === 1 ? '"' + list[0] + '"' : JSON.stringify(list);
       if (isAttr) {
         var key = node.prev().prev().token().content();
         if (key === 'value') {
           var tag = node.parent().parent().leaf(1).token().content();
           if (tag === 'input' || tag === 'select') {
-            var _temp = (0, _linkage2.default)(callexpr, param, {
-              arrowFn: opt.arrowFn
-            });
-            var _list = _temp.arr;
-            if (_list.length === 1) {
-              return 'new migi.Obj("' + _list[0] + '",this,function(){return(' + new _InnerTree2.default(opt, param).parse(node).replace(/^(\s*){/, '$1').replace(/}(\s*)$/, '$1') + ')})';
-            } else if (_list.length > 1) {
-              return 'new migi.Obj(' + JSON.stringify(_list) + ',this,function(){return(' + new _InnerTree2.default(opt, param).parse(node).replace(/^(\s*){/, '$1').replace(/}(\s*)$/, '$1') + ')})';
+            var value = node.leaf(1);
+            // 单独值mmbexpr非运算符双向绑定，其余单向
+            if (value.name() === Node.MMBEXPR) {
+              return 'new migi.Obj(' + listener + ',()=>{return(' + new _InnerTree2.default(opt, param).parse(node).replace(/^(\s*){/, '$1').replace(/}(\s*)$/, '$1') + ')}' + (single ? ',true' : '') + ',(v)=>{' + (0, _join4.default)(value) + '=v}))';
             }
+            return 'new migi.Obj(' + listener + ',()=>{return(' + new _InnerTree2.default(opt, param).parse(node).replace(/^(\s*){/, '$1').replace(/}(\s*)$/, '$1') + ')}' + (single ? ',true' : '') + ')';
           }
         }
       } else {
         var _key = node.prev().leaf(1).token().content();
         if (_key === 'textarea') {
+          var _value = node.leaf(1);
+          if (_value.name() === Node.MMBEXPR) {
+            return 'new migi.Obj(' + listener + ',()=>{return(' + new _InnerTree2.default(opt, param).parse(node).replace(/^(\s*){/, '$1').replace(/}(\s*)$/, '$1') + ')}' + (single ? ',true' : '') + ',(v)=>{' + (0, _join4.default)(_value) + '=v}))';
+          }
+          return 'new migi.Obj(' + listener + ',()=>{return(' + new _InnerTree2.default(opt, param).parse(node).replace(/^(\s*){/, '$1').replace(/}(\s*)$/, '$1') + ')}' + (single ? ',true' : '') + ')';
+        }
+      }
+      return 'new migi.Obj(' + listener + ',()=>{return(' + new _InnerTree2.default(opt, param).parse(node).replace(/^(\s*){/, '$1').replace(/}(\s*)$/, '$1') + ')}' + (single ? ',true' : '') + ')';
+    }
+  }
+  // Obj中再次出现的:input的value还需要添加Obj
+  else if (opt.isInBind) {
+      if (isAttr) {
+        var _key2 = node.prev().prev().token().content();
+        if (_key2 === 'value') {
+          var _tag = node.parent().parent().leaf(1).token().content();
+          if (_tag === 'input' || _tag === 'select') {
+            var _temp = (0, _linkage2.default)(callexpr, param, {
+              arrowFn: opt.arrowFn
+            });
+            var _list = _temp.arr;
+            if (_list.length) {
+              var _value2 = node.leaf(1);
+              var _listener = _list.length === 1 ? '"' + _list[0] + '"' : JSON.stringify(_list);
+              if (_value2.name() === Node.MMBEXPR) {
+                return 'new migi.Obj(' + _listener + ',()=>{return(' + new _InnerTree2.default(opt, param).parse(node).replace(/^(\s*){/, '$1').replace(/}(\s*)$/, '$1') + ')}' + ',false' + ',(v)=>{' + (0, _join4.default)(_value2) + '=v}))';
+              }
+              return 'new migi.Obj(' + _listener + ',()=>{return(' + new _InnerTree2.default(opt, param).parse(node).replace(/^(\s*){/, '$1').replace(/}(\s*)$/, '$1') + ')})';
+            }
+          }
+        }
+      } else {
+        var _key3 = node.prev().leaf(1).token().content();
+        if (_key3 === 'textarea') {
           var _temp2 = (0, _linkage2.default)(callexpr, param, {
             arrowFn: opt.arrowFn
           });
           var _list2 = _temp2.arr;
-          if (_list2.length === 1) {
-            return 'new migi.Obj("' + _list2[0] + '",this,function(){return(' + new _InnerTree2.default(opt, param).parse(node).replace(/^(\s*){/, '$1').replace(/}(\s*)$/, '$1') + ')})';
-          } else if (_list2.length > 1) {
-            return 'new migi.Obj(' + JSON.stringify(_list2) + ',this,function(){return(' + new _InnerTree2.default(opt, param).parse(node).replace(/^(\s*){/, '$1').replace(/}(\s*)$/, '$1') + ')})';
+          if (_list2.length) {
+            var _value3 = node.leaf(1);
+            var _listener2 = _list2.length === 1 ? '"' + _list2[0] + '"' : JSON.stringify(_list2);
+            if (_value3.name() === Node.MMBEXPR) {
+              return 'new migi.Obj(' + _listener2 + ',()=>{return(' + new _InnerTree2.default(opt, param).parse(node).replace(/^(\s*){/, '$1').replace(/}(\s*)$/, '$1') + ')}' + ',false' + ',(v)=>{' + (0, _join4.default)(_value3) + '=v}))';
+            }
+            return 'new migi.Obj(' + _listener2 + ',()=>{return(' + new _InnerTree2.default(opt, param).parse(node).replace(/^(\s*){/, '$1').replace(/}(\s*)$/, '$1') + ')})';
           }
         }
       }

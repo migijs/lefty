@@ -98,9 +98,9 @@ var InnerTree = function () {
                 });
                 var list = temp.arr;
                 if (list.length === 1) {
-                  return this.res += (0, _join2.default)(node.first()) + 'new migi.Obj("' + list[0] + '",this,function(){return(' + new InnerTree({}, self.param).parse(node.leaf(1)).replace(/^(\s*){/, '$1').replace(/}(\s*)$/, '$1') + ')})';
+                  return this.res += (0, _join2.default)(node.first()) + 'new migi.Obj("' + list[0] + '",()=>{return(' + new InnerTree({}, self.param).parse(node.leaf(1)).replace(/^(\s*){/, '$1').replace(/}(\s*)$/, '$1') + ')})';
                 } else if (list.length > 1) {
-                  return this.res += (0, _join2.default)(node.first()) + 'new migi.Obj(' + JSON.stringify(list) + ',this,function(){return(' + new InnerTree({}, self.param).parse(node.leaf(1)).replace(/^(\s*){/, '$1').replace(/}(\s*)$/, '$1') + ')})';
+                  return this.res += (0, _join2.default)(node.first()) + 'new migi.Obj(' + JSON.stringify(list) + ',()=>{return(' + new InnerTree({}, self.param).parse(node.leaf(1)).replace(/^(\s*){/, '$1').replace(/}(\s*)$/, '$1') + ')})';
                 }
               }
             }

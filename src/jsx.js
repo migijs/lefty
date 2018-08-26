@@ -3,6 +3,7 @@ import InnerTree from './InnerTree';
 import linkage from './linkage';
 import ignore from './ignore';
 import join from './join';
+import join2 from './join2';
 import delegate from './delegate';
 
 let Token = homunculus.getClass('token', 'jsx');
@@ -146,19 +147,65 @@ function child(node, opt, param, isAttr) {
     });
     let list = temp.arr;
     let single = temp.single;
-    if(list.length === 1) {
-      return 'new migi.Obj("'
-        + list[0]
-        + '",this,function(){return('
-        + new InnerTree(opt, param).parse(node).replace(/^(\s*){/, '$1').replace(/}(\s*)$/, '$1')
-        + ')}'
-        + (single ? ',true' : '')
-        + ')';
-    }
-    else if(list.length > 1) {
+    if(list.length) {
+      let listener = list.length === 1
+        ? ('"' + list[0] + '"')
+        : JSON.stringify(list);
+      if(isAttr) {
+        let key = node.prev().prev().token().content();
+        if(key === 'value') {
+          let tag = node.parent().parent().leaf(1).token().content();
+          if(tag === 'input' || tag === 'select') {
+            let value = node.leaf(1);
+            // 单独值mmbexpr非运算符双向绑定，其余单向
+            if(value.name() === Node.MMBEXPR) {
+              return 'new migi.Obj('
+                + listener
+                + ',()=>{return('
+                + new InnerTree(opt, param).parse(node).replace(/^(\s*){/, '$1').replace(/}(\s*)$/, '$1')
+                + ')}'
+                + (single ? ',true' : '')
+                + ',(v)=>{'
+                + join2(value)
+                + '=v}))';
+            }
+            return 'new migi.Obj('
+              + listener
+              + ',()=>{return('
+              + new InnerTree(opt, param).parse(node).replace(/^(\s*){/, '$1').replace(/}(\s*)$/, '$1')
+              + ')}'
+              + (single ? ',true' : '')
+              + ')';
+          }
+        }
+      }
+      else {
+        let key = node.prev().leaf(1).token().content();
+        if(key === 'textarea') {
+          let value = node.leaf(1);
+          if(value.name() === Node.MMBEXPR) {
+            return 'new migi.Obj('
+              + listener
+              + ',()=>{return('
+              + new InnerTree(opt, param).parse(node).replace(/^(\s*){/, '$1').replace(/}(\s*)$/, '$1')
+              + ')}'
+              + (single ? ',true' : '')
+              + ',(v)=>{'
+              + join2(value)
+              + '=v}))';
+          }
+          return 'new migi.Obj('
+            + listener
+            + ',()=>{return('
+            + new InnerTree(opt, param).parse(node).replace(/^(\s*){/, '$1').replace(/}(\s*)$/, '$1')
+            + ')}'
+            + (single ? ',true' : '')
+            + ')';
+        }
+      }
       return 'new migi.Obj('
-        + JSON.stringify(list)
-        + ',this,function(){return('
+        + listener
+        + ',()=>{return('
         + new InnerTree(opt, param).parse(node).replace(/^(\s*){/, '$1').replace(/}(\s*)$/, '$1')
         + ')}'
         + (single ? ',true' : '')
@@ -176,19 +223,28 @@ function child(node, opt, param, isAttr) {
             arrowFn: opt.arrowFn,
           });
           let list = temp.arr;
-          if(list.length === 1) {
-            return 'new migi.Obj("'
-              + list[0]
-              + '",this,function(){return('
-              + new InnerTree(opt, param).parse(node).replace(/^(\s*){/, '$1').replace(/}(\s*)$/, '$1')
-              + ')})';
-          }
-          else if(list.length > 1) {
+          if(list.length) {
+            let value = node.leaf(1);
+            let listener = list.length === 1
+              ? ('"' + list[0] + '"')
+              : JSON.stringify(list);
+            if(value.name() === Node.MMBEXPR) {
+              return 'new migi.Obj('
+                + listener
+                + ',()=>{return('
+                + new InnerTree(opt, param).parse(node).replace(/^(\s*){/, '$1').replace(/}(\s*)$/, '$1')
+                + ')}'
+                + ',false'
+                + ',(v)=>{'
+                + join2(value)
+                + '=v}))';
+            }
             return 'new migi.Obj('
-              + JSON.stringify(list)
-              + ',this,function(){return('
+              + listener
+              + ',()=>{return('
               + new InnerTree(opt, param).parse(node).replace(/^(\s*){/, '$1').replace(/}(\s*)$/, '$1')
               + ')})';
+
           }
         }
       }
@@ -200,17 +256,25 @@ function child(node, opt, param, isAttr) {
           arrowFn: opt.arrowFn,
         });
         let list = temp.arr;
-        if(list.length === 1) {
-          return 'new migi.Obj("'
-            + list[0]
-            + '",this,function(){return('
-            + new InnerTree(opt, param).parse(node).replace(/^(\s*){/, '$1').replace(/}(\s*)$/, '$1')
-            + ')})';
-        }
-        else if(list.length > 1) {
+        if(list.length) {
+          let value = node.leaf(1);
+          let listener = list.length === 1
+            ? ('"' + list[0] + '"')
+            : JSON.stringify(list);
+          if(value.name() === Node.MMBEXPR) {
+            return 'new migi.Obj('
+              + listener
+              + ',()=>{return('
+              + new InnerTree(opt, param).parse(node).replace(/^(\s*){/, '$1').replace(/}(\s*)$/, '$1')
+              + ')}'
+              + ',false'
+              + ',(v)=>{'
+              + join2(value)
+              + '=v}))';
+          }
           return 'new migi.Obj('
-            + JSON.stringify(list)
-            + ',this,function(){return('
+            + listener
+            + ',()=>{return('
             + new InnerTree(opt, param).parse(node).replace(/^(\s*){/, '$1').replace(/}(\s*)$/, '$1')
             + ')})';
         }
