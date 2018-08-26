@@ -70,10 +70,7 @@ class InnerTree {
                 return this.res += join2(node.first()) + 'new migi.Obj('
                   + listener
                   + ',()=>{return('
-                  + new InnerTree({
-                    isInBind: self.opt.isInBind || self.opt.isBind,
-                    arrowFn: self.opt.arrowFn,
-                  }, self.param).parse(node.leaf(1)).replace(/^(\s*){/, '$1').replace(/}(\s*)$/, '$1')
+                  + new InnerTree(self.opt, self.param).parse(node.leaf(1)).replace(/^(\s*){/, '$1').replace(/}(\s*)$/, '$1')
                   + ')})';
               }
             }
