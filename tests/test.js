@@ -504,7 +504,7 @@ describe('linkage', function() {
     expect(res).to.eql('class A extends migi.xxx{constructor(){} set a(v){this.__setBind("a",v);this.__data("a")}get a(){ return this.__getBind("a")}render(){return migi.createVd("p",[],["1",new migi.Obj("a",()=>{return(this.a)},true),"2"])}}migi.name(A,"A");');
   });
   it('input', function() {
-    var s = 'class A extends migi.xxx{constructor(){}@bind a render(){return <input value={b[this.a[}/>}}';
+    var s = 'class A extends migi.xxx{constructor(){}@bind a render(){return <input value={b[this.a]}/>}}';
     var res = lefty.parse(s);
     expect(res).to.eql('class A extends migi.xxx{constructor(){} set a(v){this.__setBind("a",v);this.__data("a")}get a(){ return this.__getBind("a")}render(){return migi.createVd("input",[["value",new migi.Obj("a",()=>{return(b[this.a])},false,(v)=>{b[this.a]=v})]])}}migi.name(A,"A");');
   });
