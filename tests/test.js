@@ -611,6 +611,11 @@ describe('arrowfn', function() {
     var res = lefty.parse(s);
     expect(res).to.eql('class A extends migi.xxx{constructor(){} set a(v){this.__setBind("a",v);this.__data("a")}get a(){ return this.__getBind("a")}render(){return migi.createVd("p",[],[new migi.Obj("a",()=>{return([].map((item)=>{[].map((item2)=>{return this.a})}))})])}}migi.name(A,"A");');
   });
+  it('in arrowfn 4', function() {
+    var s = 'class A extends migi.xxx{constructor(){}@bind a @bind b render(){return <p>{[].map((item)=>{return [this.b].map((item2)=>{return this.a})})}</p>}}';
+    var res = lefty.parse(s);
+    expect(res).to.eql('class A extends migi.xxx{constructor(){} set a(v){this.__setBind("a",v);this.__data("a")}get a(){ return this.__getBind("a")} set b(v){this.__setBind("b",v);this.__data("b")}get b(){ return this.__getBind("b")}render(){return migi.createVd("p",[],[[].map((item)=>{return new migi.Obj("b",()=>{return([this.b].map((item2)=>{return new migi.Obj("a",()=>{return(this.a)})}))})})])}}migi.name(A,"A");');
+  });
 });
 
 describe('other', function() {

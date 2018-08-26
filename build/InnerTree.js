@@ -97,10 +97,12 @@ var InnerTree = function () {
                   arrowFn: self.opt.arrowFn
                 });
                 var list = temp.arr;
-                if (list.length === 1) {
-                  return this.res += (0, _join2.default)(node.first()) + 'new migi.Obj("' + list[0] + '",()=>{return(' + new InnerTree({}, self.param).parse(node.leaf(1)).replace(/^(\s*){/, '$1').replace(/}(\s*)$/, '$1') + ')})';
-                } else if (list.length > 1) {
-                  return this.res += (0, _join2.default)(node.first()) + 'new migi.Obj(' + JSON.stringify(list) + ',()=>{return(' + new InnerTree({}, self.param).parse(node.leaf(1)).replace(/^(\s*){/, '$1').replace(/}(\s*)$/, '$1') + ')})';
+                var listener = list.length === 1 ? '"' + list[0] + '"' : JSON.stringify(list);
+                if (list.length) {
+                  return this.res += (0, _join2.default)(node.first()) + 'new migi.Obj(' + listener + ',()=>{return(' + new InnerTree({
+                    isInBind: self.opt.isInBind || self.opt.isBind,
+                    arrowFn: self.opt.arrowFn
+                  }, self.param).parse(node.leaf(1)).replace(/^(\s*){/, '$1').replace(/}(\s*)$/, '$1') + ')})';
                 }
               }
             }
