@@ -164,7 +164,7 @@ function child(node, opt, param, isAttr) {
                 + ',()=>{return('
                 + new InnerTree(opt, param).parse(node).replace(/^(\s*){/, '$1').replace(/}(\s*)$/, '$1')
                 + ')}'
-                + (single ? ',true' : '')
+                + (single ? ',true' : ',false')
                 + ',(v)=>{'
                 + join2(value)
                 + '=v})';
@@ -189,7 +189,7 @@ function child(node, opt, param, isAttr) {
               + ',()=>{return('
               + new InnerTree(opt, param).parse(node).replace(/^(\s*){/, '$1').replace(/}(\s*)$/, '$1')
               + ')}'
-              + (single ? ',true' : '')
+              + (single ? ',true' : ',false')
               + ',(v)=>{'
               + join2(value)
               + '=v})';

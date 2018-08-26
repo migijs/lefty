@@ -292,6 +292,19 @@ export default function(node, param, opt) {
       && node.last().isToken()
       && node.last().token().content() === arr[0];
   }
+  else if(node.name() === Node.MMBEXPR
+    && node.leaves().length === 3
+    && node.first().name() === Node.MMBEXPR
+    && node.first().leaves().length === 3
+    && node.first().first().name() === Node.PRMREXPR) {
+    single = arr.length === 1
+      && node.first().first().first().isToken()
+      && node.first().first().first().token().content() === 'this'
+      && node.first().last().isToken()
+      && node.first().last().token().content() === 'model'
+      && node.last().isToken()
+      && node.last().token().content() === arr[0].slice(6);
+  }
   else if(node.name() === Node.PRMREXPR
     && node.first().name() === Node.CPEAPL) {
     let cpeapl = node.first();

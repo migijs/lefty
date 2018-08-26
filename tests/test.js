@@ -321,7 +321,7 @@ describe('linkage', function() {
   it('model .', function() {
     var s = 'class A extends migi.xxx{constructor(){}render(){return <p>{this.model.a}</p>}}';
     var res = lefty.parse(s);
-    expect(res).to.eql('class A extends migi.xxx{constructor(){}render(){return migi.createVd("p",[],[new migi.Obj("model.a",()=>{return(this.model.a)})])}}migi.name(A,"A");');
+    expect(res).to.eql('class A extends migi.xxx{constructor(){}render(){return migi.createVd("p",[],[new migi.Obj("model.a",()=>{return(this.model.a)},true)])}}migi.name(A,"A");');
   });
   it('model [', function() {
     var s = 'class A extends migi.xxx{constructor(){}render(){return <p>{this.model["a"]}</p>}}';
@@ -332,6 +332,11 @@ describe('linkage', function() {
     var s = 'class A extends migi.xxx{constructor(){}render(){return <p onClick={this.model.click}></p>}}';
     var res = lefty.parse(s);
     expect(res).to.eql('class A extends migi.xxx{constructor(){}render(){return migi.createVd("p",[["onClick",new migi.Cb(this.model,this.model.click)]],[])}}migi.name(A,"A");');
+  });
+  it('model input', function() {
+    var s = 'class Input extends migi.Component{constructor(){}render(){return(<input value={this.model.txt}/>);}}';
+    var res = lefty.parse(s);
+    expect(res).to.eql('class Input extends migi.Component{constructor(){}render(){return(migi.createVd("input",[["value",new migi.Obj("model.txt",()=>{return(this.model.txt)},true,(v)=>{this.model.txt=v})]]));}}migi.name(Input,"Input");');
   });
   it('rest', function() {
     var s = 'class A extends migi.xxx{constructor(){}render(){return <p {...rest}></p>}}';
