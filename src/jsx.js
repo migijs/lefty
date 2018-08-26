@@ -167,7 +167,7 @@ function child(node, opt, param, isAttr) {
                 + (single ? ',true' : '')
                 + ',(v)=>{'
                 + join2(value)
-                + '=v}))';
+                + '=v})';
             }
             return 'new migi.Obj('
               + listener
@@ -192,7 +192,7 @@ function child(node, opt, param, isAttr) {
               + (single ? ',true' : '')
               + ',(v)=>{'
               + join2(value)
-              + '=v}))';
+              + '=v})';
           }
         }
       }
@@ -230,7 +230,7 @@ function child(node, opt, param, isAttr) {
                 + ',false'
                 + ',(v)=>{'
                 + join2(value)
-                + '=v}))';
+                + '=v})';
             }
             return 'new migi.Obj('
               + listener
@@ -263,7 +263,7 @@ function child(node, opt, param, isAttr) {
               + ',false'
               + ',(v)=>{'
               + join2(value)
-              + '=v}))';
+              + '=v})';
           }
           return 'new migi.Obj('
             + listener
