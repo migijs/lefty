@@ -159,15 +159,18 @@ function child(node, opt, param, isAttr) {
             let value = node.leaf(1);
             // 单独值mmbexpr非运算符双向绑定，其余单向
             if(value.name() === Node.MMBEXPR) {
+              let v = join2(value);
               return 'new migi.Obj('
                 + listener
                 + ',()=>{return('
                 + new InnerTree(opt, param).parse(node).replace(/^(\s*){/, '$1').replace(/}(\s*)$/, '$1')
                 + ')}'
                 + (single ? ',true' : ',false')
-                + ',(v)=>{'
-                + join2(value)
-                + '=v})';
+                + ',(v)=>{v!=='
+                + v
+                + '&&('
+                + v
+                + '=v)})';
             }
             return 'new migi.Obj('
               + listener
@@ -184,15 +187,18 @@ function child(node, opt, param, isAttr) {
         if(key === 'textarea') {
           let value = node.leaf(1);
           if(value.name() === Node.MMBEXPR) {
+            let v = join2(value);
             return 'new migi.Obj('
               + listener
               + ',()=>{return('
               + new InnerTree(opt, param).parse(node).replace(/^(\s*){/, '$1').replace(/}(\s*)$/, '$1')
               + ')}'
               + (single ? ',true' : ',false')
-              + ',(v)=>{'
-              + join2(value)
-              + '=v})';
+              + ',(v)=>{v!=='
+              + v
+              + '&&('
+              + v
+              + '=v)})';
           }
         }
       }
@@ -222,15 +228,18 @@ function child(node, opt, param, isAttr) {
               ? ('"' + list[0] + '"')
               : JSON.stringify(list);
             if(value.name() === Node.MMBEXPR) {
+              let v = join2(value);
               return 'new migi.Obj('
                 + listener
                 + ',()=>{return('
                 + new InnerTree(opt, param).parse(node).replace(/^(\s*){/, '$1').replace(/}(\s*)$/, '$1')
                 + ')}'
                 + ',false'
-                + ',(v)=>{'
-                + join2(value)
-                + '=v})';
+                + ',(v)=>{v!=='
+                + v
+                + '&&('
+                + v
+                + '=v)})';
             }
             return 'new migi.Obj('
               + listener
@@ -255,15 +264,18 @@ function child(node, opt, param, isAttr) {
             ? ('"' + list[0] + '"')
             : JSON.stringify(list);
           if(value.name() === Node.MMBEXPR) {
+            let v = join2(value);
             return 'new migi.Obj('
               + listener
               + ',()=>{return('
               + new InnerTree(opt, param).parse(node).replace(/^(\s*){/, '$1').replace(/}(\s*)$/, '$1')
               + ')}'
               + ',false'
-              + ',(v)=>{'
-              + join2(value)
-              + '=v})';
+              + ',(v)=>{v!=='
+              + v
+              + '&&('
+              + v
+              + '=v)})';
           }
           return 'new migi.Obj('
             + listener
