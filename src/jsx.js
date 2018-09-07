@@ -55,7 +55,7 @@ function elem(node, opt, param) {
         comma = true;
     }
   }
-  res += '])';
+  res += ']])';
   if(node.last().name() === Node.JSXClosingElement) {
     res += ignore(node.last(), true).res;
   }
@@ -74,14 +74,12 @@ function selfClose(node, opt, param) {
       name += first.leaf(i).token().content();
     }
   }
-  let isCp;
   if(/^[A-Z]/.test(name)) {
-    isCp = true;
-    res += 'migi.createCp(';
+    res += 'migi.createCp([';
     res += name;
   }
   else {
-    res += 'migi.createVd(';
+    res += 'migi.createVd([';
     res += '"' + name + '"';
   }
   res += ',[';
@@ -297,7 +295,7 @@ function parse(node, opt, param) {
       break;
     case Node.JSXSelfClosingElement:
       res += selfClose(node, opt, param);
-      res += ')';
+      res += '])';
       break;
   }
   return res;
