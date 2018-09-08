@@ -513,6 +513,16 @@ describe('linkage', function() {
     var res = lefty.parse(s);
     expect(res).to.eql('class A extends migi.xxx{constructor(){} set a(v){this.__setBind("a",v);this.__data("a")}get a(){ return this.__getBind("a")}render(){return migi.createVd(["input",[["value",new migi.Obj("a",()=>{return(this.a+1)})]]])}}migi.name(A,"A");');
   });
+  it('input 3', function() {
+    var s = 'class A extends migi.xxx{constructor(){}@bind a render(){return <input checked={this.a}/>}}';
+    var res = lefty.parse(s);
+    expect(res).to.eql('class A extends migi.xxx{constructor(){} set a(v){this.__setBind("a",v);this.__data("a")}get a(){ return this.__getBind("a")}render(){return migi.createVd(["input",[["checked",new migi.Obj("a",()=>{return(this.a)},true,(v)=>{v!==this.a&&(this.a=v)})]]])}}migi.name(A,"A");');
+  });
+  it('option', function() {
+    var s = 'class A extends migi.xxx{constructor(){}@bind a render(){return <option selected={this.a}/>}}';
+    var res = lefty.parse(s);
+    expect(res).to.eql('class A extends migi.xxx{constructor(){} set a(v){this.__setBind("a",v);this.__data("a")}get a(){ return this.__getBind("a")}render(){return migi.createVd(["option",[["selected",new migi.Obj("a",()=>{return(this.a)},true,(v)=>{v!==this.a&&(this.a=v)})]]])}}migi.name(A,"A");');
+  });
 });
 
 describe('arrowfn', function() {

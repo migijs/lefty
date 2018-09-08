@@ -171,9 +171,9 @@ function child(node, opt, param, isAttr) {
       var listener = list.length === 1 ? '"' + list[0] + '"' : JSON.stringify(list);
       if (isAttr) {
         var key = node.prev().prev().token().content();
-        if (key === 'value') {
+        if (key === 'value' || key === 'checked' || key === 'selected') {
           var tag = node.parent().parent().leaf(1).token().content();
-          if (tag === 'input' || tag === 'select') {
+          if (tag === 'input' || tag === 'select' || tag === 'option') {
             var value = node.leaf(1);
             // 单独值mmbexpr非运算符双向绑定，其余单向
             if (value.name() === Node.MMBEXPR) {

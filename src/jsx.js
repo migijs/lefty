@@ -151,9 +151,9 @@ function child(node, opt, param, isAttr) {
         : JSON.stringify(list);
       if(isAttr) {
         let key = node.prev().prev().token().content();
-        if(key === 'value') {
+        if(key === 'value' || key === 'checked' || key === 'selected') {
           let tag = node.parent().parent().leaf(1).token().content();
-          if(tag === 'input' || tag === 'select') {
+          if(tag === 'input' || tag === 'select' || tag === 'option') {
             let value = node.leaf(1);
             // 单独值mmbexpr非运算符双向绑定，其余单向
             if(value.name() === Node.MMBEXPR) {
