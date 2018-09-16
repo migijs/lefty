@@ -145,6 +145,7 @@ function child(node, opt, param, isAttr) {
     });
     let list = temp.arr;
     let single = temp.single;
+    let bind = temp.bind;
     if(list.length) {
       let listener = list.length === 1
         ? ('"' + list[0] + '"')
@@ -164,11 +165,13 @@ function child(node, opt, param, isAttr) {
                 + new InnerTree(opt, param).parse(node).replace(/^(\s*){/, '$1').replace(/}(\s*)$/, '$1')
                 + ')}'
                 + (single ? ',true' : ',false')
-                + ',(v)=>{v!=='
-                + v
-                + '&&('
-                + v
-                + '=v)})';
+                + (bind ?
+                  (',(v)=>{v!=='
+                  + v
+                  + '&&('
+                  + v
+                  + '=v)})')
+                  : ')');
             }
             return 'new migi.Obj('
               + listener
@@ -192,11 +195,13 @@ function child(node, opt, param, isAttr) {
               + new InnerTree(opt, param).parse(node).replace(/^(\s*){/, '$1').replace(/}(\s*)$/, '$1')
               + ')}'
               + (single ? ',true' : ',false')
-              + ',(v)=>{v!=='
-              + v
-              + '&&('
-              + v
-              + '=v)})';
+              + (bind ?
+                (',(v)=>{v!=='
+                  + v
+                  + '&&('
+                  + v
+                  + '=v)})')
+                : ')');
           }
         }
       }
@@ -220,6 +225,7 @@ function child(node, opt, param, isAttr) {
             arrowFn: opt.arrowFn,
           });
           let list = temp.arr;
+          let bind = temp.bind;
           if(list.length) {
             let value = node.leaf(1);
             let listener = list.length === 1
@@ -233,11 +239,13 @@ function child(node, opt, param, isAttr) {
                 + new InnerTree(opt, param).parse(node).replace(/^(\s*){/, '$1').replace(/}(\s*)$/, '$1')
                 + ')}'
                 + ',false'
-                + ',(v)=>{v!=='
-                + v
-                + '&&('
-                + v
-                + '=v)})';
+                + (bind ?
+                  (',(v)=>{v!=='
+                    + v
+                    + '&&('
+                    + v
+                    + '=v)})')
+                  : ')');
             }
             return 'new migi.Obj('
               + listener
@@ -256,6 +264,7 @@ function child(node, opt, param, isAttr) {
           arrowFn: opt.arrowFn,
         });
         let list = temp.arr;
+        let bind = temp.bind;
         if(list.length) {
           let value = node.leaf(1);
           let listener = list.length === 1
@@ -269,11 +278,13 @@ function child(node, opt, param, isAttr) {
               + new InnerTree(opt, param).parse(node).replace(/^(\s*){/, '$1').replace(/}(\s*)$/, '$1')
               + ')}'
               + ',false'
-              + ',(v)=>{v!=='
-              + v
-              + '&&('
-              + v
-              + '=v)})';
+              + (bind ?
+                (',(v)=>{v!=='
+                  + v
+                  + '&&('
+                  + v
+                  + '=v)})')
+                : ')');
           }
           return 'new migi.Obj('
             + listener

@@ -167,6 +167,7 @@ function child(node, opt, param, isAttr) {
     });
     var list = temp.arr;
     var single = temp.single;
+    var bind = temp.bind;
     if (list.length) {
       var listener = list.length === 1 ? '"' + list[0] + '"' : JSON.stringify(list);
       if (isAttr) {
@@ -178,7 +179,7 @@ function child(node, opt, param, isAttr) {
             // 单独值mmbexpr非运算符双向绑定，其余单向
             if (value.name() === Node.MMBEXPR) {
               var v = (0, _join4.default)(value);
-              return 'new migi.Obj(' + listener + ',()=>{return(' + new _InnerTree2.default(opt, param).parse(node).replace(/^(\s*){/, '$1').replace(/}(\s*)$/, '$1') + ')}' + (single ? ',true' : ',false') + ',(v)=>{v!==' + v + '&&(' + v + '=v)})';
+              return 'new migi.Obj(' + listener + ',()=>{return(' + new _InnerTree2.default(opt, param).parse(node).replace(/^(\s*){/, '$1').replace(/}(\s*)$/, '$1') + ')}' + (single ? ',true' : ',false') + (bind ? ',(v)=>{v!==' + v + '&&(' + v + '=v)})' : ')');
             }
             return 'new migi.Obj(' + listener + ',()=>{return(' + new _InnerTree2.default(opt, param).parse(node).replace(/^(\s*){/, '$1').replace(/}(\s*)$/, '$1') + ')}' + (single ? ',true' : '') + ')';
           }
@@ -189,7 +190,7 @@ function child(node, opt, param, isAttr) {
           var _value = node.leaf(1);
           if (_value.name() === Node.MMBEXPR) {
             var _v = (0, _join4.default)(_value);
-            return 'new migi.Obj(' + listener + ',()=>{return(' + new _InnerTree2.default(opt, param).parse(node).replace(/^(\s*){/, '$1').replace(/}(\s*)$/, '$1') + ')}' + (single ? ',true' : ',false') + ',(v)=>{v!==' + _v + '&&(' + _v + '=v)})';
+            return 'new migi.Obj(' + listener + ',()=>{return(' + new _InnerTree2.default(opt, param).parse(node).replace(/^(\s*){/, '$1').replace(/}(\s*)$/, '$1') + ')}' + (single ? ',true' : ',false') + (bind ? ',(v)=>{v!==' + _v + '&&(' + _v + '=v)})' : ')');
           }
         }
       }
@@ -207,12 +208,13 @@ function child(node, opt, param, isAttr) {
               arrowFn: opt.arrowFn
             });
             var _list = _temp.arr;
+            var _bind = _temp.bind;
             if (_list.length) {
               var _value2 = node.leaf(1);
               var _listener = _list.length === 1 ? '"' + _list[0] + '"' : JSON.stringify(_list);
               if (_value2.name() === Node.MMBEXPR) {
                 var _v2 = (0, _join4.default)(_value2);
-                return 'new migi.Obj(' + _listener + ',()=>{return(' + new _InnerTree2.default(opt, param).parse(node).replace(/^(\s*){/, '$1').replace(/}(\s*)$/, '$1') + ')}' + ',false' + ',(v)=>{v!==' + _v2 + '&&(' + _v2 + '=v)})';
+                return 'new migi.Obj(' + _listener + ',()=>{return(' + new _InnerTree2.default(opt, param).parse(node).replace(/^(\s*){/, '$1').replace(/}(\s*)$/, '$1') + ')}' + ',false' + (_bind ? ',(v)=>{v!==' + _v2 + '&&(' + _v2 + '=v)})' : ')');
               }
               return 'new migi.Obj(' + _listener + ',()=>{return(' + new _InnerTree2.default(opt, param).parse(node).replace(/^(\s*){/, '$1').replace(/}(\s*)$/, '$1') + ')})';
             }
@@ -225,12 +227,13 @@ function child(node, opt, param, isAttr) {
             arrowFn: opt.arrowFn
           });
           var _list2 = _temp2.arr;
+          var _bind2 = _temp2.bind;
           if (_list2.length) {
             var _value3 = node.leaf(1);
             var _listener2 = _list2.length === 1 ? '"' + _list2[0] + '"' : JSON.stringify(_list2);
             if (_value3.name() === Node.MMBEXPR) {
               var _v3 = (0, _join4.default)(_value3);
-              return 'new migi.Obj(' + _listener2 + ',()=>{return(' + new _InnerTree2.default(opt, param).parse(node).replace(/^(\s*){/, '$1').replace(/}(\s*)$/, '$1') + ')}' + ',false' + ',(v)=>{v!==' + _v3 + '&&(' + _v3 + '=v)})';
+              return 'new migi.Obj(' + _listener2 + ',()=>{return(' + new _InnerTree2.default(opt, param).parse(node).replace(/^(\s*){/, '$1').replace(/}(\s*)$/, '$1') + ')}' + ',false' + (_bind2 ? ',(v)=>{v!==' + _v3 + '&&(' + _v3 + '=v)})' : ')');
             }
             return 'new migi.Obj(' + _listener2 + ',()=>{return(' + new _InnerTree2.default(opt, param).parse(node).replace(/^(\s*){/, '$1').replace(/}(\s*)$/, '$1') + ')})';
           }

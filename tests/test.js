@@ -165,6 +165,16 @@ describe('classes', function() {
     var res = lefty.parse(s);
     expect(res).to.eql('class A extends migi.xxx{constructor(){} set t(){;this.__data("t")}get t(){}render(){return migi.createVd("p",[],[new migi.Obj("t",()=>{return(this.t)},true)])}}migi.name(A,"A");');
   });
+  it('@eval 2', function() {
+    var s = 'class A extends migi.xxx{constructor(){}@eval set t(){}get t(){}render(){return <p>{this.t}</p>}}';
+    var res = lefty.parse(s);
+    expect(res).to.eql('class A extends migi.xxx{constructor(){} set t(v){this.__setBind("t",v);this.__data("t")}get t(){ return this.__getBind("t")}render(){return migi.createVd("input",[["value",new migi.Obj("t",()=>{return(this.t)},true)]])}}migi.name(A,"A");');
+  });
+  it('@eval 3', function() {
+    var s = 'class A extends migi.xxx{constructor(){}@eval a @bind b render(){return <input value={this.a[this.b]}/>}}';
+    var res = lefty.parse(s);
+    expect(res).to.eql('class A extends migi.xxx{constructor(){} set a(v){this.__setBind("a",v);this.__data("a")}get a(){ return this.__getBind("a")} set b(v){this.__setBind("b",v);this.__data("b")}get b(){ return this.__getBind("b")}render(){return migi.createVd("input",[["value",new migi.Obj(["a","b"],()=>{return(this.a[this.b])},false,(v)=>{v!==this.a[this.b]&&(this.a[this.b]=v)})]])}}migi.name(A,"A");');
+  });
 });
 
 describe('linkage', function() {

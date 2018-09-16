@@ -268,9 +268,11 @@ export default function(node, param, opt) {
   // 取得全部this.xxx
   parse(node, res, param, opt);
   let arr = Object.keys(res);
+  let bind = false;
   arr = arr.filter(function(item) {
     //model.xxx全部通过
     if(item.indexOf('model.') === 0) {
+      bind = true;
       return true;
     }
     //没get不通过
@@ -279,6 +281,12 @@ export default function(node, param, opt) {
     }
     //有get需要有bind或link
     return (param.bindHash || {}).hasOwnProperty(item) || (param.evalHash || {}).hasOwnProperty(item) || (param.linkHash || {}).hasOwnProperty(item);
+  });
+  // 只要有一个是双向绑定就是双向
+  arr.forEach((item) => {
+    if((param.bindHash || {}).hasOwnProperty(item)) {
+      bind = true;
+    }
   });
   // 因特殊Array优化需要，this.v或者(..., this.v)形式的侦听变量
   // see https://github.com/migijs/migi/issues/29
@@ -341,5 +349,6 @@ export default function(node, param, opt) {
   return {
     arr,
     single,
+    bind,
   };
 };
