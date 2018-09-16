@@ -103,7 +103,7 @@ var Tree = function () {
             } else {
               this.res += (0, _join2.default)(node);
             }
-            break;
+            return;
           case Node.LEXBIND:
             if (inClass && node.parent().name() === Node.CLASSELEM) {
               this.res += this.bindLex(node);

@@ -73,7 +73,7 @@ class Tree {
           else {
             this.res += join2(node);
           }
-          break;
+          return;
         case Node.LEXBIND:
           if(inClass && node.parent().name() === Node.CLASSELEM) {
             this.res += this.bindLex(node);
