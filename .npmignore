@@ -1,11 +1,11 @@
-.yml
+*.yml
 .gitignore
 .gitattributes
 Makefile
 .npmignore
-.spmignore
 tests/
 demo/
 node_modules/
 gulpfile.js
 logo.jpg
+.idea/
