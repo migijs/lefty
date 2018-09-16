@@ -51,6 +51,7 @@ class Tree {
             this.param = {
               getHash: {},
               setHash: {},
+              evalHash: {},
               bindHash: {},
               linkHash: {},
               linkedHash: {},
@@ -66,7 +67,12 @@ class Tree {
           }
           break;
         case Node.ANNOT:
-          this.res += ignore(node, true).res;
+          if(['@bind', '@eval', '@link'].indexOf(node.first().token().content()) > -1) {
+            this.res += ignore(node, true).res;
+          }
+          else {
+            this.res += join2(node);
+          }
           break;
         case Node.LEXBIND:
           if(inClass && node.parent().name() === Node.CLASSELEM) {
@@ -152,7 +158,7 @@ class Tree {
         let ids = [];
         if(prev) {
           prev = prev.first();
-          if (prev.name() === Node.ANNOT && prev.first().token().content() === '@bind') {
+          if (prev.name() === Node.ANNOT && ['@bind', '@eval'].indexOf(prev.first().token().content()) > -1) {
             ids.push(name);
           }
         }
@@ -201,6 +207,10 @@ class Tree {
             if(token === 'set' && annot === '@bind') {
               let name = first.next().first().first().token().content();
               this.param.bindHash[name] = true;
+            }
+            else if(token === 'set' && annot === '@eval') {
+              let name = first.next().first().first().token().content();
+              this.param.evalHash[name] = true;
             }
             else if(token === 'get' && annot === '@link') {
               let name = first.next().first().first().token().content();
@@ -293,7 +303,7 @@ class Tree {
       let prev = parent.prev();
       if(prev) {
         prev = prev.first();
-        if(prev.name() === Node.ANNOT && prev.first().token().content() === '@bind') {
+        if(prev.name() === Node.ANNOT && ['@bind', '@eval'].indexOf(prev.first().token().content()) > -1) {
           ids.push(name);
         }
       }
@@ -356,6 +366,9 @@ function hasCons(node) {
 function parseLex(param, name, item, annot) {
   if(annot === '@bind') {
     param.bindHash[name] = true;
+  }
+  else if(annot === '@eval') {
+    param.evalHash[name] = true;
   }
   else if(annot === '@link') {
     param.linkHash[name] = param.linkHash[name] || [];

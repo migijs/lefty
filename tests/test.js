@@ -160,6 +160,11 @@ describe('classes', function() {
     var res = lefty.parse(s);
     expect(res).to.eql('class A extends X{constructor(){}set b(v){this.__setBind("b",v)}get b(){ return this.__getBind("b")}render(){return migi.createVd("p",[],[this.b])}}migi.name(A,"A");');
   });
+  it('@eval', function() {
+    var s = 'class A extends migi.xxx{constructor(){}@eval set t(){}get t(){}render(){return <p>{this.t}</p>}}';
+    var res = lefty.parse(s);
+    expect(res).to.eql('class A extends migi.xxx{constructor(){} set t(){;this.__data("t")}get t(){}render(){return migi.createVd("p",[],[new migi.Obj("t",()=>{return(this.t)},true)])}}migi.name(A,"A");');
+  });
 });
 
 describe('linkage', function() {

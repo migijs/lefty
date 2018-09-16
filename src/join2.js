@@ -5,7 +5,6 @@ let Token = homunculus.getClass('token', 'jsx');
 let S = {};
 S[Token.LINE] = S[Token.COMMENT] = S[Token.BLANK] = true;
 
-let index;
 let res;
 
 function recursion(node, excludeLine) {

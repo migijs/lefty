@@ -19,7 +19,7 @@ exports.default = function (node, param, opt) {
       return false;
     }
     //有get需要有bind或link
-    return (param.bindHash || {}).hasOwnProperty(item) || (param.linkHash || {}).hasOwnProperty(item);
+    return (param.bindHash || {}).hasOwnProperty(item) || (param.evalHash || {}).hasOwnProperty(item) || (param.linkHash || {}).hasOwnProperty(item);
   });
   // 因特殊Array优化需要，this.v或者(..., this.v)形式的侦听变量
   // see https://github.com/migijs/migi/issues/29

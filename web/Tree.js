@@ -82,6 +82,7 @@ var Tree = function () {
               this.param = {
                 getHash: {},
                 setHash: {},
+                evalHash: {},
                 bindHash: {},
                 linkHash: {},
                 linkedHash: {}
@@ -97,7 +98,11 @@ var Tree = function () {
             }
             break;
           case Node.ANNOT:
-            this.res += (0, _ignore2.default)(node, true).res;
+            if (['@bind', '@eval', '@link'].indexOf(node.first().token().content()) > -1) {
+              this.res += (0, _ignore2.default)(node, true).res;
+            } else {
+              this.res += (0, _join2.default)(node);
+            }
             break;
           case Node.LEXBIND:
             if (inClass && node.parent().name() === Node.CLASSELEM) {
@@ -189,7 +194,7 @@ var Tree = function () {
           var ids = [];
           if (prev) {
             prev = prev.first();
-            if (prev.name() === Node.ANNOT && prev.first().token().content() === '@bind') {
+            if (prev.name() === Node.ANNOT && ['@bind', '@eval'].indexOf(prev.first().token().content()) > -1) {
               ids.push(name);
             }
           }
@@ -240,6 +245,9 @@ var Tree = function () {
               if (token === 'set' && annot === '@bind') {
                 var name = first.next().first().first().token().content();
                 this.param.bindHash[name] = true;
+              } else if (token === 'set' && annot === '@eval') {
+                var _name = first.next().first().first().token().content();
+                this.param.evalHash[_name] = true;
               } else if (token === 'get' && annot === '@link') {
                 (function () {
                   var name = first.next().first().first().token().content();
@@ -267,8 +275,8 @@ var Tree = function () {
           } else if (method && method.name() === Node.LEXBIND) {
             var _first = method.first();
             if (_first.name() === Node.BINDID) {
-              var _name = _first.first().token().content();
-              parseLex(this.param, _name, item, annot);
+              var _name2 = _first.first().token().content();
+              parseLex(this.param, _name2, item, annot);
             }
           }
           //连续2个
@@ -279,9 +287,9 @@ var Tree = function () {
               if (method && method.name() === Node.LEXBIND) {
                 var _first2 = method.first();
                 if (_first2.name() === Node.BINDID) {
-                  var _name2 = _first2.first().token().content();
-                  parseLex(this.param, _name2, item, annot);
-                  parseLex(this.param, _name2, item2, annot2);
+                  var _name3 = _first2.first().token().content();
+                  parseLex(this.param, _name3, item, annot);
+                  parseLex(this.param, _name3, item2, annot2);
                 }
               }
             }
@@ -289,19 +297,19 @@ var Tree = function () {
           var _first3 = item.first();
           if (_first3.isToken()) {
             var _token = _first3.token().content();
-            var _name3 = _first3.next().first().first().token().content();
+            var _name4 = _first3.next().first().first().token().content();
             if (_token === 'get') {
-              this.param.getHash[_name3] = true;
+              this.param.getHash[_name4] = true;
             } else if (_token === 'set') {
-              this.param.setHash[_name3] = true;
+              this.param.setHash[_name4] = true;
             }
           }
         } else if (item.name() === Node.LEXBIND) {
           var _first4 = item.first();
           if (_first4.name() === Node.BINDID) {
-            var _name4 = _first4.first().token().content();
-            this.param.getHash[_name4] = true;
-            this.param.setHash[_name4] = true;
+            var _name5 = _first4.first().token().content();
+            this.param.getHash[_name5] = true;
+            this.param.setHash[_name5] = true;
           }
         }
       }
@@ -333,7 +341,7 @@ var Tree = function () {
         var prev = parent.prev();
         if (prev) {
           prev = prev.first();
-          if (prev.name() === Node.ANNOT && prev.first().token().content() === '@bind') {
+          if (prev.name() === Node.ANNOT && ['@bind', '@eval'].indexOf(prev.first().token().content()) > -1) {
             ids.push(name);
           }
         }
@@ -398,6 +406,8 @@ function hasCons(node) {
 function parseLex(param, name, item, annot) {
   if (annot === '@bind') {
     param.bindHash[name] = true;
+  } else if (annot === '@eval') {
+    param.evalHash[name] = true;
   } else if (annot === '@link') {
     param.linkHash[name] = param.linkHash[name] || [];
     var params = item.leaf(2);
