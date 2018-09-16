@@ -166,9 +166,9 @@ describe('classes', function() {
     expect(res).to.eql('class A extends migi.xxx{constructor(){} set t(){;this.__data("t")}get t(){}render(){return migi.createVd("p",[],[new migi.Obj("t",()=>{return(this.t)},true)])}}migi.name(A,"A");');
   });
   it('@eval 2', function() {
-    var s = 'class A extends migi.xxx{constructor(){}@eval set t(){}get t(){}render(){return <p>{this.t}</p>}}';
+    var s = 'class A extends migi.xxx{constructor(){}@eval a render(){return <input value={this.a}/>}}';
     var res = lefty.parse(s);
-    expect(res).to.eql('class A extends migi.xxx{constructor(){} set t(v){this.__setBind("t",v);this.__data("t")}get t(){ return this.__getBind("t")}render(){return migi.createVd("input",[["value",new migi.Obj("t",()=>{return(this.t)},true)]])}}migi.name(A,"A");');
+    expect(res).to.eql('class A extends migi.xxx{constructor(){} set a(v){this.__setBind("a",v);this.__data("a")}get a(){ return this.__getBind("a")}render(){return migi.createVd("input",[["value",new migi.Obj("a",()=>{return(this.a)},true)]])}}migi.name(A,"A");');
   });
   it('@eval 3', function() {
     var s = 'class A extends migi.xxx{constructor(){}@eval a @bind b render(){return <input value={this.a[this.b]}/>}}';
@@ -181,9 +181,9 @@ describe('classes', function() {
     expect(res).to.eql('class A extends migi.xxx{constructor(){}@test set a(v){this.__setBind("a",v)}get a(){ return this.__getBind("a")}@ff b(){} render(){return migi.createVd("input",[["value",this.a[this.b]]])}}migi.name(A,"A");');
   });
   it('classexpr', function() {
-    var s = 'export default class A extends migi.xxx{constructor(){}@evala a render(){return <input value={this.a}/>}}';
+    var s = 'export default class A extends migi.xxx{constructor(){}@test a @ff b(){} render(){return <input value={this.a}/>}}';
     var res = lefty.parse(s);
-    expect(res).to.eql('class A extends migi.xxx{constructor(){}@test set a(v){this.__setBind("a",v)}get a(){ return this.__getBind("a")}@ff b(){} render(){return migi.createVd("input",[["value",this.a[this.b]]])}}migi.name(A,"A");');
+    expect(res).to.eql('export default class A extends migi.xxx{constructor(){}@test set a(v){this.__setBind("a",v)}get a(){ return this.__getBind("a")}@ff b(){} render(){return migi.createVd("input",[["value",this.a]])}}');
   });
 });
 
