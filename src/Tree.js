@@ -46,6 +46,9 @@ class Tree {
         case Node.CLASSDECL:
           inClass = this.klass(node);
           break;
+        case Node.CLASSEXPR:
+          inClass = this.klass(node);
+          break;
         case Node.CLASSBODY:
           if(inClass) {
             this.param = {
@@ -90,6 +93,9 @@ class Tree {
           break;
         case Node.CLASSDECL:
           this.appendName(node);
+          inClass = false;
+          break;
+        case Node.CLASSEXPR:
           inClass = false;
           break;
       }

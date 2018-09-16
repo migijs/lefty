@@ -180,6 +180,11 @@ describe('classes', function() {
     var res = lefty.parse(s);
     expect(res).to.eql('class A extends migi.xxx{constructor(){}@test set a(v){this.__setBind("a",v)}get a(){ return this.__getBind("a")}@ff b(){} render(){return migi.createVd("input",[["value",this.a[this.b]]])}}migi.name(A,"A");');
   });
+  it('classexpr', function() {
+    var s = 'export default class A extends migi.xxx{constructor(){}@evala a render(){return <input value={this.a}/>}}';
+    var res = lefty.parse(s);
+    expect(res).to.eql('class A extends migi.xxx{constructor(){}@test set a(v){this.__setBind("a",v)}get a(){ return this.__getBind("a")}@ff b(){} render(){return migi.createVd("input",[["value",this.a[this.b]]])}}migi.name(A,"A");');
+  });
 });
 
 describe('linkage', function() {
